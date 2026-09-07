@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm0024uScreen.Designer.vb
+    MCM0024U システム定義画面
+    DataGridView: MCM_MA_SYSTEMDataGridView
+    Buttons: UpdateButton（登録）
+    編集可能: SYSTEM_NM, BIKO のみ
+    ReadOnly: HYOJIJUN, SYSTEM_CD, SYSTEM_NK, 監査列
+  【レイアウト】MCM0015U（ブランドマスタ）に統一
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf" th:content="${_csrf != null} ? ${_csrf.token} : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM0024U システム定義</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css"/>
+    <link rel="stylesheet" th:href="@{/css/mcm0024u.css}" href="../css/mcm0024u.css"/>
+    <link rel="stylesheet" th:href="@{/css/custom-dialog.css}" href="../css/custom-dialog.css"/>
+    <script th:src="@{/js/common.js}"></script>
+
+    <style>
+        /* ===== MCM0015U 準拠 共通レイアウト ===== */
+        .header, .toolbar, .form-actions, button, .btn, .btn-close,
+        .mini-dialog, .custom-dialog {
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+        }
+        button, .btn, .btn-close { cursor: pointer; }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 30px; padding: 0 10px; box-sizing: border-box;
+        }
+        .header .header-center { flex: 1; text-align: center; }
+        .header .header-center h1 {
+            margin: 0; font-size: 18px; font-weight: bold; color: #fff;
+            letter-spacing: 2px; line-height: 30px;
+        }
+        .header .header-left, .header .header-right { display: flex; align-items: center; }
+
+        .grid-container {
+            height: calc(100vh - 250px);
+            overflow-y: auto; overflow-x: auto;
+            border: 1px solid #d5dbdb; position: relative;
+        }
+        .data-grid { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; }
+        .data-grid thead th {
+            position: -webkit-sticky; position: sticky; top: 0; z-index: 5;
+            background-color: #eef2f5;
+            box-shadow: inset 0 -1px 0 #b0bec5, inset 0 1px 0 #b0bec5;
+            text-align: left;
+        }
+        .data-grid th, .data-grid td {
+            border-right: 1px solid #d5dbdb; border-bottom: 1px solid #d5dbdb; padding: 4px 6px;
+        }
+        .data-grid th:first-child, .data-grid td:first-child { border-left: 1px solid #d5dbdb; }
+
+        .data-grid thead th,
+        .data-grid td.col-select,
+        .data-grid td.col-readonly {
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+            cursor: default;
+        }
+        .data-grid td { padding: 0; }
+        .data-grid thead th { padding: 4px 6px; }
+        .data-grid td.col-readonly { padding: 4px 6px; }
+        .data-grid .grid-input {
+            box-sizing: border-box; width: 100%;
+            height: 100%; min-height: 26px;
+            border: none; margin: 0; padding: 3px 6px;
+            background: transparent;
+        }
+        .data-grid .grid-input:focus { outline: 1px solid #7eb4ea; outline-offset: -1px; }
+        .data-grid td.col-select { padding: 2px; }
+        .data-grid .input-right { text-align: right; }
+        .data-grid .input-left  { text-align: left; }
+        .data-grid .col-select { text-align: center; }
+
+        .data-grid td.col-readonly {
+            background-color: #d9d9d9; color: #333; font-size: 11px; white-space: nowrap;
+        }
+        .data-grid tr.row-deleted td {
+            background-color: #fadbd8 !important; text-decoration: line-through; opacity: 0.6;
+        }
+
+        .data-grid thead th.col-required { color: #000; }
+        .data-grid td.col-required { background-color: #e3f2fd; }
+        .data-grid td.col-required .grid-input { background-color: #e3f2fd; }
+
+        .data-grid .row-select-label { display: block; width: 100%; height: 100%; cursor: pointer; line-height: 1.7; }
+        .data-grid .row-select { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; pointer-events: none; }
+        .data-grid .row-marker::before { content: ""; display: inline-block; min-width: 1em; }
+        .data-grid tr.row-active .row-marker::before { content: "\25B6"; color: #000000; font-size: 13px; }
+
+        .data-grid tr.row-selected td { background-color: #bdbdbd !important; }
+        .data-grid tr.row-selected td .grid-input { background-color: #bdbdbd !important; }
+
+        .data-grid input.field-error { background-color: #ffebee !important; }
+
+        /* Excel風2クリック編集：選択セル（MCM0015U 準拠） */
+        .data-grid td.cell-selected { background-color: #e0e0e0 !important; outline: 2px solid #7a7a7a; outline-offset: -2px; }
+        .data-grid td.cell-selected .grid-input { background-color: transparent !important; }
+
+        .data-grid input[type="number"]::-webkit-outer-spin-button,
+        .data-grid input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .data-grid input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+        /* ========== 横スクロール固定列（#155） ========== */
+        /* systemTable: 選択列(36px), No(50px), システムCD(120px), システム名称(180px) */
+        #systemTable th:nth-child(1), #systemTable td:nth-of-type(1) { position: sticky; left: var(--mcm-fixed-left-1, 0px);   z-index: 3; background: #fff; overflow: hidden; }
+        #systemTable th:nth-child(2), #systemTable td:nth-of-type(2) { position: sticky; left: var(--mcm-fixed-left-2, 36px);  z-index: 3; background: #fff; overflow: hidden; }
+        #systemTable th:nth-child(3), #systemTable td:nth-of-type(3) { position: sticky; left: var(--mcm-fixed-left-3, 86px);  z-index: 3; background: #fff; overflow: hidden; }
+        #systemTable th:nth-child(4), #systemTable td:nth-of-type(4) { position: sticky; left: var(--mcm-fixed-left-4, 206px); z-index: 3; background: #fff; overflow: hidden; box-shadow: 2px 0 0 rgba(0,0,0,.08); }
+        #systemTable thead th:nth-child(1),
+        #systemTable thead th:nth-child(2),
+        #systemTable thead th:nth-child(3),
+        #systemTable thead th:nth-child(4) { z-index: 20; background: #eef2f5; }
+
+        /* 必須項目の背景色を固定列でも維持 */
+        #systemTable td:nth-of-type(2),
+        #systemTable td:nth-of-type(3),
+        #systemTable td:nth-of-type(4) { background-color: #e3f2fd; }
+
+        .btn-close {
+            display: inline-block; padding: 2px 12px; font-size: 12px; color: #000;
+            text-decoration: none; background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; cursor: pointer; line-height: 1.6;
+        }
+        .btn-close:hover  { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .btn-close:active { background-color: #cce4f7; border-color: #569de5; }
+
+        .toolbar { display: flex !important; justify-content: flex-end !important; gap: 6px; }
+
+        .mini-dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .mini-dialog {
+            background: #fbfbfb; min-width: 300px; max-width: 90%;
+            border: 1px solid #7a7a7a; border-radius: 6px; overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,.35);
+            font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+        }
+        .mini-dialog-head {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #ffffff; color: #000; padding: 6px 8px 6px 12px;
+            font-size: 12px; font-weight: normal; border-bottom: 1px solid #e5e5e5;
+        }
+        .mini-dialog-head .mini-close {
+            border: none; background: transparent; font-size: 15px; line-height: 1;
+            color: #444; cursor: pointer; padding: 2px 6px; border-radius: 3px;
+        }
+        .mini-dialog-head .mini-close:hover { background: #e81123; color: #fff; }
+        .mini-dialog-body {
+            display: flex; align-items: center; gap: 12px;
+            padding: 20px 16px; background: #fbfbfb; white-space: pre-line;
+        }
+        .mini-dialog-body .mini-icon { flex: 0 0 auto; }
+        .mini-dialog-body .mini-msg { color: #000000; font-size: 13px; }
+        .mini-dialog-foot { padding: 10px 16px 14px; text-align: right; background: #fbfbfb; }
+        .mini-dialog-foot button {
+            min-width: 84px; padding: 5px 12px; font-size: 12px;
+            background: #e1e1e1; border: 1px solid #adadad; border-radius: 3px; cursor: pointer;
+        }
+        .mini-dialog-foot button:hover { background: #e5f1fb; border-color: #0078d4; }
+        .mini-dialog-foot button:focus { outline: 1px solid #0078d4; outline-offset: 1px; }
+        /* #155: 削除行も不透明にし、背後のスクロール列を隠す。削除色と取消線は維持。 */
+        table.data-grid[data-mcm-fixed-columns] tr.row-deleted,
+        table.data-grid[data-mcm-fixed-columns] tr.row-deleted td { opacity: 1; }
+    </style>
+    <script th:src="@{/js/mcm-fixed-columns.js}" defer></script>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center"><h1>システム定義（MCM0024U）</h1></div>
+        <div class="header-right"><a class="btn-close" id="btnCloseLink" th:href="@{/menu}" href="/mcm/menu">閉じる</a></div>
+    </div>
+
+    <!-- メッセージ -->
+    <div th:if="${message}" class="message success" th:text="${message}"></div>
+    <div th:if="${error}" class="message error" th:text="${error}"></div>
+    <div th:if="${errors}">
+        <ul class="message error">
+            <li th:each="err : ${errors}" th:text="${err}"></li>
+        </ul>
+    </div>
+
+    <!-- データグリッド -->
+    <form id="updateForm" th:action="@{/mcm0024u/update}" method="post" th:object="${form}">
+
+        <div class="grid-container">
+            <table id="systemTable" data-mcm-fixed-columns="4" class="data-grid" style="visibility:hidden;">
+                <colgroup>
+                    <col style="width:36px"/>
+                    <col style="width:50px"/>
+                    <col style="width:120px"/>
+                    <col style="width:180px"/>
+                    <col style="width:180px"/>
+                    <col style="width:380px"/>
+                    <col style="width:140px"/>
+                    <col style="width:100px"/>
+                    <col style="width:140px"/>
+                    <col style="width:100px"/>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="col-select"></th>
+                        <th class="col-no col-frozen col-readonly">No</th>
+                        <th class="col-cd col-frozen col-readonly">システムコード</th>
+                        <th class="col-nk col-frozen col-readonly">システム名称</th>
+                        <th class="col-nm col-required">システム値</th>
+                        <th class="col-biko">備考</th>
+                        <th class="col-readonly">作成日</th>
+                        <th class="col-readonly">作成者</th>
+                        <th class="col-readonly">更新日</th>
+                        <th class="col-readonly">更新者</th>
+                    </tr>
+                </thead>
+                <tbody id="gridBody">
+                    <tr th:each="row, stat : *{rows}" th:data-index="${stat.index}">
+                        <!-- 行選択マーカー（MCM0015U 準拠） -->
+                        <td class="col-select">
+                            <label class="row-select-label">
+                                <input type="radio" name="rowSelect" class="row-select"/>
+                                <span class="row-marker"></span>
+                            </label>
+                        </td>
+                        <!-- No（表示順）— HYOJIJUN（readonly, frozen） -->
+                        <!-- ★修正: th:text をこのtdに直接付けると子要素(hidden 4項目)が消去され、
+                             主キー(systemId)がサーバーへ送信されず更新処理がスキップされる不具合があった。
+                             表示用テキストは子のspanに分離し、hiddenフィールドは残す。 -->
+                        <td class="col-no col-frozen col-readonly">
+                            <span th:text="${row.hyojijun}"></span>
+                            <input type="hidden" th:field="*{rows[__${stat.index}__].systemId}"/>
+                            <input type="hidden" th:field="*{rows[__${stat.index}__].systemCd}"/>
+                            <input type="hidden" th:field="*{rows[__${stat.index}__].systemNk}"/>
+                            <input type="hidden" th:field="*{rows[__${stat.index}__].hyojijun}"/>
+                        </td>
+                        <!-- システムコード — SYSTEM_CD（readonly, frozen） -->
+                        <td class="col-cd col-frozen col-readonly" th:text="${row.systemCd}"></td>
+                        <!-- システム名称 — SYSTEM_NK（readonly, frozen） -->
+                        <td class="col-nk col-frozen col-readonly" th:text="${row.systemNk}"></td>
+                        <!-- システム値 — SYSTEM_NM（editable, required, right-aligned） -->
+                        <td class="col-nm col-required">
+                            <input type="text" th:field="*{rows[__${stat.index}__].systemNm}"
+                                   class="grid-input input-right" th:disabled="${isInspection}"
+                                   onchange="markModified(this)"/>
+                        </td>
+                        <!-- 備考 — BIKO（editable） -->
+                        <td class="col-biko">
+                            <input type="text" th:field="*{rows[__${stat.index}__].biko}"
+                                   class="grid-input input-left"
+                                   th:disabled="${isInspection}" onchange="markModified(this)"/>
+                        </td>
+                        <!-- 作成日 — CREATED_DT（readonly） -->
+                        <td class="col-readonly" th:text="${row.createdDt}"></td>
+                        <!-- 作成者 — CREATED_BY（readonly） -->
+                        <td class="col-readonly" th:text="${row.createdBy}"></td>
+                        <!-- 更新日 — LASTUPDATE_DT（readonly） -->
+                        <td class="col-readonly" th:text="${row.lastupdateDt}"></td>
+                        <!-- 更新者 — LASTUPDATE_BY（readonly） -->
+                        <td class="col-readonly" th:text="${row.lastupdateBy}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(form.rows)}">
+                        <td colspan="10" class="no-data">データがありません</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-actions" th:unless="${isInspection}">
+            <button type="button" id="btnUpdate" class="btn btn-primary">登録</button>
+        </div>
+    </form>
+
+    <!-- 確認用ダイアログ（? アイコン・OK/キャンセル） -->
+    <div id="confirmDialogOverlay" class="mini-dialog-overlay">
+        <div class="mini-dialog">
+            <div class="mini-dialog-head">
+                <span>確認</span>
+                <button type="button" class="mini-close" id="confirmCloseX" aria-label="閉じる">✕</button>
+            </div>
+            <div class="mini-dialog-body">
+                <span class="mini-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="15" fill="#1a6fd4"/>
+                        <text x="16" y="23" text-anchor="middle" font-family="Segoe UI, sans-serif"
+                              font-size="20" font-weight="bold" fill="#ffffff">?</text>
+                    </svg>
+                </span>
+                <span class="mini-msg" id="confirmMsg"></span>
+            </div>
+            <div class="mini-dialog-foot">
+                <button type="button" id="confirmOk">OK</button>
+                <button type="button" id="confirmCancel">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="miniDialogOverlay" class="mini-dialog-overlay">
+        <div class="mini-dialog">
+            <div class="mini-dialog-head">
+                <span id="miniDialogTitle">入力エラー</span>
+                <button type="button" class="mini-close" id="miniDialogCloseX" aria-label="閉じる">✕</button>
+            </div>
+            <div class="mini-dialog-body">
+                <span class="mini-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="15" fill="#1a6fd4"/>
+                        <circle cx="16" cy="9" r="2" fill="#ffffff"/>
+                        <rect x="14" y="13" width="4" height="11" rx="1" fill="#ffffff"/>
+                    </svg>
+                </span>
+                <span class="mini-msg" id="miniDialogMsg"></span>
+            </div>
+            <div class="mini-dialog-foot"><button type="button" id="miniDialogOk">OK</button></div>
+        </div>
+    </div>
+
+
+    <script th:inline="javascript">
+        "use strict";
+
+        /* ===== MCM0015U 準拠 ミニダイアログ ===== */
+		function showError(msg, onClose) {
+		    var ov = document.getElementById("miniDialogOverlay");
+		    var body = document.getElementById("miniDialogMsg");
+		    var okBtn = document.getElementById("miniDialogOk");
+		    var closeX = document.getElementById("miniDialogCloseX");
+		    var title = document.getElementById("miniDialogTitle");
+		    if (title) title.textContent = "入力エラー";
+		    if (ov && body && okBtn) {
+		        body.textContent = msg; ov.style.display = "flex";
+		        function close() { ov.style.display = "none"; okBtn.onclick = null; if (closeX) closeX.onclick = null; if (onClose) onClose(); }
+		        okBtn.onclick = close; if (closeX) closeX.onclick = close;
+		        setTimeout(function () { okBtn.focus(); }, 50);
+		    } else { alert(msg); if (onClose) onClose(); }
+		}
+        /* 【MCM0015U準拠】完了メッセージ：入力エラー用miniDialogを流用し、タイトルを「完了」にして表示する */
+        function showInfo(msg, onClose) {
+            var ov = document.getElementById("miniDialogOverlay");
+            var body = document.getElementById("miniDialogMsg");
+            var okBtn = document.getElementById("miniDialogOk");
+            var closeX = document.getElementById("miniDialogCloseX");
+            var title = document.getElementById("miniDialogTitle");
+            if (title) title.textContent = "完了";
+            if (ov && body && okBtn) {
+                body.textContent = msg || "登録処理が完了しました。"; ov.style.display = "flex";
+                function close() {
+                    ov.style.display = "none"; okBtn.onclick = null; if (closeX) closeX.onclick = null;
+                    if (onClose) onClose();
+                }
+                okBtn.onclick = close; if (closeX) closeX.onclick = close;
+                setTimeout(function () { okBtn.focus(); }, 50);
+            } else { alert(msg || "登録処理が完了しました。"); if (onClose) onClose(); }
+        }
+        function showConfirm(msg, onOk) {
+            var ov = document.getElementById("confirmDialogOverlay");
+            var body = document.getElementById("confirmMsg");
+            var okBtn = document.getElementById("confirmOk");
+            var cancelBtn = document.getElementById("confirmCancel");
+            var closeX = document.getElementById("confirmCloseX");
+            if (ov && body && okBtn && cancelBtn) {
+                body.textContent = msg; ov.style.display = "flex";
+                function cleanup() { ov.style.display = "none"; okBtn.onclick = null; cancelBtn.onclick = null; if (closeX) closeX.onclick = null; }
+                okBtn.onclick = function () { cleanup(); if (onOk) onOk(); };
+                cancelBtn.onclick = function () { cleanup(); };
+                if (closeX) closeX.onclick = function () { cleanup(); };
+                setTimeout(function () { okBtn.focus(); }, 50);
+            } else { if (window.confirm(msg) && onOk) onOk(); }
+        }
+
+        var isModified = false;
+        function markModified(el) {
+            isModified = true;
+            if (el) el.classList.remove("field-error");
+        }
+        function hasUnsavedChanges() { return isModified; }
+        function isEmpty(el) { return !el || el.value === "" || el.value == null; }
+
+		/*
+		 * ★入力エラーのダイアログをOKで閉じたとき、不正な入力値を破棄して元の値へ戻す。
+		 *   （旧MCMのDataGridViewセル検証と同じ挙動：不正値は確定されず元値へ復帰する）
+		 *   th:field が value 属性へ設定した初期値が input.defaultValue に保持されて
+		 *   いるため、それを現在値へ書き戻す。
+		 */
+		function revertInput(inp) {
+		    if (!inp) return;
+		    inp.value = inp.defaultValue;
+		    inp.classList.remove("field-error");
+		}
+		function revertErrorInputs(scope) {
+		    var root = scope || document.getElementById("gridBody");
+		    if (!root) return;
+		    root.querySelectorAll("input.field-error").forEach(function (inp) { revertInput(inp); });
+		}
+
+        /* ===== 行選択（▶マーカー） ===== */
+        function setActiveRow(tr) {
+            document.querySelectorAll("#gridBody tr.row-active").forEach(function (r) { r.classList.remove("row-active"); });
+            if (tr) tr.classList.add("row-active");
+        }
+        document.addEventListener("focusin", function (e) {
+            var tr = e.target.closest ? e.target.closest("#gridBody tr") : null;
+            if (tr) setActiveRow(tr);
+        });
+        /* 左端▶セルクリックで行選択（グレー）: MCM0015U 準拠 */
+        document.addEventListener("click", function (e) {
+            var lbl = e.target.closest ? e.target.closest("#gridBody .row-select-label") : null;
+            if (!lbl) return;
+            var tr = lbl.closest("tr");
+            document.querySelectorAll("#gridBody tr.row-selected").forEach(function (r) { if (r !== tr) r.classList.remove("row-selected"); });
+            if (tr) { tr.classList.add("row-selected"); setActiveRow(tr); }
+        });
+        document.addEventListener("keydown", function (e) {
+            var t = e.target;
+            if (t && t.matches && t.matches('input[type="number"].no-spin')) {
+                if (e.key === "ArrowUp" || e.key === "ArrowDown") e.preventDefault();
+            }
+        }, true);
+
+        /* ===== マウスホイールによる数値増減の抑止（MCM0015U 準拠） ===== */
+        document.addEventListener("wheel", function (e) {
+            var t = document.activeElement;
+            if (t && t.matches && t.matches('input[type="number"].no-spin')) e.preventDefault();
+        }, { passive: false });
+
+		document.addEventListener("input", function (e) {
+		    var inp = e.target;
+
+		    if (!inp || !inp.classList || !inp.classList.contains("field-error")) {
+		        return;
+		    }
+
+		    var lengthError = checkCellLength(inp);
+
+		    if (!lengthError && inp.value !== "") {
+		        inp.classList.remove("field-error");
+		    }
+		});
+
+        /* ===== 閉じる ===== */
+        var btnCloseLink = document.getElementById("btnCloseLink");
+        if (btnCloseLink) {
+            btnCloseLink.addEventListener("click", function (e) {
+                if (hasUnsavedChanges()) {
+                    e.preventDefault();
+                    var href = btnCloseLink.getAttribute("href");
+                    showConfirm("データが変更されています。破棄されますがよろしいですか？", function () {
+                        window.location.href = href;
+                    });
+                }
+            });
+        }
+
+        /* ===== 桁数・文字数チェック（VB CPValidate 相当）===== */
+        var LENGTH_RULES = [
+            { pattern: /\.hyojijun$/,  maxLen: 6,    label: "No",  decimal: true },
+            { pattern: /\.biko$/,      maxLen: 4000, label: "備考" }
+        ];
+        function checkCellLength(inp) {
+            if (!inp || inp.value === "") return null;
+            var name = inp.name || "";
+            for (var i = 0; i < LENGTH_RULES.length; i++) {
+                var rule = LENGTH_RULES[i];
+                if (!rule.pattern.test(name)) continue;
+                if (rule.decimal) {
+                    var num = parseFloat(inp.value);
+                    if (!isNaN(num) && Math.abs(Math.trunc(num)) >= Math.pow(10, rule.maxLen))
+                        return rule.label + "は" + rule.maxLen + "桁以下で入力してください。";
+                } else if (inp.value.length > rule.maxLen) {
+                    return rule.label + "は" + rule.maxLen + "文字以内で入力してください。";
+                }
+                return null;
+            }
+            return null;
+        }
+
+        /*
+         * ★システム値（SYSTEM_NM）は DB上 NUMBER 型のため数値必須。
+         *   VB.NET版はDataGridViewのDecimal型カラムバインドにより、セルを離れる時点で
+         *   非数値入力を自動的にブロックしていた（型変換エラーで暗黙的に行移動不可）。
+         *   Web版はテキスト入力のためこの自動ブロックが働かず、行移動時チェックが
+         *   実装されていなかった（登録時のみサーバー側でエラーになっていた）。
+         *   ここで元仕様に合わせ、行移動時にも数値チェックを行う。
+         */
+        function checkRowSystemNm(tr) {
+            if (!tr) return null;
+            var el = tr.querySelector(".col-nm .grid-input");
+            if (!el || el.value === "") return null;
+            if (isNaN(parseFloat(el.value)) || !/^-?\d+(\.\d+)?$/.test(el.value.trim())) {
+                return { msg: "システム値は数値で入力してください。", inp: el };
+            }
+            return null;
+        }
+
+        /* ===== 登録ボタン ===== */
+        var btnUpdate = document.getElementById("btnUpdate");
+        var updForm = document.getElementById("updateForm");
+        if (btnUpdate && updForm) {
+            btnUpdate.addEventListener("click", function (e) {
+                e.stopImmediatePropagation(); e.preventDefault();
+                var tbody = document.getElementById("gridBody");
+                var rows = tbody ? tbody.querySelectorAll("tr") : [];
+                /*
+                 * 【性能改善】必須チェック（システム名称）と桁数チェックを
+                 *   1回の行ループ内で行い、全行の走査を2回から1回に削減する。
+                 */
+                var firstErrorInput = null, hasError = false;
+                var lenErr = null, lenErrInp = null;
+				var numErr = null, numErrInp = null;
+                rows.forEach(function (tr) {
+                    var el = tr.querySelector('.col-nm .grid-input');
+                    if (el) {
+                        el.classList.remove("field-error");
+                        if (isEmpty(el)) { hasError = true; el.classList.add("field-error"); if (!firstErrorInput) firstErrorInput = el; }
+                    }
+					if (!numErr) {
+						var numCheck = checkRowSystemNm(tr);
+						if (numCheck) { numErr = numCheck.msg; numErrInp = numCheck.inp; numErrInp.classList.add("field-error"); }
+					}
+                    if (lenErr) return;
+                    var st = tr.querySelector(".row-status");
+                    if (st && String(st.value || "") === "deleted") return;
+                    tr.querySelectorAll("input.grid-input, select.grid-input").forEach(function (inp) {
+                        if (lenErr || !inp.name) return;
+                        var msg = checkCellLength(inp);
+                        if (msg) { inp.classList.add("field-error"); lenErr = msg; lenErrInp = inp; }
+                    });
+                });
+				if (hasError) {
+				    showError("システム値は数値で入力してください。", function () { revertErrorInputs(); });
+				    return;
+				}
+				if (numErr) {
+					showError(numErr, function () { revertErrorInputs(); });
+					return;
+				}
+				if (!hasUnsavedChanges()) { showError("値が変更されていません。"); return; }
+				if (lenErr) {
+				    showError(lenErr, function () { revertErrorInputs(); });
+				    return;
+				}
+                showConfirm("登録を実施します。よろしいですか？", function () {
+                    submitUpdateAjax();
+                });
+            }, true);
+        }
+
+        /*
+         * 【性能改善（MCM0015U準拠）】行データをname属性(rows[n].xxx)から読み取り、
+         *   JSONオブジェクトとして構築する。従来の application/x-www-form-urlencoded
+         *   形式の通常フォーム送信では、行数の多いフォームでSpring MVCのバインディングが
+         *   極端に遅くなる問題があった。
+         */
+        function buildRowsPayload() {
+            var rows = [];
+            var tbody = document.getElementById("gridBody");
+            if (!tbody) return rows;
+            tbody.querySelectorAll("tr").forEach(function (tr) {
+                var row = {};
+                var hasField = false;
+                tr.querySelectorAll("[name^='rows[']").forEach(function (el) {
+                    if (el.disabled) return;
+                    var m = el.name.match(/^rows\[\d+\]\.(.+)$/);
+                    if (!m) return;
+                    row[m[1]] = el.value;
+                    hasField = true;
+                });
+                if (hasField) rows.push(row);
+            });
+            return rows;
+        }
+
+        function submitUpdateAjax() {
+            if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+            var payload = { rows: buildRowsPayload() };
+            var headers = { "X-Requested-With": "XMLHttpRequest", "Content-Type": "application/json" };
+            var mh = document.querySelector('meta[name="_csrf_header"]');
+            var mt = document.querySelector('meta[name="_csrf"]');
+            if (mh && mt && mh.content && mt.content) headers[mh.content] = mt.content;
+
+            window.McmCommon && window.McmCommon.showProgress();
+            fetch(updForm.getAttribute("action"), {
+                method: "POST", headers: headers, body: JSON.stringify(payload)
+            }).then(function (res) {
+                if (!res.ok) {
+                    return res.json().catch(function () { return null; }).then(function (data) {
+                        showError((data && data.message) ? data.message : "登録に失敗しました。時間をおいて再度お試しください。");
+                    });
+                }
+                return res.json().catch(function () { return {}; }).then(function (data) {
+                    showInfo((data && data.message) ? data.message : "更新しました", function () {
+                        window.location.reload();
+                    });
+                });
+            }).catch(function () {
+                showError("通信エラーが発生しました。時間をおいて再度お試しください。");
+            }).finally(function () {
+                window.McmCommon && window.McmCommon.hideProgress();
+            });
+        }
+
+        /* ============ 列幅リサイズ（MCM0015U index.html!A820-A892 準拠） ============ */
+        /* 掴んだ列だけpx変更／備考(index5)が調整役・ウィンドウ追従 */
+        (function setupColumnResize() {
+            var table = document.getElementById("systemTable");
+            if (!table) return;
+            var container = table.parentElement; // .grid-container
+            var cols = table.querySelectorAll("colgroup col");
+            if (!cols.length) { table.style.visibility = "visible"; return; }
+
+            function pxOf(col) {
+                var w = parseFloat(col.style.width);
+                if (!isNaN(w)) return w;
+                return col.getBoundingClientRect().width;
+            }
+            // 初期の列幅（colgroupのwidth）を控える＝リセット基準
+            var baseWidths = [];
+            cols.forEach(function (c) { baseWidths.push(Math.round(pxOf(c))); });
+            var widths = baseWidths.slice();
+            var LAST = widths.length - 1; // 備考列＝調整役
+
+            function applyWidths() {
+                var total = 0;
+                widths.forEach(function (w, i) { cols[i].style.width = w + "px"; total += w; });
+                table.style.width = total + "px";
+            }
+
+            // 初期基準に戻し、コンテナ幅に満たなければ余りを備考に足して画面いっぱいに
+            function fitInitial() {
+                widths = baseWidths.slice();
+                var avail = container.clientWidth - 2;
+                var total = widths.reduce(function (a, b) { return a + b; }, 0);
+                if (total < avail) { widths[LAST] += (avail - total); }
+                applyWidths();
+            }
+            fitInitial();
+            table.style.visibility = "visible"; // 列幅確定後に表示（初期チラつき防止）
+
+            // ウィンドウをリサイズしたら、列幅を初期サイズに戻して再フィット
+            var rzTimer = null;
+            window.addEventListener("resize", function () {
+                if (rzTimer) clearTimeout(rzTimer);
+                rzTimer = setTimeout(fitInitial, 100);
+            });
+
+            var ths = table.querySelectorAll("thead th");
+            ths.forEach(function (th, idx) {
+                // stickyもリサイズハンドルの配置基準になるため、見出し固定を維持する。
+                th.style.position = "sticky";
+                var handle = document.createElement("span");
+                handle.className = "col-resizer";
+                th.appendChild(handle);
+                var startX = 0, startW = 0;
+                function onMove(ev) {
+                    var x = ev.touches ? ev.touches[0].clientX : ev.clientX;
+                    widths[idx] = Math.max(40, Math.round(startW + (x - startX)));
+                    applyWidths();
+                }
+                function onUp() {
+                    document.removeEventListener("mousemove", onMove);
+                    document.removeEventListener("mouseup", onUp);
+                    document.removeEventListener("touchmove", onMove);
+                    document.removeEventListener("touchend", onUp);
+                    document.body.classList.remove("col-resizing");
+                }
+                function onDown(ev) {
+                    ev.preventDefault(); ev.stopPropagation();
+                    startX = ev.touches ? ev.touches[0].clientX : ev.clientX;
+                    startW = widths[idx];
+                    document.body.classList.add("col-resizing");
+                    document.addEventListener("mousemove", onMove);
+                    document.addEventListener("mouseup", onUp);
+                    document.addEventListener("touchmove", onMove, { passive: false });
+                    document.addEventListener("touchend", onUp);
+                }
+                handle.addEventListener("mousedown", onDown);
+                handle.addEventListener("touchstart", onDown, { passive: false });
+            });
+        })();
+
+        /* ===== Excel風 2クリック編集：1回目=セル選択 / 2回目=編集（MCM0015U 準拠） ===== */
+        /* 本画面は編集可能列がシステム名称／備考の2列のみのため、その2列が対象 */
+        (function twoClickEdit(){
+            var tbody=document.getElementById("gridBody");
+            if(!tbody) return;
+            var selTd=null, editing=null;
+            /* ★行移動判定用。selTdはstartEdit()時にclearSel()でnullになるため、
+               「前にいた行」を別途保持しておく（MCM0023U 準拠）。 */
+            var lastRow=null;
+			var lastTd=null;
+			var guardBlockedClick=false;
+
+            function editableInputs(){ return tbody.querySelectorAll(".grid-input:not([disabled])"); }
+            function clearSelectedHighlight(){
+                tbody.querySelectorAll("tr.row-selected").forEach(function(r){ r.classList.remove("row-selected"); });
+                tbody.querySelectorAll(".row-select:checked").forEach(function(rb){ rb.checked = false; });
+            }
+            function clearSel(){
+                tbody.querySelectorAll("td.cell-selected").forEach(function(td){td.classList.remove("cell-selected");});
+                selTd=null;
+            }
+            function stopEdit(){
+                if(editing){ try{editing.blur();}catch(e){} editing=null; }
+                editableInputs().forEach(function(i){ i.setAttribute("readonly","readonly"); });
+                try{ var sel=window.getSelection(); if(sel) sel.removeAllRanges(); }catch(e){}
+            }
+            /* ★行移動前にシステム値の数値チェックを行う。エラー解消まで行移動を止める。
+               newTr が省略された場合（セル選択解除時など）は常にチェックする。 */
+			   function guardRowLeave(newTr,newTd){
+			       if(!lastRow || !document.body.contains(lastRow)) return true;
+				   if(newTd && newTd===lastTd) return true;
+			       if(newTr && lastRow===newTr) return true;
+
+				   var systemNmErr = checkRowSystemNm(lastRow);
+				   if(systemNmErr){
+				       if(systemNmErr.inp){ systemNmErr.inp.classList.add("field-error"); }
+				       showError(systemNmErr.msg, function(){ revertInput(systemNmErr.inp); });
+				       return false;
+				   }
+
+				   var lengthErr = null;
+				   var lengthErrInp = null;
+
+				   lastRow.querySelectorAll("input.grid-input, select.grid-input").forEach(function(inp){
+				       if(lengthErr || !inp.name) return;
+
+				       var msg = checkCellLength(inp);
+				       if(msg){
+				           lengthErr = msg;
+				           lengthErrInp = inp;
+				       }
+				   });
+
+				   if(lengthErr){
+				       if(lengthErrInp){ lengthErrInp.classList.add("field-error"); }
+				       showError(lengthErr, function(){ revertInput(lengthErrInp); });
+				       return false;
+				   }
+
+				   return true;
+				}
+            function selectTd(td){
+                if(!td) return;
+                var newTr = td.closest("tr");
+                if(!guardRowLeave(newTr)) return;
+                clearSelectedHighlight();   // 左端▶以外を触ったら行選択(グレー)を解除
+                stopEdit(); clearSel();
+                selTd=td; td.classList.add("cell-selected");
+                lastRow=newTr;
+				lastTd=td;
+                setActiveRow(newTr);
+            }
+            function startEdit(td, typedChar){
+                if(!td) return;
+                var inp=td.querySelector(".grid-input:not([disabled])"); if(!inp) return;
+                var newTr = td.closest("tr");
+                if(!guardRowLeave(newTr)) return;
+                clearSelectedHighlight();   // 左端▶以外を触ったら行選択(グレー)を解除
+                clearSel();
+                inp.removeAttribute("readonly"); editing=inp;
+                lastRow=newTr;
+				lastTd=td;
+                if(typedChar!=null){
+                    inp.value=typedChar;
+                    try{ inp.dispatchEvent(new Event("input",{bubbles:true})); }catch(e){}
+                    markModified(inp);
+                }
+                setTimeout(function(){
+                    inp.focus({preventScroll:true});
+                    if(typedChar!=null){ var L2=inp.value.length; try{inp.setSelectionRange(L2,L2);}catch(e){} }
+                    else { try{inp.select();}catch(e){} }
+                },0);
+            }
+            function isCellTd(td){ return td && td.querySelector && td.querySelector(".grid-input:not([disabled])"); }
+
+            // 初期状態は全て readonly（クリックしただけでは編集不可）
+            editableInputs().forEach(function(i){ i.setAttribute("readonly","readonly"); });
+
+            // === ROW-DESELECT-GUARD ===
+            // 左端▶(row-select-label)以外を押したら「行選択グレー」を解除する。
+            // 入力欄(.grid-input)を持たないセル(readonly列/チェック列/▶列)を押したら「セル選択グレー」も解除する。
+            // キャプチャフェーズなので、2クリック編集の mousedown や必須チェックの early return より先に走る。
+            function deselectRowOnOtherClick(e){
+                var t = e.target;
+                if(!t || typeof t.closest !== "function") return;
+				var inEditableCell = !!t.closest(".grid-input:not([disabled])");
+				if(!inEditableCell){
+					if(e.type === "mousedown"){
+						var newTr = t.closest("tr");
+						var newTd = t.closest("td");
+						if(!guardRowLeave(newTr, newTd)){
+							guardBlockedClick = true;
+							e.preventDefault(); e.stopImmediatePropagation();
+							return;
+						}
+						guardBlockedClick = false;
+						} else if(e.type === "click"){
+						if(guardBlockedClick){
+							guardBlockedClick = false;
+							e.preventDefault(); e.stopImmediatePropagation();
+							return;
+						}
+					}
+				}
+                var onMarker = t.closest(".row-select-label") || t.closest(".row-select");
+                if(!onMarker) clearSelectedHighlight();                 // ▶以外 → 行選択グレーを解除
+                if(onMarker || !t.closest(".grid-input:not([disabled])")){
+                    stopEdit(); clearSel();                        // 入力欄の無いセル/▶列 → セル選択グレーも解除
+                }
+            }
+            tbody.addEventListener("mousedown", deselectRowOnOtherClick, true);
+            tbody.addEventListener("click", deselectRowOnOtherClick, true);
+            // === /ROW-DESELECT-GUARD ===
+            tbody.addEventListener("mousedown", function(e){
+                var inp=e.target.closest(".grid-input"); if(!inp || inp.disabled) return;
+                var td=inp.closest("td");
+                if(inp===editing) return;
+                e.preventDefault();
+                if(td===selTd){ startEdit(td); }
+                else { selectTd(td); }
+            });
+
+            document.addEventListener("keydown", function(e){
+                if(editing){
+                    if(e.key==="Escape"){ var t=editing.closest("td"); stopEdit(); selectTd(t); }
+                    if(e.key==="Enter"){
+                        var t2=editing.closest("td"); var ci2=Array.prototype.indexOf.call(t2.parentElement.children,t2);
+                        stopEdit();
+                        var nr=t2.parentElement.nextElementSibling;
+                        while(nr && !isCellTd(nr.children[ci2])) nr=nr.nextElementSibling;
+                        if(nr){ selectTd(nr.children[ci2]); nr.children[ci2].scrollIntoView({block:"nearest"}); }
+                        else { selectTd(t2); }
+                        e.preventDefault();
+                    }
+                    return;
+                }
+                if(!selTd) return;
+                var tr=selTd.parentElement;
+                var tds=Array.prototype.slice.call(tr.children);
+                var ci=tds.indexOf(selTd);
+                var target=null;
+
+                if(e.key==="ArrowDown"){ var nd=tr.nextElementSibling; while(nd && !isCellTd(nd.children[ci])) nd=nd.nextElementSibling; if(nd) target=nd.children[ci]; }
+                else if(e.key==="ArrowUp"){ var pr=tr.previousElementSibling; while(pr && !isCellTd(pr.children[ci])) pr=pr.previousElementSibling; if(pr) target=pr.children[ci]; }
+                else if(e.key==="ArrowRight"){ for(var j=ci+1;j<tds.length;j++){ if(isCellTd(tds[j])){ target=tds[j]; break; } } }
+                else if(e.key==="ArrowLeft"){ for(var k=ci-1;k>=0;k--){ if(isCellTd(tds[k])){ target=tds[k]; break; } } }
+                else if(e.key==="Enter"||e.key==="F2"){ startEdit(selTd); e.preventDefault(); return; }
+                else if(e.key==="Backspace"||e.key==="Delete"){ startEdit(selTd,""); e.preventDefault(); return; }
+                else if(e.key.length===1 && !e.ctrlKey && !e.altKey && !e.metaKey){
+                    startEdit(selTd, e.key); e.preventDefault(); return;
+                }
+
+                if(target){ e.preventDefault(); selectTd(target); target.scrollIntoView({block:"nearest",inline:"nearest"}); }
+            });
+
+            document.addEventListener("mousedown", function(e){
+                if(!e.target.closest("#gridBody")){ stopEdit(); clearSel(); }
+            });
+        })();
+    </script>
+</body>
+</html>

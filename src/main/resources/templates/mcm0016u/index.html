@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm0016uScreen.Designer.vb（UI定義）+ Mcm0016uScreen.vb（イベント処理）
+  MCM0016U — 製造メーカーマスタ（パターンE: 親子2階層DataGridView編集型）
+
+  VB.NETコントロール対応:
+    DataGridView1             → table#makerTable (製造メーカー)
+    DataGridView2             → table#koseiTable (保守会社構成)
+    UpdateButton              → button#btnUpdate (登録)
+    MCM_MA_SEIZOMAKERRowDeleteButton → button.deleteMakerBtn (各行)
+    MCM_MA_SEIZOMAKER_KOSEIRowDeleteButton → button.deleteKoseiBtn (各行)
+    HOSHUGAISHALabel          → h2 (保守会社セクション)
+  【レイアウト】MCM0015U（ブランドマスタ）に統一
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf" th:content="${_csrf != null} ? ${_csrf.token} : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM0016U — 製造メーカーマスタ</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css"/>
+    <link rel="stylesheet" th:href="@{/css/mcm0016u.css}" href="../css/mcm0016u.css"/>
+    <link rel="stylesheet" th:href="@{/css/custom-dialog.css}" href="../css/custom-dialog.css"/>
+    <script th:src="@{/js/common.js}"></script>
+
+    <style>
+        /* ===== MCM0015U 準拠 共通レイアウト ===== */
+        .header, .toolbar, .form-actions, button, .btn, .btn-close,
+        .mini-dialog, .custom-dialog {
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+        }
+        button, .btn, .btn-close { cursor: pointer; }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 30px; padding: 0 10px; box-sizing: border-box;
+        }
+        .header .header-center { flex: 1; text-align: center; }
+        .header .header-center h1 {
+            margin: 0; font-size: 18px; font-weight: bold; color: #fff;
+            letter-spacing: 2px; line-height: 30px;
+        }
+        .header .header-left, .header .header-right { display: flex; align-items: center; }
+
+        .grid-container {
+            height: calc(100vh - 250px);
+            overflow-y: auto; overflow-x: auto;
+            border: 1px solid #d5dbdb; position: relative;
+        }
+        .data-grid { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12px; white-space: nowrap; table-layout: fixed; }
+        .data-grid thead th {
+            position: -webkit-sticky; position: sticky; top: 0; z-index: 5;
+            background-color: #eef2f5;
+            box-shadow: inset 0 -1px 0 #b0bec5, inset 0 1px 0 #b0bec5;
+            text-align: left;
+        }
+        .data-grid th, .data-grid td {
+            border-right: 1px solid #d5dbdb; border-bottom: 1px solid #d5dbdb; padding: 4px 6px;
+        }
+        .data-grid th:first-child, .data-grid td:first-child { border-left: 1px solid #d5dbdb; }
+
+        .data-grid thead th,
+        .data-grid td.col-select,
+        .data-grid td.col-readonly {
+            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+            cursor: default;
+        }
+        .data-grid td { padding: 0; }
+        .data-grid thead th { padding: 4px 6px; }
+        .data-grid td.col-readonly { padding: 4px 6px; }
+        .data-grid .grid-input {
+            box-sizing: border-box; width: 100%;
+            height: 100%; min-height: 26px;
+            border: none; margin: 0; padding: 3px 6px;
+            background: transparent;
+        }
+        .data-grid .grid-input:focus { outline: none; }
+        .data-grid td.col-select { padding: 2px; }
+        .data-grid .input-right { text-align: right; }
+        .data-grid .input-left  { text-align: left; }
+        .data-grid .col-select { text-align: center; }
+
+        .data-grid td.col-readonly {
+            background-color: #d9d9d9; color: #333; font-size: 11px; white-space: nowrap;
+        }
+        /* 【MCM0018U準拠】読取専用列（登録日時/登録者/更新日時/更新者）の罫線を可視化する。
+           通常罫線色 #d5dbdb と背景色 #d9d9d9 が同系色で見分けづらいため、
+           読取専用セルのみ一段濃い罫線色にする。 */
+        .data-grid tbody tr > td.col-readonly {
+            border-right: 1px solid #a9b0b0; border-bottom: 1px solid #a9b0b0;
+        }
+        .data-grid tbody tr > td.col-readonly:first-child { border-left: 1px solid #a9b0b0; }
+        .data-grid tr.row-deleted td {
+            background-color: #fadbd8 !important; text-decoration: line-through; opacity: 0.6;
+        }
+
+        .data-grid thead th.col-required { color: #d32f2f; }
+        .data-grid td.col-required { background-color: #e3f2fd; }
+        .data-grid td.col-required .grid-input { background-color: #e3f2fd; }
+
+        .data-grid .row-select-label { display: block; width: 100%; height: 100%; cursor: pointer; line-height: 1.6; }
+        .data-grid .row-select { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; pointer-events: none; }
+        .data-grid .row-marker::before { content: ""; display: inline-block; min-width: 1em; }
+        .data-grid tr.row-active .row-marker::before { content: "\25B6"; color: #000000; font-size: 13px; }
+
+        .data-grid tr.row-selected td { background-color: #bdbdbd !important; }
+        .data-grid tr.row-selected td .grid-input { background-color: #bdbdbd !important; }
+
+        .data-grid input.field-error { outline: 2px solid #d32f2f; background-color: #ffebee !important; }
+
+        .data-grid input[type="number"]::-webkit-outer-spin-button,
+        .data-grid input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .data-grid input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+
+        /* ========== 横スクロール固定列（#155） ========== */
+        /* makerTable: 選択列(22px), No(40px), 無効(60px), 製造メーカー(190px) */
+        #makerTable th:nth-child(1), #makerTable td:nth-of-type(1) { position: sticky; left: var(--mcm-fixed-left-1, 0px);   z-index: 3; background: #fff; overflow: hidden; }
+        #makerTable th:nth-child(2), #makerTable td:nth-of-type(2) { position: sticky; left: var(--mcm-fixed-left-2, 22px);  z-index: 3; background: #fff; overflow: hidden; }
+        #makerTable th:nth-child(3), #makerTable td:nth-of-type(3) { position: sticky; left: var(--mcm-fixed-left-3, 62px);  z-index: 3; background: #fff; overflow: hidden; }
+        #makerTable th:nth-child(4), #makerTable td:nth-of-type(4) { position: sticky; left: var(--mcm-fixed-left-4, 122px); z-index: 3; background: #fff; overflow: hidden; box-shadow: 2px 0 0 rgba(0,0,0,.08); }
+        #makerTable thead th:nth-child(1),
+        #makerTable thead th:nth-child(2),
+        #makerTable thead th:nth-child(3),
+        #makerTable thead th:nth-child(4) { z-index: 20; background: #eef2f5; }
+
+        /* koseiTable: 選択列(22px), No(40px), 保守会社名(200px) */
+        #koseiTable th:nth-child(1), #koseiTable td:nth-of-type(1) { position: sticky; left: var(--mcm-fixed-left-1, 0px);  z-index: 3; background: #fff; overflow: hidden; }
+        #koseiTable th:nth-child(2), #koseiTable td:nth-of-type(2) { position: sticky; left: var(--mcm-fixed-left-2, 22px); z-index: 3; background: #fff; overflow: hidden; }
+        #koseiTable th:nth-child(3), #koseiTable td:nth-of-type(3) { position: sticky; left: var(--mcm-fixed-left-3, 62px); z-index: 3; background: #fff; overflow: hidden; box-shadow: 2px 0 0 rgba(0,0,0,.08); }
+        #koseiTable thead th:nth-child(1),
+        #koseiTable thead th:nth-child(2),
+        #koseiTable thead th:nth-child(3) { z-index: 20; background: #eef2f5; }
+
+        /* 必須項目の背景色を固定列でも維持 */
+        #makerTable td.col-required:nth-of-type(2), #makerTable td.col-required:nth-of-type(4),
+        #koseiTable td.col-required:nth-of-type(2), #koseiTable td.col-required:nth-of-type(3) { background-color: #e3f2fd; }
+
+        .btn-close {
+            display: inline-block; padding: 2px 12px; font-size: 12px; color: #000;
+            text-decoration: none; background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; cursor: pointer; line-height: 1.6;
+        }
+        .btn-close:hover  { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .btn-close:active { background-color: #cce4f7; border-color: #569de5; }
+
+        .toolbar { display: flex !important; justify-content: flex-end !important; gap: 6px; }
+
+        .mini-dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .mini-dialog {
+            background: #fbfbfb; min-width: 300px; max-width: 90%;
+            border: 1px solid #7a7a7a; border-radius: 6px; overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,.35);
+            font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+        }
+        .mini-dialog-head {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #ffffff; color: #000; padding: 6px 8px 6px 12px;
+            font-size: 12px; font-weight: normal; border-bottom: 1px solid #e5e5e5;
+        }
+        .mini-dialog-head .mini-close {
+            border: none; background: transparent; font-size: 15px; line-height: 1;
+            color: #444; cursor: pointer; padding: 2px 6px; border-radius: 3px;
+        }
+        .mini-dialog-head .mini-close:hover { background: #e81123; color: #fff; }
+        .mini-dialog-body {
+            display: flex; align-items: center; gap: 12px;
+            padding: 20px 16px; background: #fbfbfb; white-space: pre-line;
+        }
+        .mini-dialog-body .mini-icon { flex: 0 0 auto; }
+        .mini-dialog-body .mini-msg { color: #000000; font-size: 13px; }
+        .mini-dialog-foot { padding: 10px 16px 14px; text-align: right; background: #fbfbfb; }
+        .mini-dialog-foot button {
+            min-width: 84px; padding: 5px 12px; font-size: 12px;
+            background: #e1e1e1; border: 1px solid #adadad; border-radius: 3px; cursor: pointer;
+        }
+        .mini-dialog-foot button:hover { background: #e5f1fb; border-color: #0078d4; }
+        .mini-dialog-foot button:focus { outline: 1px solid #0078d4; outline-offset: 1px; }
+
+        /* MCM0015U基準：登録ボタンを右側へ配置 */
+        .form-actions {
+            display: flex !important;
+            justify-content: flex-end !important;
+            align-items: center;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px 12px;
+            text-align: right !important;
+        }
+        .form-actions #btnUpdate {
+            margin-left: auto !important;
+            margin-right: 0 !important;
+        }
+    /* #155: 削除行も不透明にし、背後のスクロール列を隠す。削除色と取消線は維持。 */
+        table.data-grid[data-mcm-fixed-columns] tr.row-deleted,
+        table.data-grid[data-mcm-fixed-columns] tr.row-deleted td { opacity: 1; }
+    </style>
+    <style>
+        /* 親子2階層レイアウト（MCM0016U 固有） */
+        .section { margin: 0 0 6px 0; }
+        .section-header { display: flex; align-items: center; gap: 8px; padding: 2px 6px; }
+        /* 【MCM0015U 準拠】見出しはグリッド見出し(12px)に合わせる */
+        .section-header .grid-title { margin: 0; font-size: 12px; font-weight: bold; color: #333; }
+        .section-header .toolbar { margin-left: auto; padding: 0; background: none; border-bottom: none; }
+        .section-note { font-size: 11px; color: #666; }
+
+        /* 【MCM0017U/0018U 準拠】表の高さ（vh按分方式・登録ボタンは通常フロー） */
+        .grid-scroll-parent { height: calc(42vh - 60px); }
+        .grid-scroll-child  { height: calc(32vh - 40px); }
+        .data-grid td.readonly { background: #f5f5f5; }
+        td.center { text-align: center; padding: 4px 6px; }
+        td.right { text-align: right; padding: 4px 6px; }
+        td.no-data { text-align: center; color: #888; padding: 8px; }
+        /* [MCM0015U統一] 行内「選択」リンク・行内「削除」ボタンは廃止（▶行マーカー＋ツールバー「行削除」に統合）
+        .link-btn { background: none; border: none; color: #1a56db; cursor: pointer; font-size: 12px; text-decoration: underline; padding: 0; }
+        .btn-del-sm { padding: 1px 8px; font-size: 11px; } */
+        /* ===== MCM0015U 準拠：列幅リサイズ・セル選択 ===== */
+        .data-grid { table-layout: fixed; }
+        .data-grid th, .data-grid td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .data-grid th { position: relative; }
+        .data-grid th .col-resizer { position: absolute; top: 0; right: 0; width: 6px; height: 100%;
+                                     cursor: col-resize; user-select: none; z-index: 6; }
+        .data-grid th .col-resizer:hover { background: rgba(69,63,120,.25); }
+        body.col-resizing { cursor: col-resize !important; }
+        body.col-resizing * { user-select: none !important; }
+        .data-grid td { height: 22px; line-height: 22px; vertical-align: middle; }
+        .data-grid tbody tr:hover { background: transparent !important; }
+        .data-grid tbody tr.selected-row > td { background-color: #bdbdbd !important; }
+        /* MCM0015U基準：青背景の必須列も行選択時は行全体と同じグレー */
+        .data-grid tbody tr.selected-row > td.col-required,
+        .data-grid tbody tr.selected-row > td.col-required .grid-input,
+        .data-grid tbody tr.selected-row > td.col-required input,
+        .data-grid tbody tr.selected-row > td.col-required select {
+            background-color: #bdbdbd !important;
+        }
+        .data-grid tbody td.cell-selected { background-color: #e0e0e0 !important; outline: 2px solid #7a7a7a; outline-offset: 0; }
+        .data-grid tbody td.cell-selected .grid-input { background-color: transparent !important; }
+		.data-grid tbody td.cell-error,
+		.data-grid tbody tr.selected-row > td.cell-error {
+		    background-color: #ffebee !important;
+		}
+
+		.data-grid tbody td.cell-error .grid-input,
+		.data-grid input.field-error,
+		.data-grid select.field-error {
+		    background-color: #ffebee !important;
+		}
+        /* ===== ▶行マーカー列（MCM0015U 準拠：旧「選択」ボタン列を置換） ===== */
+        .data-grid th.col-select, .data-grid td.col-select {
+            width: 22px; min-width: 22px; padding: 0;
+            text-align: center; vertical-align: middle;
+        }
+        .row-marker { display: inline-flex; align-items: center; justify-content: center;
+                      width: 14px; height: 18px; font-size: 11px; color: #333; }
+        .data-grid tbody tr.row-active .row-marker::before { content: "\25B6"; }
+        .data-grid tbody tr[data-id] { cursor: pointer; }
+    </style>
+    <script th:src="@{/js/mcm-fixed-columns.js}" defer></script>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center"><h1>製造メーカーマスタ（MCM0016U）</h1></div>
+        <div class="header-right"><a class="btn-close" id="btnCloseLink" th:href="@{/menu}" href="/mcm/menu">閉じる</a></div>
+    </div>
+
+    <!-- MCM0017U 準拠：タイトル直下の赤枠メッセージは表示せず、ダイアログへ統一 -->
+    <div id="serverMessageData" hidden
+         th:attr="data-error=${error},data-errors=${errors != null ? #strings.listJoin(errors, ' / ') : ''}"></div>
+
+    <!-- 行選択・行削除用の隠しフォーム（updateForm の入れ子を避けるため外に配置） -->
+    <!-- 【変換元】DataGridView1_SelectionChanged — 行選択POST用 -->
+	<form id="selectMakerForm" th:action="@{/mcm0016u/selectSeizomaker}" method="post" style="display:none;">
+	    <!-- ★初期表示時点で選択されているメーカーIDをJS側の追跡用フィールドにも反映する。
+	         従来は空のままだったため、画面を開いて最初に別メーカーへ切り替えた際、
+	         captureCurrentKoseiRows()の対象キーが特定できず、
+	         最初に表示されていたメーカーの保守会社編集内容がキャッシュされない不具合があった。 -->
+	    <input type="hidden" id="selectMakerId" name="selectedSeizomakerId" th:value="${form.selectedSeizomakerId}"/>
+	</form>
+    <!-- 【変換元】MCM_MA_SEIZOMAKERRowDeleteButton — 行削除POST用 -->
+    <form id="deleteMakerForm" th:action="@{/mcm0016u/deleteSeizomakerRow}" method="post" style="display:none;">
+        <input type="hidden" id="deleteMakerId" name="seizomakerId"/>
+    </form>
+    <!-- 【変換元】MCM_MA_SEIZOMAKER_KOSEIRowDeleteButton — 行削除POST用 -->
+    <form id="deleteKoseiForm" th:action="@{/mcm0016u/deleteKoseiRow}" method="post" style="display:none;">
+        <input type="hidden" id="deleteKoseiId" name="seizomakerkoseiId"/>
+    </form>
+
+    <!-- ▼ updateForm：2グリッド＋登録ボタンを包む（【変換元】UpdateButton_Click） -->
+    <form id="updateForm" th:action="@{/mcm0016u/update}" method="post">
+        <input type="hidden" name="selectedSeizomakerId" th:value="${form.selectedSeizomakerId}"/>
+
+    <!-- ================================================================ -->
+    <!-- Section 1: 製造メーカー（DataGridView1）                          -->
+    <!-- ================================================================ -->
+    <div class="section">
+        <div class="section-header">
+            <!-- 【変換元】MCM_MA_SEIZOMAKERRowDeleteButton（行内ボタン → ツールバーに統合） -->
+            <div class="toolbar">
+                <button type="button" id="btnDeleteMaker" class="btn btn-danger">行削除</button>
+            </div>
+        </div>
+
+        <div class="grid-container grid-scroll-parent">
+            <table id="makerTable" data-mcm-fixed-columns="4" class="data-grid" style="visibility:hidden;">
+                <colgroup>
+                    <col style="width:22px;"/>
+                    <col style="width:40px;"/>
+                    <col style="width:60px;"/>
+                    <col style="width:190px;"/>
+                    <col style="width:400px;"/>
+                    <col style="width:115px;"/>
+                    <col style="width:70px;"/>
+                    <col style="width:115px;"/>
+                    <col style="width:70px;"/>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="col-select"></th>
+                        <th class="col-required">No</th>
+                        <th>無効</th>
+                        <th class="col-required">製造メーカー</th>
+                        <th>備考</th>
+                        <th class="col-readonly">登録日時</th>
+                        <th class="col-readonly">登録者</th>
+                        <th class="col-readonly">更新日時</th>
+                        <th class="col-readonly">更新者</th>
+                    </tr>
+                </thead>
+                <tbody id="gridBody">
+                    <tr th:each="row, stat : ${makerList}"
+                        th:attr="data-id=${row.seizomakerId}"
+                        th:classappend="${form.selectedSeizomakerId != null and row.seizomakerId.longValue() == form.selectedSeizomakerId} ? 'row-active' : ''">
+                        <!-- ▶行マーカー＋行キー hidden（MCM0015U 準拠：旧「選択」ボタン列を置換） -->
+                        <td class="col-select">
+                            <span class="row-marker" aria-hidden="true"></span>
+                            <input type="hidden" class="row-status-input"
+                                   th:name="|seizomakerRows[${stat.index}].rowStatus|" value="unchanged"/>
+                            <input type="hidden"
+                                   th:name="|seizomakerRows[${stat.index}].seizomakerId|"
+                                   th:value="${row.seizomakerId}"/>
+                        </td>
+                        <!-- No -->
+                        <!-- MCM0015U準拠：HYOJIJUN(表示順)を編集可能なNo項目として表示する。
+                             新規行選択時は自動採番(data-auto-no)し、未入力のまま離れると消える。 -->
+                        <td class="right col-no col-required">
+                            <input type="text" class="grid-input input-right no-spin"
+                                   th:name="|seizomakerRows[${stat.index}].hyojijun|"
+                                   th:value="${row.hyojijun}" readonly/>
+                        </td>
+                        <!-- 無効フラグ -->
+                        <!-- 【変換元】YUKO_FLG — チェック=無効("0") / 未チェック=有効("1") -->
+                        <td class="center">
+                            <input type="checkbox" class="yuko-check"
+                                   th:checked="${row.yukoFlg != null and row.yukoFlg.intValue() == 1}"/>
+                            <input type="hidden" class="yuko-hidden"
+                                   th:name="|seizomakerRows[${stat.index}].yukoFlg|"
+                                   th:value="${row.yukoFlg != null and row.yukoFlg.intValue() == 1} ? '1' : '0'"/>
+                        </td>
+                        <!-- 製造メーカー名 -->
+                        <td class="col-required">
+                            <input type="text" class="grid-input input-left maker-nk"
+                                   th:name="|seizomakerRows[${stat.index}].seizomakerNk|"
+                                   th:value="${row.seizomakerNk}" readonly/>
+                        </td>
+                        <!-- 備考 -->
+                        <td>
+                            <input type="text" class="grid-input input-left"
+                                   th:name="|seizomakerRows[${stat.index}].biko|"
+                                   th:value="${row.biko == null or row.biko == '&lt;&lt;NULL&gt;&gt;' or row.biko == '＜＜NULL＞＞' or row.biko == '« NULL »' or row.biko == '«NULL»' ? '' : row.biko}" readonly/>
+                        </td>
+                        <!-- 監査列（参照のみ） -->
+                        <td class="center col-readonly" th:text="${row.createdDt}"></td>
+                        <td class="col-readonly" th:text="${row.createdBy}"></td>
+                        <td class="center col-readonly" th:text="${row.lastupdateDt}"></td>
+                        <td class="col-readonly" th:text="${row.lastupdateBy}"></td>
+                    </tr>
+                    <!-- 新規追加用の空行（MCM0015U 準拠 blank-row） -->
+                    <tr class="blank-row" th:with="bi=${makerList != null} ? ${#lists.size(makerList)} : 0">
+                        <td class="col-select">
+                            <span class="row-marker" aria-hidden="true"></span>
+                            <input type="hidden" class="row-status-input"
+                                   th:name="|seizomakerRows[${bi}].rowStatus|" value="unchanged"/>
+                        </td>
+                        <td class="right col-no col-required">
+                            <input type="text" class="grid-input input-right no-spin"
+                                   th:name="|seizomakerRows[${bi}].hyojijun|" readonly/>
+                        </td>
+                        <td class="center">
+                            <input type="checkbox" class="yuko-check"/>
+                            <input type="hidden" class="yuko-hidden"
+                                   th:name="|seizomakerRows[${bi}].yukoFlg|" value="0"/>
+                        </td>
+                        <td class="col-required">
+                            <input type="text" class="grid-input input-left maker-nk"
+                                   th:name="|seizomakerRows[${bi}].seizomakerNk|" readonly/>
+                        </td>
+                        <td>
+                            <input type="text" class="grid-input input-left"
+                                   th:name="|seizomakerRows[${bi}].biko|" readonly/>
+                        </td>
+                        <td class="center col-readonly"></td>
+                        <td class="col-readonly"></td>
+                        <td class="center col-readonly"></td>
+                        <td class="col-readonly"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Section 2: 保守会社構成（DataGridView2）                          -->
+    <!-- ================================================================ -->
+    <div class="section">
+        <div class="section-header">
+            <!-- 【変換元】HOSHUGAISHALabel -->
+            <span class="grid-title">&lt;&lt; 保守会社 &gt;&gt;</span>
+            <!-- 【変換元】MCM_MA_SEIZOMAKER_KOSEIRowDeleteButton（行内ボタン → ツールバーに統合） -->
+            <div class="toolbar">
+                <button type="button" id="btnDeleteKosei" class="btn btn-danger">行削除</button>
+            </div>
+        </div>
+
+        <div class="grid-container grid-scroll-child">
+            <table id="koseiTable" data-mcm-fixed-columns="3" class="data-grid" style="visibility:hidden;">
+                <colgroup>
+                    <col style="width:22px;"/>
+                    <col style="width:40px;"/>
+                    <col style="width:200px;"/>
+                    <col style="width:300px;"/>
+                    <col style="width:115px;"/>
+                    <col style="width:70px;"/>
+                    <col style="width:115px;"/>
+                    <col style="width:70px;"/>
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="col-select"></th>
+                        <th class="col-required">No</th>
+                        <th class="col-required">保守会社名</th>
+                        <th>備考</th>
+                        <!-- 【MCM0015U準拠】VB版DataGridView2の監査列（CREATED_DT/CREATED_BY/LASTUPDATE_DT/LASTUPDATE_BY） -->
+                        <th class="col-readonly">登録日時</th>
+                        <th class="col-readonly">登録者</th>
+                        <th class="col-readonly">更新日時</th>
+                        <th class="col-readonly">更新者</th>
+                    </tr>
+                </thead>
+                <tbody id="koseiBody">
+                    <tr th:each="row, stat : ${koseiList}"
+                        th:attr="data-id=${row.SEIZOMAKERKOSEI_ID}">
+                        <!-- ▶行マーカー＋行キー hidden（MCM0015U 準拠） -->
+                        <td class="col-select">
+                            <span class="row-marker" aria-hidden="true"></span>
+                            <input type="hidden" class="row-status-input"
+                                   th:name="|koseiRows[${stat.index}].rowStatus|" value="unchanged"/>
+                            <input type="hidden"
+                                   th:name="|koseiRows[${stat.index}].seizomakerkoseiId|"
+                                   th:value="${row.SEIZOMAKERKOSEI_ID}"/>
+                            <input type="hidden"
+                                   th:name="|koseiRows[${stat.index}].seizomakerId|"
+                                   th:value="${row.SEIZOMAKER_ID}"/>
+                        </td>
+                        <!-- MCM0015U準拠：HYOJIJUN(表示順)を編集可能なNo項目として表示する。
+                             新規行選択時は自動採番(data-auto-no)し、未入力のまま離れると消える。 -->
+                        <td class="right col-no col-required">
+                            <input type="text" class="grid-input input-right no-spin"
+                                   th:name="|koseiRows[${stat.index}].hyojijun|"
+                                   th:value="${row.HYOJIJUN}" readonly/>
+                        </td>
+                        <!-- 保守会社名（プルダウン選択：hoshugaishaCombo） -->
+                        <td class="col-required">
+                            <select class="grid-input kosei-hoshugaisha"
+                                    th:name="|koseiRows[${stat.index}].hoshugaishaId|">
+                                <option value=""></option>
+                                <option th:each="h : ${hoshugaishaCombo}"
+                                        th:value="${h.HOSHUGAISHA_ID}"
+                                        th:text="${h.DISPLAY_NAME}"
+                                        th:selected="${h.HOSHUGAISHA_ID != null and row.HOSHUGAISHA_ID != null
+                                                      and h.HOSHUGAISHA_ID.toString() == row.HOSHUGAISHA_ID.toString()}"></option>
+                            </select>
+                        </td>
+                        <!-- 備考 -->
+                        <td>
+                            <input type="text" class="grid-input input-left"
+                                   th:name="|koseiRows[${stat.index}].biko|"
+                                   th:value="${row.BIKO == null or row.BIKO == '&lt;&lt;NULL&gt;&gt;' or row.BIKO == '＜＜NULL＞＞' or row.BIKO == '« NULL »' or row.BIKO == '«NULL»' ? '' : row.BIKO}" readonly/>
+                        </td>
+                        <!-- 監査列（参照のみ） -->
+                        <td class="center col-readonly" th:text="${row.CREATED_DT}"></td>
+                        <td class="col-readonly" th:text="${row.CREATED_BY}"></td>
+                        <td class="center col-readonly" th:text="${row.LASTUPDATE_DT}"></td>
+                        <td class="col-readonly" th:text="${row.LASTUPDATE_BY}"></td>
+                    </tr>
+                    <!-- 新規追加用の空行（MCM0015U 準拠 blank-row） -->
+                    <tr class="blank-row"
+                        th:if="${form.selectedSeizomakerId != null}"
+                        th:with="bi=${koseiList != null} ? ${#lists.size(koseiList)} : 0">
+                        <td class="col-select">
+                            <span class="row-marker" aria-hidden="true"></span>
+                            <input type="hidden" class="row-status-input"
+                                   th:name="|koseiRows[${bi}].rowStatus|" value="unchanged"/>
+                            <input type="hidden"
+                                   th:name="|koseiRows[${bi}].seizomakerId|"
+                                   th:value="${form.selectedSeizomakerId}"/>
+                        </td>
+                        <td class="right col-no col-required">
+                            <input type="text" class="grid-input input-right no-spin"
+                                   th:name="|koseiRows[${bi}].hyojijun|" readonly/>
+                        </td>
+                        <td class="col-required">
+                            <select class="grid-input kosei-hoshugaisha"
+                                    th:name="|koseiRows[${bi}].hoshugaishaId|">
+                                <option value=""></option>
+                                <option th:each="h : ${hoshugaishaCombo}"
+                                        th:value="${h.HOSHUGAISHA_ID}"
+                                        th:text="${h.DISPLAY_NAME}"></option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="grid-input input-left"
+                                   th:name="|koseiRows[${bi}].biko|" readonly/>
+                        </td>
+                        <td class="center col-readonly"></td>
+                        <td class="col-readonly"></td>
+                        <td class="center col-readonly"></td>
+                        <td class="col-readonly"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(koseiList)} and ${form.selectedSeizomakerId == null}">
+                        <td colspan="8" class="no-data">メーカーを選択してください</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 【変換元】UpdateButton -->
+    <div class="form-actions">
+        <button type="button" class="btn btn-primary" id="btnUpdate">登録</button>
+    </div>
+    </form>
+    <!-- ▲ updateForm ここまで -->
+
+    <!-- 確認用ダイアログ（? アイコン・OK/キャンセル） -->
+    <div id="confirmDialogOverlay" class="mini-dialog-overlay">
+        <div class="mini-dialog">
+            <div class="mini-dialog-head">
+                <span>確認</span>
+                <button type="button" class="mini-close" id="confirmCloseX" aria-label="閉じる">✕</button>
+            </div>
+            <div class="mini-dialog-body">
+                <span class="mini-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="15" fill="#1a6fd4"/>
+                        <text x="16" y="23" text-anchor="middle" font-family="Segoe UI, sans-serif"
+                              font-size="20" font-weight="bold" fill="#ffffff">?</text>
+                    </svg>
+                </span>
+                <span class="mini-msg" id="confirmMsg"></span>
+            </div>
+            <div class="mini-dialog-foot">
+                <button type="button" id="confirmOk">OK</button>
+                <button type="button" id="confirmCancel">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="miniDialogOverlay" class="mini-dialog-overlay">
+        <div class="mini-dialog">
+            <div class="mini-dialog-head">
+                <span id="miniDialogTitle">入力エラー</span>
+                <button type="button" class="mini-close" id="miniDialogCloseX" aria-label="閉じる">✕</button>
+            </div>
+            <div class="mini-dialog-body">
+                <span class="mini-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <circle cx="16" cy="16" r="15" fill="#1a6fd4"/>
+                        <circle cx="16" cy="9" r="2" fill="#ffffff"/>
+                        <rect x="14" y="13" width="4" height="11" rx="1" fill="#ffffff"/>
+                    </svg>
+                </span>
+                <span class="mini-msg" id="miniDialogMsg"></span>
+            </div>
+            <div class="mini-dialog-foot"><button type="button" id="miniDialogOk">OK</button></div>
+        </div>
+    </div>
+
+
+    <script th:inline="javascript">
+        "use strict";
+
+        /* ===== MCM0015U 準拠 ミニダイアログ ===== */
+		function showError(msg, onClose) {
+		    var ov = document.getElementById("miniDialogOverlay");
+		    var body = document.getElementById("miniDialogMsg");
+		    var okBtn = document.getElementById("miniDialogOk");
+		    var closeX = document.getElementById("miniDialogCloseX");
+		    if (ov && body && okBtn) {
+		        body.textContent = msg;
+		        ov.style.display = "flex";
+
+		        function close() {
+		            ov.style.display = "none";
+		            okBtn.onclick = null;
+		            if (closeX) closeX.onclick = null;
+		            if (onClose) onClose();
+		        }
+
+		        okBtn.onclick = close;
+		        if (closeX) closeX.onclick = close;
+		        setTimeout(function () { okBtn.focus(); }, 50);
+		    } else {
+		        alert(msg);
+		        if (onClose) onClose();
+		    }
+		}
+        /* 【MCM0015U準拠】完了メッセージ：入力エラー用miniDialogを流用し、タイトルを「完了」にして表示する */
+        function showInfo(msg, onClose) {
+            var ov = document.getElementById("miniDialogOverlay");
+            var body = document.getElementById("miniDialogMsg");
+            var title = document.getElementById("miniDialogTitle");
+            if (ov && body) {
+                var prevTitle = title ? title.textContent : "";
+                if (title) title.textContent = "完了";
+                body.textContent = msg || "登録処理が完了しました。";
+                ov.style.display = "flex";
+                var okBtn = document.getElementById("miniDialogOk");
+                var closeX = document.getElementById("miniDialogCloseX");
+                function close() { ov.style.display = "none"; if (title) title.textContent = prevTitle || "入力エラー"; okBtn.onclick = null; if (closeX) closeX.onclick = null; if (onClose) onClose(); }
+                okBtn.onclick = close; if (closeX) closeX.onclick = close;
+                setTimeout(function () { okBtn.focus(); }, 50);
+            } else { alert(msg || "登録処理が完了しました。"); if (onClose) onClose(); }
+        }
+        function showConfirm(msg, onOk) {
+            var ov = document.getElementById("confirmDialogOverlay");
+            var body = document.getElementById("confirmMsg");
+            var okBtn = document.getElementById("confirmOk");
+            var cancelBtn = document.getElementById("confirmCancel");
+            var closeX = document.getElementById("confirmCloseX");
+            if (ov && body && okBtn && cancelBtn) {
+                body.textContent = msg; ov.style.display = "flex";
+                function cleanup() { ov.style.display = "none"; okBtn.onclick = null; cancelBtn.onclick = null; if (closeX) closeX.onclick = null; }
+                okBtn.onclick = function () { cleanup(); if (onOk) onOk(); };
+                cancelBtn.onclick = function () { cleanup(); };
+                if (closeX) closeX.onclick = function () { cleanup(); };
+                setTimeout(function () { okBtn.focus(); }, 50);
+            } else { if (window.confirm(msg) && onOk) onOk(); }
+        }
+
+        /* ===== 行選択（▶マーカー・行ハイライト） ===== */
+        function setActiveRow(tr) {
+            document.querySelectorAll("tr.row-active").forEach(function (r) { r.classList.remove("row-active"); });
+            if (tr) tr.classList.add("row-active");
+        }
+        document.addEventListener("focusin", function (e) {
+            var tr = e.target.closest ? e.target.closest("tbody tr") : null;
+            if (tr) setActiveRow(tr);
+        });
+
+        /*
+         * 【変換元】Mcm0016uScreen.vb — DataGridView1_SelectionChanged
+         * MCM0015U 準拠：行クリックで行を選択し ▶ マーカーを表示する。
+         * （旧・行内「選択」ボタン列を廃止し、行クリック選択に統合）
+         */
+		 function setupRowSelect(gridSel, onSelect) {
+		     var grid = document.querySelector(gridSel);
+		     if (!grid) return;
+		     var body = grid.querySelector("tbody");
+		     if (!body) return;
+		     /*
+		      * ★選択中の行キーを本関数のクロージャ内で独自に保持する。
+		      *   document レベルの focusin ハンドラ（setActiveRow）が、クリック直後・
+		      *   本 click ハンドラ実行前に row-active クラスをクリックした行へ移してしまうため、
+		      *   従来の「body.querySelector('tr.row-active')」による前回行判定では
+		      *   常に prevActive === tr となり、onSelect（子グリッド再取得）が呼ばれない
+		      *   行（＝入力欄のあるセルをクリックした場合）が発生していた。
+		      *   row-active クラスに依存せず、この変数で前回選択行を判定する。
+		      */
+		     var selectedRowId = null;
+		     var initActive = body.querySelector("tr.row-active[data-id]");
+		     if (initActive) { selectedRowId = initActive.getAttribute("data-id"); }
+
+			 if (gridSel === "#makerTable") {
+			 	window.__syncMakerSelectedRowId = function (id) { selectedRowId = id; };
+			 }
+			 
+		     body.addEventListener("click", function (e) {
+		         var tr = e.target.closest ? e.target.closest("tr") : null;
+		         if (!tr || !tr.hasAttribute("data-id")) return;
+		         body.querySelectorAll("tr.selected-row").forEach(function (r) {
+		             if (r !== tr) { r.classList.remove("selected-row"); }
+		         });
+		         var clickedId = tr.getAttribute("data-id");
+		         /*
+		          * ★同一行内でのセル移動・無効チェックボックス操作等では、行そのものの
+		          *   選択（＝メーカー切替）は発生していない。前回と同じ行キーの場合は
+		          *   onSelect を呼ばず、必須チェックや確認ダイアログも発生させない。
+		          */
+		         if (selectedRowId !== null && selectedRowId === clickedId) { return; }
+		         /* ★行移動前に、離れる前の行の必須チェックを行う（row-active ではなく
+		              保持している前回行キーから対象行を特定する / MCM0015U 準拠）。 */
+		         var prevTr = (selectedRowId !== null)
+		             ? body.querySelector('tr[data-id="' + selectedRowId + '"]')
+		             : null;
+		         if (prevTr && typeof checkRequiredOnRowLeave === "function") {
+		             if (checkRequiredOnRowLeave(gridSel, prevTr)) { return; }
+		             if (typeof clearAutoNoIfUntouched === "function") { clearAutoNoIfUntouched(prevTr); }
+		         }
+		         /* 行選択グレーは最左の▶列(td.col-select)を押した時のみ / MCM0017U 準拠 */
+		         var onMarker = !!(e.target.closest && e.target.closest("td.col-select"));
+		         var rows = body.querySelectorAll("tr");
+		         for (var i = 0; i < rows.length; i++) {
+		             rows[i].classList.remove("selected-row");
+		             rows[i].classList.remove("row-active");
+		         }
+		         if (onMarker) { tr.classList.add("selected-row"); }
+		         tr.classList.add("row-active");
+		         selectedRowId = clickedId;
+		         if (typeof onSelect === "function") { onSelect(clickedId); }
+		     });
+		 }
+
+        /* 選択中の行のキーを取得（ツールバー「行削除」で使用） */
+        function getSelectedRowId(gridSel) {
+            var tr = document.querySelector(gridSel + " tbody tr.selected-row[data-id]") || document.querySelector(gridSel + " tbody tr.row-active[data-id]");
+            return tr ? tr.getAttribute("data-id") : null;
+        }
+
+        /* ===== 列幅調整（リサイズ）機能 / MCM0015U 準拠 ===== */
+        function setupColumnResize(tableSel) {
+            var table = document.querySelector(tableSel);
+            if (!table) return;
+            var cols = table.querySelectorAll("colgroup col");
+            var ths  = table.querySelectorAll("thead th");
+            if (!cols.length || cols.length !== ths.length) { table.style.visibility = "visible"; return; }
+            var baseWidths = [];
+            for (var i = 0; i < cols.length; i++) {
+                baseWidths.push(parseFloat(cols[i].style.width) || 80);
+            }
+            var LAST = cols.length - 1;
+            function applyWidths(ws) {
+                var total = 0;
+                for (var i = 0; i < cols.length; i++) {
+                    cols[i].style.width = ws[i] + "px";
+                    total += ws[i];
+                }
+                table.style.width = total + "px";
+            }
+            function fitInitial() {
+                var ws = baseWidths.slice();
+                var total = 0;
+                for (var i = 0; i < ws.length; i++) { total += ws[i]; }
+                var wrap = table.parentElement;
+                var avail = wrap ? wrap.clientWidth : 0;
+                if (avail > total) { ws[LAST] += (avail - total); }
+                applyWidths(ws);
+                table.style.visibility = "visible";
+            }
+            fitInitial();
+            var rt = null;
+            window.addEventListener("resize", function () {
+                if (rt) { clearTimeout(rt); }
+                rt = setTimeout(fitInitial, 100);
+            });
+            for (var c = 0; c < ths.length; c++) {
+                (function (idx) {
+                    var th = ths[idx];
+                    if (th.querySelector(".col-resizer")) return;
+                    var grip = document.createElement("span");
+                    grip.className = "col-resizer";
+                    th.appendChild(grip);
+                    grip.addEventListener("mousedown", function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var startX = e.clientX;
+                        var startW = parseFloat(cols[idx].style.width) || th.offsetWidth;
+                        document.body.classList.add("col-resizing");
+                        function onMove(ev) {
+                            var w = startW + (ev.clientX - startX);
+                            if (w < 40) { w = 40; }
+                            cols[idx].style.width = w + "px";
+                            var total = 0;
+                            for (var i = 0; i < cols.length; i++) {
+                                total += parseFloat(cols[i].style.width) || 0;
+                            }
+                            table.style.width = total + "px";
+                        }
+                        function onUp() {
+                            document.body.classList.remove("col-resizing");
+                            document.removeEventListener("mousemove", onMove);
+                            document.removeEventListener("mouseup", onUp);
+                        }
+                        document.addEventListener("mousemove", onMove);
+                        document.addEventListener("mouseup", onUp);
+                    });
+                })(c);
+            }
+        }
+
+        /* ===== 変更検知（未保存警告・行ステータス制御） ===== */
+        var __dirty = false;
+        window.hasUnsavedChanges = function () { return __dirty; };
+
+        /* ===== MCM0015U準拠：空行へ入力開始した直後に採番し、次の空行を追加 ===== */
+        function getRowPrefix(tr) {
+            var named = tr ? tr.querySelector("[name]") : null;
+            if (!named) return null;
+            var m = named.name.match(/^(seizomakerRows|koseiRows)\[(\d+)\]/);
+            return m ? { prefix: m[1], index: parseInt(m[2], 10) } : null;
+        }
+
+        function getNextDisplayOrder(tbody, current) {
+            var max = 0;
+            tbody.querySelectorAll("tr").forEach(function (row) {
+                if (row === current || row.style.display === "none" || row.classList.contains("blank-row")) return;
+                var input = row.querySelector(".col-no input.grid-input");
+                var value = input && input.value ? parseInt(input.value, 10) : NaN;
+                if (!isNaN(value) && value > max) max = value;
+            });
+            return max + 1;
+        }
+
+        function reindexBlankRow(row, prefix, index) {
+            row.querySelectorAll("[name]").forEach(function (el) {
+                el.name = el.name.replace(new RegExp("^" + prefix + "\\[\\d+\\]"), prefix + "[" + index + "]");
+            });
+        }
+
+        function clearBlankRow(row) {
+            row.classList.add("blank-row");
+            row.classList.remove("selected-row", "row-active");
+            row.removeAttribute("data-id");
+            var marker = row.querySelector(".row-marker");
+            if (marker) marker.textContent = "";
+            row.querySelectorAll("input, select").forEach(function (el) {
+                if (el.classList.contains("row-status-input")) {
+                    el.value = "unchanged";
+                } else if (el.classList.contains("yuko-hidden")) {
+                    el.value = "0";
+                } else if (el.type === "checkbox" || el.type === "radio") {
+                    el.checked = false;
+                } else if (el.tagName === "SELECT") {
+                    el.selectedIndex = 0;
+                }  else if (!el.name.endsWith(".seizomakerId") && !el.name.endsWith(".tempParentId")) {
+                    el.value = "";
+                }
+                if (el.classList.contains("grid-input") && el.tagName === "INPUT") el.readOnly = true;
+                el.removeAttribute("data-auto-no");
+            });
+        }
+
+        /* ★新規メーカー行に割り当てる一時ID発行元（負数、サーバー由来IDと衝突しない）。
+           gridBody(製造メーカー)の新規行にのみ使用する。 */
+        var __nextMakerTempId = -1;
+
+        function promoteBlankRow(tr) {
+            if (!tr || !tr.classList.contains("blank-row") || tr.dataset.promoting === "1") return;
+            var tbody = tr.parentElement;
+            var info = getRowPrefix(tr);
+            if (!tbody || !info) return;
+            tr.dataset.promoting = "1";
+
+            var status = tr.querySelector(".row-status-input");
+            var order = tr.querySelector(".col-no input.grid-input");
+            if (status) status.value = "new";
+            /* ★No以外の項目に最初の入力があった時点の処理。
+               No列選択時の自動採番(assignNoForRow)や手動入力で既に値が入っている場合は
+               上書きしない。まだ空の場合のみ最大値+1を採番する（MCM0015U 準拠）。 */
+            if (order && order.value === "") {
+                var nextNo = getNextDisplayOrder(tbody, tr);
+                order.value = String(nextNo);
+                order.setAttribute("data-auto-no", "1");
+            }
+            tr.classList.remove("blank-row");
+
+            /*
+             * ★製造メーカーの新規行には、確定前でも行選択イベントが発火するよう
+             *   一時ID（tempId、負数）を data-id 属性と hidden(tempId) フィールドに設定する。
+             *   これが無いと setupRowSelect() のクリック判定
+             *   （tr.hasAttribute("data-id")）を通過できず、新規行選択時に
+             *   子グリッド（保守会社）の再取得・初期化イベントが発火しなかった。
+             *   保守会社グリッド(koseiBody)には適用しない（親を持つ側であり対象外）。
+             *   通常はNo採番時（assignNoForRow）に既に割り当て済みのため、
+             *   ここでは未割り当ての場合のみ発行する（保険的なフォールバック）。
+             */
+            if (tbody.id === "gridBody" && !tr.hasAttribute("data-id")) {
+                var tempId = __nextMakerTempId--;
+                tr.setAttribute("data-id", String(tempId));
+                var tempIdInp = tr.querySelector("input[name$='.tempId']");
+                if (!tempIdInp) {
+                    tempIdInp = document.createElement("input");
+                    tempIdInp.type = "hidden";
+                    tempIdInp.name = info.prefix + "[" + info.index + "].tempId";
+                    tr.querySelector(".col-select").appendChild(tempIdInp);
+                }
+                tempIdInp.value = String(tempId);
+            }
+
+            var clone = tr.cloneNode(true);
+            clone.removeAttribute("data-promoting");
+            reindexBlankRow(clone, info.prefix, info.index + 1);
+            clearBlankRow(clone);
+            tbody.appendChild(clone);
+            delete tr.dataset.promoting;
+            __dirty = true;
+        }
+
+        function setupImmediateRowAdd(tbodyId) {
+            var tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            /* 最初の1文字が入る直前に採番して、隣のNoセルへ即時表示 */
+            tbody.addEventListener("beforeinput", function (e) {
+                var tr = e.target.closest ? e.target.closest("tr.blank-row") : null;
+                if (tr && tbody.contains(tr)) promoteBlankRow(tr);
+            }, true);
+            /* beforeinput非対応環境向けのフォールバック */
+            tbody.addEventListener("input", function (e) {
+                var tr = e.target.closest ? e.target.closest("tr.blank-row") : null;
+                if (tr && tbody.contains(tr)) promoteBlankRow(tr);
+            }, true);
+            /* select要素はbeforeinput/inputが発生しないためchangeで処理 */
+            tbody.addEventListener("change", function (e) {
+                if (e.target.tagName !== "SELECT") return;
+                var tr = e.target.closest ? e.target.closest("tr.blank-row") : null;
+                if (tr && tbody.contains(tr)) promoteBlankRow(tr);
+            });
+        }
+
+        /*
+         * ★保守会社（子グリッド／koseiBody）の変更のみを追跡する専用フラグ。
+         *   親メーカー行の選択切替（__loadKoseiWithoutPageRefresh）は koseiBody を
+         *   AJAXで丸ごと差し替えるため、koseiBody に未保存の変更がある場合のみ
+         *   「破棄して他のメーカーを表示しますか？」の確認が必要になる。
+         *   製造メーカー行（gridBody）側の変更（無効チェック等）はDOM上に残ったまま
+         *   登録時に送信されるため破棄されず、確認ダイアログは不要。
+         */
+        var __koseiDirty = false;
+        /*
+         * ★製造メーカー切替時に保守会社構成グリッドの未保存編集内容を保持するキャッシュ
+         *   （MCM0018U/0017Uと同一方式）。従来は __koseiDirty により「データが変更されて
+         *   います。破棄して他のメーカーを表示しますか？」の確認ダイアログを出し、OKで
+         *   子グリッドを破棄していたが、この確認ダイアログ自体を廃止し、切替前に子グリッドの
+         *   全行（unchanged含む）をキャッシュへ保存し、再度その親を選んだ際に復元する方式に
+         *   統一する。
+         */
+        window.__pendingKoseiChanges = window.__pendingKoseiChanges || {};
+
+        /* 行を「変更あり」にする（新規行は new を維持） */
+        function markDirty(tr) {
+            __dirty = true;
+            if (!tr) { return; }
+            var ownerTbody = tr.parentElement;
+            if (ownerTbody && ownerTbody.id === "koseiBody") { __koseiDirty = true; }
+            var st = tr.querySelector(".row-status-input");
+            if (!st) { return; }
+            if (tr.classList.contains("blank-row")) { st.value = "new"; return; }
+            if (st.value === "unchanged") { st.value = "modified"; }
+        }
+
+        /* ===== 閉じる（MCM0015U 準拠：変更があるときだけ確認ダイアログ） ===== */
+        (function () {
+            var link = document.getElementById("btnCloseLink");
+            if (!link) return;
+            link.addEventListener("click", function (e) {
+                var href = link.getAttribute("href");
+                var dirty = (typeof window.hasUnsavedChanges === "function") ? window.hasUnsavedChanges() : false;
+                if (!dirty) { return; }
+                e.preventDefault();
+                var MSG = "データが変更されています。破棄されますがよろしいですか？";
+                showConfirm(MSG, function () { window.location.href = href; });
+            });
+        })();
+
+        /*
+         * ===== 2クリック編集（MCM0018U setupTwoClickEdit 準拠） =====
+         * 1クリック目: セル選択（.cell-selected）
+         * 2クリック目: readonly を解除して編集開始
+         * 【変換元】Mcm0016uScreen.vb — DataGridView1_CellClick / CellBeginEdit
+         */
+        /*
+         * ★行内、No以外に何も入力・選択されていないかを判定する（MCM0015U 準拠）。
+         *   No以外の text/select/checkbox がすべて未入力・未選択の場合に true を返す。
+         */
+        function isRowContentEmpty(tr) {
+            if (!tr) return true;
+            var textEmpty = Array.prototype.every.call(
+                tr.querySelectorAll('input[type="text"]:not([name$=".hyojijun"])'),
+                function (i) { return i.value.trim() === ""; }
+            );
+            var selectEmpty = Array.prototype.every.call(
+                tr.querySelectorAll("select"),
+                function (s) { return s.value === ""; }
+            );
+            var checkEmpty = !tr.querySelector(".yuko-check:checked");
+            return textEmpty && selectEmpty && checkEmpty;
+        }
+
+        /*
+         * ★新規行(blank-rowから昇格した new 行)を選択した時、既存Noの最大値+1を自動表示する。
+         *   すでに値がある場合は上書きしない（MCM0015U 準拠）。
+         */
+        function assignNoForRow(tr) {
+            if (!tr) return;
+            var st = tr.querySelector(".row-status-input");
+            var isNew = tr.classList.contains("blank-row") || (st && st.value === "new");
+            var noInput = tr.querySelector(".col-no input.grid-input");
+            if (!isNew || !noInput) return;
+            var tbody = tr.parentElement;
+            if (noInput.value === "") {
+                var max = 0;
+                tbody.querySelectorAll("tr").forEach(function (row) {
+                    if (row === tr || row.classList.contains("blank-row")) return;
+                    var inp = row.querySelector(".col-no input.grid-input");
+                    var v = inp && inp.value !== "" ? parseInt(inp.value, 10) : NaN;
+                    if (!isNaN(v) && v > max) max = v;
+                });
+                noInput.value = String(max + 1);
+                noInput.setAttribute("data-auto-no", "1");
+            }
+
+            /*
+             * ★製造メーカーグリッドの新規行にNoが採番されたのと同じタイミングで、
+             *   一時ID（tempId、負数）を付与し、保守会社グリッドを新規行用の空状態に
+             *   即座に切り替える。従来は「No以外の項目に最初の入力があった時点
+             *   （promoteBlankRow経由）」まで保守会社グリッドがリセットされず、
+             *   タイミングが遅れていた。
+             */
+            if (tbody.id === "gridBody" && !tr.hasAttribute("data-id")) {
+                var info = getRowPrefix(tr);
+                if (info) {
+                    var tempId = __nextMakerTempId--;
+                    tr.setAttribute("data-id", String(tempId));
+                    var tempIdInp = tr.querySelector("input[name$='.tempId']");
+                    if (!tempIdInp) {
+                        tempIdInp = document.createElement("input");
+                        tempIdInp.type = "hidden";
+                        tempIdInp.name = info.prefix + "[" + info.index + "].tempId";
+                        tr.querySelector(".col-select").appendChild(tempIdInp);
+                    }
+                    tempIdInp.value = String(tempId);
+					var selectMakerIdField = document.getElementById("selectMakerId");
+					if (selectMakerIdField) {
+					 	selectMakerIdField.value = String(tempId);
+					}
+					if (typeof window.__syncMakerSelectedRowId === "function") {
+						window.__syncMakerSelectedRowId(String(tempId));
+					}
+					if (typeof window.__loadKoseiWithoutPageRefresh === "function") {
+						window.__loadKoseiWithoutPageRefresh(String(tempId));
+					}
+                }
+            }
+        }
+
+        /*
+         * ★新規行から離れる時、No以外がすべて未入力なら自動表示したNoをクリアする。
+         *   （MCM0015U 準拠：入力が確定していない行のNoは仮表示のまま保持しない）
+         *   合わせて、割り当て済みの一時ID（data-id/tempId）も取り消す。
+         */
+        function clearAutoNoIfUntouched(tr) {
+            if (!tr) return;
+            var st = tr.querySelector(".row-status-input");
+            var isNew = tr.classList.contains("blank-row") || (st && st.value === "new");
+            if (!isNew) return;
+            if (!isRowContentEmpty(tr)) return;
+            var noInput = tr.querySelector(".col-no input.grid-input");
+            if (noInput) { noInput.value = ""; noInput.removeAttribute("data-auto-no"); }
+            if (tr.parentElement && tr.parentElement.id === "gridBody") {
+                tr.removeAttribute("data-id");
+                var tempIdInp = tr.querySelector("input[name$='.tempId']");
+                if (tempIdInp) { tempIdInp.value = ""; }
+            }
+        }
+
+        /*
+         * ★行移動前の必須チェック。gridSelに応じて製造メーカー行/保守会社構成行の
+         *   どちらの必須ルールを適用するか切り替える（登録時 validateBeforeSubmit と同一ロジック）。
+         *   エラーがあれば true を返し、呼び出し元は行移動を中止する。
+         */
+        function checkRequiredOnRowLeave(gridSel, tr) {
+            if (!tr) return false;
+            /*
+             * ★行移動前に桁数・数値チェック（checkCellLength）も実施する。
+             *   従来はセル移動時にこのチェックが呼ばれておらず、登録ボタン押下時のみ
+             *   検出されていた。No項目の数値以外入力もこのタイミングで検出できるようにする。
+             */
+            var lenErrEl = null, lenErrMsg = null;
+            tr.querySelectorAll("input.grid-input").forEach(function (inp) {
+                if (lenErrMsg || !inp.name) return;
+                var msg = checkCellLength(inp);
+                if (msg) { lenErrMsg = msg; lenErrEl = inp; }
+            });
+            if (lenErrMsg) {
+                showError(lenErrMsg);
+                lenErrEl.classList.add("field-error");
+                try {
+                    if (lenErrEl.tagName === "INPUT") { lenErrEl.readOnly = false; }
+                    lenErrEl.focus({ preventScroll: true });
+                } catch (ex) { /* ignore */ }
+                var tdLen = lenErrEl.closest("td");
+                if (tdLen) { tdLen.classList.add("cell-error"); }
+                return true;
+            }
+			var reqErr = (gridSel === "#makerTable") ? getMakerRequiredError(tr) : getKoseiRequiredError(tr);
+            if (!reqErr) return false;
+            showError(reqErr.msg);
+            (reqErr.els || (reqErr.el ? [reqErr.el] : [])).forEach(function (elx) {
+                var tdx = elx.closest("td");
+                if (tdx) { tdx.classList.add("cell-error"); }
+            });
+            if (reqErr.el) {
+                try {
+                    if (reqErr.el.tagName === "INPUT") { reqErr.el.readOnly = false; }
+                    reqErr.el.focus({ preventScroll: true });
+                } catch (ex) { /* ignore */ }
+            }
+            return true;
+        }
+
+        function setupTwoClickEdit(gridSel) {
+            var grid = document.querySelector(gridSel);
+            if (!grid) { return; }
+            var body = grid.querySelector("tbody");
+            if (!body) { return; }
+            /* ★このグリッド内で最後に選択された行を保持し、行移動時のNo自動クリア判定に使う */
+            var lastRow = null;
+            /* ★現在編集中のinput/select（MCM0015U準拠）。3回目以降の同一セルクリックで
+               選択状態へ巻き戻ったり、全選択(input.select())が再実行されるのを防ぐために使う。 */
+            var editing = null;
+
+            body.addEventListener("click", function (e) {
+                var td = e.target.closest ? e.target.closest("td") : null;
+                if (!td) { return; }
+                /* ▶マーカー列はセル選択の対象外（行選択と排他 / MCM0017U 準拠） */
+                if (td.classList.contains("col-select")) {
+					 var cs0 = grid.querySelectorAll("td.cell-selected");
+					 for (var k0 = 0; k0 < cs0.length; k0++) {
+						 cs0[k0].classList.remove("cell-selected");
+						  var pi0 = cs0[k0].querySelector("input.grid-input");
+						   if (pi0) {
+							 pi0.readOnly = true; 
+						 } 
+					 } 
+					 var trMarker = td.closest("tr");
+					 assignNoForRow(trMarker);
+					 lastRow = trMarker;
+					 return; 
+				 }
+                /*
+                 * ★編集中のセル自体を再クリックした場合は状態遷移を行わない（MCM0015U準拠）。
+                 *   このガードが無いと、2回目クリックでcell-selectedを解除した直後の3回目クリックが
+                 *   「1回目クリック（未選択→選択）」と誤認され、選択状態への巻き戻りと
+                 *   input.select()（全選択）の再実行が起きてしまう。
+                 */
+                var clickedInput = e.target.closest ? e.target.closest(".grid-input") : null;
+                if (editing && clickedInput === editing) { return; }
+                var newTr = td.closest("tr");
+                /* ★行が変わる時、前の行に必須未入力があればエラー表示し行移動を止める。
+                   （MCM0023U の checkRowLength と同様、離れる前にチェックする方式） */
+                if (lastRow && newTr && lastRow !== newTr && grid.contains(lastRow)) {
+                    if (checkRequiredOnRowLeave(gridSel, lastRow)) { return; }
+                }
+                /* ★行が変わる時、前の新規行が未入力なら自動表示したNoを消す */
+                if (lastRow && newTr && lastRow !== newTr && grid.contains(lastRow)) {
+                    clearAutoNoIfUntouched(lastRow);
+                }
+                var already = td.classList.contains("cell-selected");
+                var cells = grid.querySelectorAll("td.cell-selected");
+                for (var i = 0; i < cells.length; i++) {
+                    if (cells[i] === td) { continue; }
+                    cells[i].classList.remove("cell-selected");
+                    var prev = cells[i].querySelector("input.grid-input");
+                    if (prev) { prev.readOnly = true; }
+                }
+                /* 別セルへ移動する場合は編集状態を終了する */
+                if (editing && editing.closest("td") !== td) {
+                    editing.setAttribute("readonly", "readonly");
+                    editing = null;
+                }
+                td.classList.add("cell-selected");
+                lastRow = newTr;
+                /* ★新規行を選択したらNoを自動採番する */
+                assignNoForRow(newTr);
+
+                var input = td.querySelector("input.grid-input, select.grid-input");
+                if (!input) { return; }
+                if (already) {
+                    /*
+                     * 【MCM0015U準拠】2回目クリック＝編集開始。cell-selected（グレー）を解除し、
+                     * .grid-input:focus の水色背景に切り替える。
+                     * 従来はcell-selectedを外していなかったため、編集中もグレーのままだった。
+                     */
+                    td.classList.remove("cell-selected");
+                    if (input.tagName === "INPUT") { input.readOnly = false; }
+                    editing = input;
+                    input.focus();
+                    if (typeof input.select === "function") {
+                        try { input.select(); } catch (ex) { /* number型は select 不可 */ }
+                    }
+                }
+            });
+
+            /* ★グリッド外をクリックしたら編集状態を終了する（MCM0015U準拠） */
+            document.addEventListener("mousedown", function (e) {
+                if (editing && !(e.target.closest && e.target.closest("td") === editing.closest("td"))) {
+                    editing.setAttribute("readonly", "readonly");
+                    editing = null;
+                }
+            });
+
+			body.addEventListener("input", function (e) {
+			    if (e.target.name && /\.hyojijun$/.test(e.target.name)) {
+			        var filtered = e.target.value.replace(/[^0-9]/g, "");
+			        if (filtered !== e.target.value) e.target.value = filtered;
+			    }
+
+			    e.target.classList.remove("field-error");
+
+			    var td = e.target.closest("td");
+			    if (td) {
+			        td.classList.remove("cell-error");
+			    }
+
+			    markDirty(e.target.closest ? e.target.closest("tr") : null);
+			});
+			body.addEventListener("change", function (e) {
+
+			    e.target.classList.remove("field-error");
+
+			    var td = e.target.closest("td");
+			    if (td) {
+			        td.classList.remove("cell-error");
+			    }
+
+			    markDirty(e.target.closest ? e.target.closest("tr") : null);
+			});
+        }
+
+        /*
+         * ===== 「無効」チェックボックス → hidden(yukoFlg) =====
+         * 【変換元】Mcm0016uScreen.vb — YUKO_FLG
+         * チェック = 無効 = "0" / 未チェック = 有効 = "1"
+         * （Mcm0016uService.saveSeizomakerRow の "1".equals(...) ? ONE : ZERO に対応）
+         */
+        function setupYukoCheck(gridSel) {
+            var grid = document.querySelector(gridSel);
+            if (!grid) { return; }
+            grid.addEventListener("change", function (e) {
+                var cb = e.target;
+                if (!cb.classList || !cb.classList.contains("yuko-check")) { return; }
+                var td = cb.closest("td");
+                var hid = td ? td.querySelector(".yuko-hidden") : null;
+                if (hid) { hid.value = cb.checked ? "1" : "0"; }
+                markDirty(cb.closest("tr"));
+            });
+        }
+
+        /* 未入力のままの新規行を送信対象から外す（rowStatus が unchanged の blank-row） */
+        function disableEmptyBlankRows(form) {
+            var rows = form.querySelectorAll("tr.blank-row");
+            for (var i = 0; i < rows.length; i++) {
+                var st = rows[i].querySelector(".row-status-input");
+                if (!st || st.value !== "unchanged") { continue; }
+                var els = rows[i].querySelectorAll("input[name], select[name]");
+                for (var j = 0; j < els.length; j++) { els[j].disabled = true; }
+            }
+        }
+
+        /*
+         * ★No専用の数値チェック（MCM0015U準拠、半角数字のみ許容）。
+         *   全角数字・英字・記号・小数点・指数表記(e/E)・正負符号は不可とする。
+         *   従来はこのチェックが存在せず、parseFloat("e")がNaNになることで
+         *   桁数チェック自体をすり抜け、数値以外が無検証のまま登録されていた。
+         */
+        function isHalfWidthDigits(v) {
+            var s = String(v == null ? "" : v).trim();
+            if (s === "") return true;
+            return /^\d+$/.test(s);
+        }
+        /* CPValidate.xml 準拠の桁数・文字数ルール（VB CPValidateUtility 相当） */
+        var LENGTH_RULES = [
+            { pattern: /\.hyojijun$/,     maxLen: 6,    label: "No",         decimal: true, numericStrict: true },
+            { pattern: /\.seizomakerNk$/, maxLen: 80,   label: "製造メーカー" },
+            { pattern: /\.biko$/,          maxLen: 4000, label: "備考" }
+        ];
+        function checkCellLength(inp) {
+            if (!inp || inp.value === "") return null;
+            var name = inp.name || "";
+            for (var i = 0; i < LENGTH_RULES.length; i++) {
+                var rule = LENGTH_RULES[i];
+                if (!rule.pattern.test(name)) continue;
+                if (rule.numericStrict && !isHalfWidthDigits(inp.value)) {
+                    return rule.label + "は数値で入力してください。";
+                }
+                if (rule.decimal) {
+                    var num = parseFloat(inp.value);
+                    if (!isNaN(num) && Math.abs(Math.trunc(num)) >= Math.pow(10, rule.maxLen)) {
+                        return rule.label + "は" + rule.maxLen + "桁以下で入力してください。";
+                    }
+                } else if (inp.value.length > rule.maxLen) {
+                    return rule.label + "は" + rule.maxLen + "桁以下で入力してください。";
+                }
+                return null;
+            }
+            return null;
+        }
+
+		/*
+		 * ★必須項目チェック（製造メーカー行）。
+		 *   rowStatus が unchanged/deleted の行は対象外（未入力の新規行・削除行は許容）。
+		 *   No(hyojijun)も製造メーカーと同様に必須項目として扱う。
+		 *   セル移動時・登録時のどちらからも同じ関数を呼ぶことで判定を一致させる。
+		 *   ★未入力の必須項目が複数ある場合は、1つずつではなくまとめて
+		 *     「未入力の必須項目があります。(No/製造メーカー)」の形式で
+		 *     1つのメッセージにする（他マスタ画面と表示形式を統一）。
+		 */
+		function getMakerRequiredError(tr) {
+		    if (!tr) return null;
+		    var st = tr.querySelector(".row-status-input");
+		    if (!st || st.value === "unchanged" || st.value === "deleted") return null;
+		    var missing = [];
+		    var els = [];
+		    var no = tr.querySelector('input[name$=".hyojijun"]');
+		    if (no && no.value.trim() === "") { missing.push("No"); els.push(no); }
+		    var nk = tr.querySelector("input.maker-nk");
+		    if (nk && nk.value.trim() === "") { missing.push("製造メーカー"); els.push(nk); }
+		    if (missing.length === 0) return null;
+		    return { msg: "未入力の必須項目があります。(" + missing.join("/") + ")", el: els[0], els: els };
+		}
+
+		/*
+		 * ★必須項目チェック（保守会社構成行）。
+		 *   全項目未入力（rowStatus=unchanged）の行はエラーとしない。
+		 *   いずれか1項目でも入力され rowStatus が new/modified になった行のみ、
+		 *   No・保守会社名(select)の必須チェックを行う。
+		 *   ★未入力の必須項目が複数ある場合はまとめて1つのメッセージにする
+		 *     （getMakerRequiredError と同じ方式）。
+		 */
+		function getKoseiRequiredError(tr) {
+		    if (!tr) return null;
+		    var st = tr.querySelector(".row-status-input");
+		    if (!st || st.value === "unchanged" || st.value === "deleted") return null;
+		    var missing = [];
+		    var els = [];
+		    var no = tr.querySelector('input[name$=".hyojijun"]');
+		    if (no && no.value.trim() === "") { missing.push("No"); els.push(no); }
+		    var sel = tr.querySelector("select.kosei-hoshugaisha");
+		    if (sel && sel.value === "") { missing.push("保守会社名"); els.push(sel); }
+		    if (missing.length === 0) return null;
+		    return { msg: "未入力の必須項目があります。(" + missing.join("/") + ")", el: els[0], els: els };
+		}
+
+        /* 必須入力チェック（製造メーカー名 / 保守会社）*/
+        function validateBeforeSubmit(form) {
+            var errs = [];
+            form.querySelectorAll("td.cell-error").forEach(function (c) { c.classList.remove("cell-error"); });
+			var rows = form.querySelectorAll("#makerTable tbody tr");
+	            for (var i = 0; i < rows.length; i++) {
+	                var reqErr = getMakerRequiredError(rows[i]);
+	                if (reqErr) {
+	                    errs.push(reqErr.msg);
+	                    (reqErr.els || (reqErr.el ? [reqErr.el] : [])).forEach(function (elx) {
+	                        if (elx && elx.closest("td")) { elx.closest("td").classList.add("cell-error"); }
+	                    });
+	                }
+                var st = rows[i].querySelector(".row-status-input");
+                if (!st || st.value === "unchanged" || st.value === "deleted") { continue; }
+                // ★桁数・文字数チェック（VB CPValidate 相当）
+                rows[i].querySelectorAll("input.grid-input").forEach(function(inp) {
+                    var msg = checkCellLength(inp);
+                    if (msg) { errs.push(msg); inp.classList.add("field-error"); }
+                });
+            }
+			var krows = form.querySelectorAll("#koseiTable tbody tr");
+			for (var k = 0; k < krows.length; k++) {
+			    var kReqErr = getKoseiRequiredError(krows[k]);
+			    if (kReqErr) {
+			        errs.push(kReqErr.msg);
+			        (kReqErr.els || (kReqErr.el ? [kReqErr.el] : [])).forEach(function (elx) {
+			            if (elx && elx.closest("td")) { elx.closest("td").classList.add("cell-error"); }
+			        });
+			    }
+                var kst = krows[k].querySelector(".row-status-input");
+                if (!kst || kst.value === "unchanged" || kst.value === "deleted") { continue; }
+                // ★桁数・文字数チェック（VB CPValidate 相当）
+                krows[k].querySelectorAll("input.grid-input").forEach(function(inp) {
+                    var msg = checkCellLength(inp);
+                    if (msg) { errs.push(msg); inp.classList.add("field-error"); }
+                });
+            }
+            return errs;
+        }
+
+        /* ===== 初期化（MCM0015U 準拠） ===== */
+        /*
+         * 【MCM0017U準拠】行削除時（通常フォーム送信→リダイレクト）に
+         *   FlashAttributeで渡されたエラーを、画面上部の赤枠ではなくポップアップで表示する。
+         */
+        function showServerMessageOnce() {
+            var data = document.getElementById("serverMessageData");
+            if (!data) return;
+            var errorMessage = data.getAttribute("data-error") || data.getAttribute("data-errors");
+            data.removeAttribute("data-error");
+            data.removeAttribute("data-errors");
+            if (errorMessage) { showError(errorMessage); }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            showServerMessageOnce();
+            setupImmediateRowAdd("gridBody");
+            setupImmediateRowAdd("koseiBody");
+            setupColumnResize("#makerTable");
+            setupColumnResize("#koseiTable");
+
+            /* 行選択は画面内で完結し、ページ全体は再読込しない */
+            /* 【MCM0015U準拠】登録完了後のグリッド差し替え(reloadGridsWithoutScrollReset)からも
+               呼び出すため window に公開する。 */
+            /*
+             * ★製造メーカーの新規（未確定）行が選択された場合は、サーバーに存在しない
+             *   一時ID（負数）を持つだけなので、サーバー往復を行わずクライアント側だけで
+             *   保守会社グリッドを空（blank-rowのみ）の状態に直接リセットする。
+             */
+            function resetKoseiToBlank(makerTempId) {
+                var koseiBody = document.getElementById("koseiBody");
+                if (!koseiBody) return;
+                /* 保守会社コンボの選択肢は既存のblank-row（未選択状態）から複製する（サーバー往復しない）。
+                   通常の構成行から複製すると th:selected が付いた選択肢を引き継いでしまうため、
+                   必ずblank-row側のselectを優先して使う。 */
+                var templateSelect = document.querySelector("#koseiTable tr.blank-row select.kosei-hoshugaisha")
+                    || document.querySelector("#koseiTable select.kosei-hoshugaisha");
+                var optionsHtml = templateSelect ? templateSelect.innerHTML : '<option value=""></option>';
+
+                koseiBody.querySelectorAll("tr").forEach(function (row) { row.remove(); });
+                var blank = document.createElement("tr");
+                blank.className = "blank-row";
+                blank.innerHTML =
+                    '<td class="col-select"><span class="row-marker" aria-hidden="true"></span>' +
+                    '<input type="hidden" class="row-status-input" name="koseiRows[0].rowStatus" value="unchanged"/>' +
+                    '<input type="hidden" name="koseiRows[0].tempParentId" value="' + makerTempId + '"/></td>' +
+                    '<td class="right col-no col-required"><input type="text" class="grid-input input-right no-spin" name="koseiRows[0].hyojijun" readonly/></td>' +
+                    '<td class="col-required"><select class="grid-input kosei-hoshugaisha" name="koseiRows[0].hoshugaishaId">' +
+                    optionsHtml +
+                    '</select></td>' +
+                    '<td><input type="text" class="grid-input input-left" name="koseiRows[0].biko" readonly/></td>' +
+                    '<td class="center col-readonly"></td><td class="col-readonly"></td>' +
+                    '<td class="center col-readonly"></td><td class="col-readonly"></td>';
+                koseiBody.appendChild(blank);
+                setupImmediateRowAdd("koseiBody");
+                setupRowSelect("#koseiTable", null);
+                setupTwoClickEdit("#koseiTable");
+                var table = document.getElementById("koseiTable");
+                if (table) table.style.visibility = "visible";
+            }
+
+            /*
+             * 保守会社構成グリッドの現在のDOM上の全行（unchanged含む）をキャプチャし、
+             * 指定の親キー（メーカーID）で window.__pendingKoseiChanges に保存する。
+             * 【MCM0017U/0018U準拠】末尾の未入力blank-rowはキャプチャ対象から除外する。
+             */
+            function captureCurrentKoseiRows(key) {
+                if (!key) return;
+                var koseiBody = document.getElementById("koseiBody");
+                if (!koseiBody) return;
+                var captured = [];
+                koseiBody.querySelectorAll("tr").forEach(function (tr) {
+                    var statusInp = tr.querySelector(".row-status-input");
+                    if (!statusInp) return;
+                    if (tr.classList.contains("blank-row") && statusInp.value === "unchanged") return;
+                    var data = { rowStatus: statusInp.value };
+                    tr.querySelectorAll("[name]").forEach(function (el) {
+                        var m = el.getAttribute("name").match(/koseiRows\[\d+\]\.(.+)/);
+                        if (!m) return;
+                        var field = m[1];
+                        if (field === "rowStatus") return;
+                        data[field] = el.value;
+                    });
+                    // 監査列（登録日時/登録者/更新日時/更新者）はreadonly表示のためinputが無く、テキストから取得する
+                    var dtCells = tr.querySelectorAll("td.center.col-readonly");
+                    var userCells = tr.querySelectorAll("td.col-readonly:not(.center)");
+                    if (dtCells.length >= 2) {
+                        data.CREATED_DT = dtCells[0].textContent.trim();
+                        data.LASTUPDATE_DT = dtCells[1].textContent.trim();
+                    }
+                    if (userCells.length >= 2) {
+                        data.CREATED_BY = userCells[0].textContent.trim();
+                        data.LASTUPDATE_BY = userCells[1].textContent.trim();
+                    }
+                    captured.push(data);
+                });
+                if (captured.length > 0) window.__pendingKoseiChanges[key] = captured;
+                else delete window.__pendingKoseiChanges[key];
+            }
+
+            /* キャッシュされた保守会社構成データから koseiBody を再構築する（サーバー往復なし） */
+            function renderKoseiFromCache(rows, makerId) {
+                var koseiBody = document.getElementById("koseiBody");
+                if (!koseiBody) return;
+                var templateSelect = document.querySelector("#koseiTable tr.blank-row select.kosei-hoshugaisha")
+                    || document.querySelector("#koseiTable select.kosei-hoshugaisha");
+                var optionsHtml = templateSelect ? templateSelect.innerHTML : '<option value=""></option>';
+
+				koseiBody.querySelectorAll("tr").forEach(function (row) { row.remove(); });
+				var idx = 0;
+				rows.forEach(function (k) {
+				    var tr = document.createElement("tr");
+				    /*
+				     * ★保守会社構成IDが存在する行（既存行）には data-id 属性を設定する。
+				     *   これが無いと、行選択（setupRowSelect / setupTwoClickEdit の
+				     *   tr.hasAttribute("data-id") 判定）が常に不成立となり、▶列を
+				     *   押下しても行選択（グレー表示）にならず、行削除もできなくなる。
+				     *   サーバー描画時（th:attr="data-id=${row.SEIZOMAKERKOSEI_ID}"）や
+				     *   __loadKoseiWithoutPageRefresh のフェッチ結果には設定されていたが、
+				     *   親メーカー切替時にキャッシュから復元するこの経路だけ漏れていた。
+				     */
+				    if (k.seizomakerkoseiId) { tr.setAttribute("data-id", k.seizomakerkoseiId); }
+				    tr.innerHTML =
+				        '<td class="col-select"><span class="row-marker" aria-hidden="true"></span>' +
+				        '<input type="hidden" class="row-status-input" name="koseiRows[' + idx + '].rowStatus" value="' + (k.rowStatus || 'unchanged') + '"/>' +
+				        '<input type="hidden" name="koseiRows[' + idx + '].seizomakerkoseiId" value="' + (k.seizomakerkoseiId || '') + '"/>' +
+				        '<input type="hidden" name="koseiRows[' + idx + '].seizomakerId" value="' + (k.seizomakerId || '') + '"/>' +
+				        '<input type="hidden" name="koseiRows[' + idx + '].tempParentId" value="' + (k.tempParentId || '') + '"/></td>' +
+				        '<td class="right col-no col-required"><input type="text" class="grid-input input-right no-spin" name="koseiRows[' + idx + '].hyojijun" value="' + (k.hyojijun || '') + '" readonly/></td>' +
+				        '<td class="col-required"><select class="grid-input kosei-hoshugaisha" name="koseiRows[' + idx + '].hoshugaishaId">' + optionsHtml + '</select></td>' +
+				        '<td><input type="text" class="grid-input input-left" name="koseiRows[' + idx + '].biko" value="' + (k.biko || '') + '" readonly/></td>' +
+				        '<td class="center col-readonly">' + (k.CREATED_DT || '') + '</td><td class="col-readonly">' + (k.CREATED_BY || '') + '</td>' +
+				        '<td class="center col-readonly">' + (k.LASTUPDATE_DT || '') + '</td><td class="col-readonly">' + (k.LASTUPDATE_BY || '') + '</td>';
+				    var sel = tr.querySelector('select[name$=".hoshugaishaId"]');
+				    if (sel && k.hoshugaishaId) sel.value = k.hoshugaishaId;
+				    koseiBody.appendChild(tr);
+				    idx++;
+				});
+				/*
+				 * ★キャッシュ復元後の空欄行（新規追加用プレースホルダ）に、既存メーカーの
+				 *   seizomakerIdを設定する。従来はこの隠しフィールド自体が無く、
+				 *   一度他のメーカーへ切り替えて戻ってきた後に保守会社の新規行を追加すると、
+				 *   seizomakerId・tempParentIdの両方が空のまま送信され、
+				 *   サーバー側（validateAndSave）でエラーも出さず静かにスキップされる
+				 *   （新規行が保存されない）不具合の原因になっていた。
+				 *   新規メーカー（一時ID＝負数）の場合はtempParentId側で解決するため、
+				 *   既存メーカー（正のID）の場合のみseizomakerIdを設定する。
+				 */
+				var makerIdNum = makerId != null ? parseInt(makerId, 10) : NaN;
+				var isExistingMaker = !isNaN(makerIdNum) && makerIdNum > 0;
+				// 末尾に未入力の新規行プレースホルダを追加
+				var blank = document.createElement("tr");
+				blank.className = "blank-row";
+				blank.innerHTML =
+				    '<td class="col-select"><span class="row-marker" aria-hidden="true"></span>' +
+				    '<input type="hidden" class="row-status-input" name="koseiRows[' + idx + '].rowStatus" value="unchanged"/>' +
+				    (isExistingMaker
+				        ? '<input type="hidden" name="koseiRows[' + idx + '].seizomakerId" value="' + makerId + '"/>'
+				        : '') +
+				    '<input type="hidden" name="koseiRows[' + idx + '].tempParentId" value="' + (isExistingMaker ? '' : (makerId || '')) + '"/></td>' +
+				    '<td class="right col-no col-required"><input type="text" class="grid-input input-right no-spin" name="koseiRows[' + idx + '].hyojijun" readonly/></td>' +
+				    '<td class="col-required"><select class="grid-input kosei-hoshugaisha" name="koseiRows[' + idx + '].hoshugaishaId">' + optionsHtml + '</select></td>' +
+				    '<td><input type="text" class="grid-input input-left" name="koseiRows[' + idx + '].biko" readonly/></td>' +
+				    '<td class="center col-readonly"></td><td class="col-readonly"></td>' +
+				    '<td class="center col-readonly"></td><td class="col-readonly"></td>';
+				koseiBody.appendChild(blank);
+
+                setupImmediateRowAdd("koseiBody");
+                setupRowSelect("#koseiTable", null);
+                setupTwoClickEdit("#koseiTable");
+                var table = document.getElementById("koseiTable");
+                if (table) table.style.visibility = "visible";
+            }
+
+			window.__loadKoseiWithoutPageRefresh = function loadKoseiWithoutPageRefresh(id) {
+			    /* ★「現在表示中メーカーID」の同期は、新規行（一時ID＝負数）を含めて
+			       この関数の入口で必ず行う。従来はresetKoseiToBlank分岐（早期return）で
+			       同期されず、#selectMakerIdが直前のメーカーIDのまま残ってしまい、
+			       保守会社グリッドのキャッシュキー特定（captureCurrentKoseiRows）が
+			       ずれる不具合があった。 */
+			    var idField = document.getElementById("selectMakerId");
+			    if (idField) { idField.value = id; }
+
+			    /* ★新規メーカー行（一時ID＝負数）はサーバーに存在しないため、往復せず即時リセットする */
+			    var idNum = parseInt(id, 10);
+			    if (!isNaN(idNum) && idNum < 0) {
+			        resetKoseiToBlank(id);
+			        return;
+			    }
+			    var form = document.getElementById("selectMakerForm");
+			    if (!form || !idField) return;
+
+                fetch(form.action, {
+                    method: "POST",
+                    body: new FormData(form),
+                    credentials: "same-origin",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                }).then(function (response) {
+                    if (!response.ok) throw new Error("保守会社情報の取得に失敗しました。");
+                    return response.text();
+                }).then(function (html) {
+                    var parsed = new DOMParser().parseFromString(html, "text/html");
+                    var nextBody = parsed.getElementById("koseiBody");
+                    var currentBody = document.getElementById("koseiBody");
+                    if (!nextBody || !currentBody) return;
+                    currentBody.replaceWith(nextBody);
+                    setupImmediateRowAdd("koseiBody");
+                    setupRowSelect("#koseiTable", null);
+                    setupTwoClickEdit("#koseiTable");
+                    var table = document.getElementById("koseiTable");
+                    if (table) table.style.visibility = "visible";
+                }).catch(function (error) {
+                    showError(error.message || "保守会社情報の取得に失敗しました。");
+                });
+            }
+
+            /* 現在選択中の製造メーカーID（キャッシュキー用）を取得する */
+            function currentSelectedMakerId() {
+                var idField = document.getElementById("selectMakerId");
+                return idField ? idField.value : null;
+            }
+
+			setupRowSelect("#makerTable", function (id) {
+			    if (!id) return;
+			    var prevId = currentSelectedMakerId();
+			    if (prevId) captureCurrentKoseiRows(prevId);
+			    __koseiDirty = false;
+
+			    if (window.__pendingKoseiChanges[id]) {
+			        var idField = document.getElementById("selectMakerId");
+			        if (idField) idField.value = id;
+			        renderKoseiFromCache(window.__pendingKoseiChanges[id], id);
+			    } else {
+			        window.__loadKoseiWithoutPageRefresh(id);
+			    }
+			});
+			setupRowSelect("#koseiTable", null);
+
+            /* インライン編集（2クリック） */
+            setupTwoClickEdit("#makerTable");
+            setupTwoClickEdit("#koseiTable");
+            setupYukoCheck("#makerTable");
+
+            /*
+             * ★ツールバー「行削除」（旧・行内「削除」ボタンを統合）。
+             *   【MCM0015U準拠】従来は行削除ボタン押下で即座にサーバーへPOSTしDBを
+             *   物理削除していたが、これは他マスタ画面の削除フロー（削除確認→
+             *   グリッド上で一時削除状態→登録ボタン押下で初めてDB反映）と異なっていた。
+             *   確認OK後は行の rowStatus を "deleted" にして非表示にするだけとし、
+             *   実際のDB更新は登録ボタン押下時（submitUpdateAjax）にまとめて行う。
+             *   新規未確定行（blank-row / rowStatus=new）はDB未登録のためDOMから即時除去する。
+             */
+            function markRowDeleted(tr) {
+                if (!tr) return;
+                var st = tr.querySelector(".row-status-input");
+                var isNewRow = tr.classList.contains("blank-row") || (st && st.value === "new");
+                if (isNewRow) {
+                    tr.parentNode.removeChild(tr);
+                } else if (st) {
+                    st.value = "deleted";
+                    tr.style.display = "none";
+                    tr.classList.add("row-deleted");
+                    tr.classList.remove("selected-row", "row-active");
+                }
+                __dirty = true;
+            }
+
+			var btnDelMaker = document.getElementById("btnDeleteMaker");
+			if (btnDelMaker) {
+			    btnDelMaker.addEventListener("click", function () {
+			        var tr = document.querySelector("#makerTable tbody tr.selected-row[data-id]")
+			            || document.querySelector("#makerTable tbody tr.row-active[data-id]");
+			        if (!tr) { showError("削除する行を選択してください。"); return; }
+
+			        var idAttr = tr.getAttribute("data-id");
+			        var idNum = parseInt(idAttr, 10);
+			        var st = tr.querySelector(".row-status-input");
+			        var isNewRow = tr.classList.contains("blank-row")
+			            || (st && st.value === "new")
+			            || (!isNaN(idNum) && idNum < 0);
+
+			        /* ★新規未確定行（一時ID＝負数）はDBに存在せず他テーブルからも参照され得ないため、
+			           サーバーへ問い合わせず従来どおり即削除する。 */
+			        if (isNewRow) {
+			            showConfirm("この製造メーカーを削除しますか？関連する保守会社構成も削除されます。", function () {
+			                markRowDeleted(tr);
+			            });
+			            return;
+			        }
+
+			        /* ★既存行は、削除ボタン押下時点でサーバーへ参照有無を問い合わせる。
+			           参照ありなら削除を中止しエラー表示、なしなら従来どおり削除予定にする
+			           （実際のDB削除は登録ボタン押下時にまとめて行う）。 */
+			        var base = document.getElementById("updateForm").getAttribute("action")
+			            .replace(/\/update(\?.*)?$/, "");
+			        window.McmCommon && window.McmCommon.showProgress();
+			        fetch(base + "/checkSeizomakerRef?seizomakerId=" + encodeURIComponent(idAttr),
+			              { credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } })
+			        .then(function (res) {
+			            if (!res.ok) throw new Error("参照チェックに失敗しました。");
+			            return res.json();
+			        })
+			        .then(function (data) {
+			            if (data && data.referenced) {
+			                showError((data && data.message) ? data.message
+			                    : "他のデータで使用されているため削除できません。");
+			                return;
+			            }
+			            showConfirm("この製造メーカーを削除しますか？関連する保守会社構成も削除されます。", function () {
+			                markRowDeleted(tr);
+			            });
+			        })
+			        .catch(function () {
+			            showError("参照チェックに失敗しました。時間をおいて再度お試しください。");
+			        })
+			        .finally(function () {
+			            window.McmCommon && window.McmCommon.hideProgress();
+			        });
+			    });
+			}
+            var btnDelKosei = document.getElementById("btnDeleteKosei");
+            if (btnDelKosei) {
+                btnDelKosei.addEventListener("click", function () {
+                    var tr = document.querySelector("#koseiTable tbody tr.selected-row[data-id]")
+                        || document.querySelector("#koseiTable tbody tr.row-active[data-id]");
+                    if (!tr) { showError("削除する行を選択してください。"); return; }
+                    showConfirm("この構成行を削除しますか？", function () {
+                        markRowDeleted(tr);
+                        __koseiDirty = true;
+                    });
+                });
+            }
+
+            /*
+             * 【変換元】UpdateButton_Click — ConfirmMessage("登録しますか？") → Update
+             * 【MCM0015U準拠】fetchで送信し、成功時は完了メッセージを表示するのみでページを
+             *   再読み込みしない。従来は form.submit() でページ全体を再読み込みしていたため、
+             *   完了メッセージが表示されず、スクロール位置も先頭に戻っていた。
+             */
+            var btnUpd = document.getElementById("btnUpdate");
+            if (btnUpd) {
+                btnUpd.addEventListener("click", function () {
+                    var form = document.getElementById("updateForm");
+                    if (!form) { return; }
+                    /* ★必須チェックはデータ変更有無の判定より先に実施する。
+                       未入力のまま備考欄など一部だけ入力したケースでも、
+                       「値が変更されていません。」より先に必須エラーを出す。 */
+                    var errs = validateBeforeSubmit(form);
+                    if (errs.length > 0) {
+                        showError(errs[0]);
+                        return;
+                    }
+                    if (!__dirty) { showError("値が変更されていません。"); return; }
+                    showConfirm("登録を実施します。よろしいですか？", function () {
+                        submitUpdateAjax(form);
+                    });
+                });
+            }
+
+            /*
+             * 【性能改善】行データをname属性(seizomakerRows[n].xxx / koseiRows[n].xxx)から
+             *   読み取り、JSONオブジェクトとして構築する。
+             *   従来は FormData（application/x-www-form-urlencoded 形式）で送信しており、
+             *   行数の多いフォームでSpring MVC側のバインディングが極端に遅くなる問題があった。
+             *   JSON化することで、サーバー側は Jackson の線形時間デシリアライズに切り替わる。
+             */
+            function buildRowsPayloadFromTable(tbodyId, prefix, fieldNames) {
+                var tbody = document.getElementById(tbodyId);
+                var rows = [];
+                if (!tbody) return rows;
+                tbody.querySelectorAll("tr").forEach(function (tr) {
+                    var statusInp = tr.querySelector('input[name^="' + prefix + '["][name$=".rowStatus"]');
+                    if (!statusInp) return;
+                    // disableEmptyBlankRows 相当：未入力の末尾空行（rowStatus=unchangedのblank-row）は送信しない
+                    if (tr.classList.contains("blank-row") && statusInp.value === "unchanged") return;
+                    var row = { rowStatus: statusInp.value };
+                    fieldNames.forEach(function (name) {
+                        if (name === "rowStatus") return;
+                        var el = tr.querySelector('[name$=".' + name + '"]');
+                        // 空文字はnullに変換する（BigDecimal等の数値項目でJSONデシリアライズエラーを防ぐ）
+                        var v = el ? el.value : null;
+                        row[name] = (v === "") ? null : v;
+                    });
+                    rows.push(row);
+                });
+                return rows;
+            }
+
+            /* 【MCM0015U準拠】登録処理をfetchで送信し、レスポンスに応じてダイアログのみ表示する */
+			function submitUpdateAjax(form) {
+			    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+			    /*
+			     * ★「現在表示中メーカーID」は、切替の都度更新される #selectMakerId
+			     *   （selectMakerForm側）で判定する。updateForm自身が持つ
+			     *   input[name="selectedSeizomakerId"] はページ初期表示時点の値のまま
+			     *   更新されないため、これを使うと現在表示中メーカーの判定がずれ、
+			     *   本来除外すべきキャッシュ行が二重に送信される（事象1の原因）だけでなく、
+			     *   送信ペイロード自体の selectedSeizomakerId も古いメーカーIDのままになり、
+			     *   登録完了後の再読込で編集していたメーカーとは別のメーカーが
+			     *   表示されてしまう不具合（既存メーカーへの2回目以降の保守会社追加時に
+			     *   「登録されていない」ように見える現象）の原因にもなっていた。
+			     *   payload.selectedSeizomakerId もこちらの値に統一する。
+			     */
+			    var currentMakerIdField = document.getElementById("selectMakerId");
+			    var koseiRows = buildRowsPayloadFromTable("koseiBody", "koseiRows",
+			        ["seizomakerkoseiId", "seizomakerId", "hoshugaishaId", "hyojijun", "biko", "tempParentId"]);
+			    /*
+			     * ★親メーカー切替でキャッシュへ退避された、現在DOM上に表示されていない
+			     *   他のメーカーの保守会社構成編集内容も送信対象に含める。
+			     */
+			    if (window.__pendingKoseiChanges) {
+			        for (var key in window.__pendingKoseiChanges) {
+			            if (String(key) === String(currentMakerIdField ? currentMakerIdField.value : "")) continue; // 現在表示中の分は上で収集済み
+			            var cachedRows = window.__pendingKoseiChanges[key];
+			            (cachedRows || []).forEach(function (k) {
+			                koseiRows.push({
+			                    rowStatus: k.rowStatus,
+			                    seizomakerkoseiId: k.seizomakerkoseiId || null,
+			                    seizomakerId: k.seizomakerId || null,
+			                    hoshugaishaId: k.hoshugaishaId || null,
+			                    hyojijun: k.hyojijun || null,
+			                    biko: k.biko || null,
+			                    tempParentId: k.tempParentId || null
+			                });
+			            });
+			        }
+			    }
+			    var payload = {
+			        selectedSeizomakerId: currentMakerIdField ? currentMakerIdField.value : null,
+			        seizomakerRows: buildRowsPayloadFromTable("gridBody", "seizomakerRows",
+			            ["seizomakerId", "seizomakerNk", "yukoFlg", "hyojijun", "biko", "tempId"]),
+			        koseiRows: koseiRows
+			    };
+                var headers = { "X-Requested-With": "XMLHttpRequest", "Content-Type": "application/json" };
+                var mh = document.querySelector('meta[name="_csrf_header"]');
+                var mt = document.querySelector('meta[name="_csrf"]');
+                if (mh && mt && mh.content && mt.content) headers[mh.content] = mt.content;
+
+                /* 【共通プログレスインジケーター】サーバー処理中は画面全体を無効化する */
+                window.McmCommon && window.McmCommon.showProgress();
+                fetch(form.getAttribute("action"), { method: "POST", headers: headers, body: JSON.stringify(payload) })
+                .then(function (res) {
+                    if (!res.ok) {
+                        return res.json().catch(function () { return null; }).then(function (data) {
+                            showError((data && data.message) ? data.message : "登録に失敗しました。時間をおいて再度お試しください。");
+                        });
+                    }
+					return res.json().catch(function () { return {}; }).then(function (data) {
+					    __dirty = false;
+					    __koseiDirty = false;
+					    window.__pendingKoseiChanges = {}; // 登録完了後は保留中キャッシュを全クリアする
+					    /*
+					     * ★新規メーカー行を登録した場合、サーバーからの応答
+					     *   (data.selectedSeizomakerId)には、一時ID（負数）から確定した
+					     *   本採番済みのIDが入っている。これで #selectMakerId を更新してから
+					     *   再読込することで、登録完了後に選択メーカーが
+					     *   先頭行へ戻ってしまう不具合を防ぐ。
+					     */
+					    if (data && data.selectedSeizomakerId != null) {
+					        var idField = document.getElementById("selectMakerId");
+					        if (idField) { idField.value = String(data.selectedSeizomakerId); }
+					    }
+					    showInfo((data && data.message) ? data.message : "登録処理が完了しました。", function () {
+					        /*
+					         * サーバー側で採番・監査列（登録日時等）が確定するため最新状態を反映する。
+					         * 【MCM0015U準拠】ページ全体を再読み込みせず、グリッド部分のHTMLだけを
+					         *   差し替えることでスクロール位置を維持する（location.reload()は使わない）。
+					         */
+					        reloadGridsWithoutScrollReset();
+					    });
+					});
+                }).catch(function () {
+                    showError("通信エラーが発生しました。時間をおいて再度お試しください。");
+                }).finally(function () {
+                    window.McmCommon && window.McmCommon.hideProgress();
+                });
+            }
+
+            /* disableEmptyBlankRowsで無効化した入力を元に戻す（送信失敗時の再操作用） */
+            function restoreDisabledInputs(form) {
+                form.querySelectorAll("input:disabled, select:disabled").forEach(function (el) { el.disabled = false; });
+            }
+
+            /*
+             * 【MCM0015U準拠】登録完了後、現在のページをGETで取得し直し、
+             * makerTable/koseiTableのtbodyだけを最新データに差し替える。
+             * ページ全体を再読み込みしないため、スクロール位置が保持される。
+             */
+			 function reloadGridsWithoutScrollReset() {
+			     /*
+			      * ★登録完了後の再読込時、現在選択中のメーカーIDをクエリパラメータとして
+			      *   明示的に渡す。従来はwindow.location.hrefをそのまま取得していたため、
+			      *   サーバー側（index()）が常に先頭メーカーを選択し直してしまい、
+			      *   実際に編集・登録していたメーカーとは別の保守会社構成が
+			      *   表示される不具合があった。
+			      */
+			     var idField = document.getElementById("selectMakerId");
+			     var currentId = idField ? idField.value : "";
+			     var idNum = currentId ? parseInt(currentId, 10) : NaN;
+			     var reloadUrl = window.location.pathname;
+			     /* 新規メーカー行（一時ID＝負数）は再読込対象として送らない */
+			     if (currentId && !isNaN(idNum) && idNum > 0) {
+			         reloadUrl += "?selectedSeizomakerId=" + encodeURIComponent(currentId);
+			     }
+			     fetch(reloadUrl, { credentials: "same-origin" })
+			     .then(function (res) {
+                    if (!res.ok) throw new Error("再読込に失敗しました。status=" + res.status);
+                    return res.text();
+                })
+                .then(function (html) {
+                    var parsed = new DOMParser().parseFromString(html, "text/html");
+                    var nextMakerBody = parsed.getElementById("gridBody");
+                    var nextKoseiBody = parsed.getElementById("koseiBody");
+                    var currentMakerBody = document.getElementById("gridBody");
+                    var currentKoseiBody = document.getElementById("koseiBody");
+                    if (nextMakerBody && currentMakerBody) {
+                        currentMakerBody.replaceWith(nextMakerBody);
+                        setupImmediateRowAdd("gridBody");
+					        setupRowSelect("#makerTable", function (id) {
+					            if (!id) return;
+					            /* ★確認ダイアログは表示しない（MCM0018U準拠）。切替前にキャッシュへ保存する。 */
+					            var prevId = currentSelectedMakerId();
+					            if (prevId) captureCurrentKoseiRows(prevId);
+					            __koseiDirty = false;
+					            if (window.__pendingKoseiChanges[id]) {
+					                var idField = document.getElementById("selectMakerId");
+                                if (idField) idField.value = id;
+                                renderKoseiFromCache(window.__pendingKoseiChanges[id],id);
+                            } else {
+                                window.__loadKoseiWithoutPageRefresh(id);
+                            }
+                        });
+                        setupTwoClickEdit("#makerTable");
+                        setupYukoCheck("#makerTable");
+                    }
+                    if (nextKoseiBody && currentKoseiBody) {
+                        currentKoseiBody.replaceWith(nextKoseiBody);
+                        setupImmediateRowAdd("koseiBody");
+                        setupRowSelect("#koseiTable", null);
+                        setupTwoClickEdit("#koseiTable");
+                    }
+                })
+                .catch(function () {
+                    showError("最新データの再読込に失敗しました。画面を更新してください。", { title: "エラー", icon: "warn" });
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
