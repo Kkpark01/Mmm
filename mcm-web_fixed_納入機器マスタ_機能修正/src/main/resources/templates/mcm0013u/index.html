@@ -345,7 +345,7 @@
                         <select form="updateForm" class="grid-input kotai-edit"
                                 th:name="|kotaikanriRows[${stat.index}].atsukaikikikoseiId|">
                             <option value=""></option>
-                            <option th:each="opt : ${partnersByEquipment[row.atsukaikikiId]}"
+                            <option th:each="opt : ${row.atsukaikikiId != null ? partnersByEquipment[row.atsukaikikiId] : null}"
                                     th:value="${opt['ATSUKAIKIKIKOSEI_ID']}"
                                     th:text="${opt['TORIHIKISAKI_NK']}"
                                     th:selected="${opt['ATSUKAIKIKIKOSEI_ID'] == row.atsukaikikikoseiId}">
