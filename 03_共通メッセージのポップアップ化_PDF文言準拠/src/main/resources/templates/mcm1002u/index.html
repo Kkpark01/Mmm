@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm1002u1Screen.Designer.vb
+    MCM1002U Screen1 - 需要家見積作成（機器構成選定）
+    画面サイズ: 1263 x 923
+-->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+	<link rel="stylesheet" th:href="@{/css/common.css}" />
+	<link rel="stylesheet" th:href="@{/css/mcm1002u.css}" />
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2>需要家見積作成</h2>
+
+    <!-- メッセージ表示 -->
+    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+    
+
+    <form th:action="@{/mcm1002u/next}" th:object="${form}" method="post">
+
+        <!-- ヘッダ情報 -->
+        <div class="header-section">
+            <label>納入先コード</label>
+            <input type="text" th:field="*{nonyusakiCd}" readonly class="readonly-field" style="width:110px"/>
+            <label>納入先名</label>
+            <input type="text" th:field="*{nonyusakiNk}" readonly class="readonly-field" style="width:410px"/>
+            <label>サポートID</label>
+            <input type="text" th:field="*{supportId}" readonly class="readonly-field" style="width:62px"/>
+            <label>プラント名</label>
+            <input type="text" th:field="*{plantNk}" readonly class="readonly-field" style="width:384px"/>
+        </div>
+        <input type="hidden" th:field="*{plantId}"/>
+        <input type="hidden" th:field="*{tmKeiyakujikanId}"/>
+        <input type="hidden" th:field="*{mitsumoriFlg}"/>
+        <input type="hidden" th:field="*{jotai}"/>
+
+        <!-- << 機器構成パターン >> -->
+        <h3>&lt;&lt; 機器構成パターン &gt;&gt;</h3>
+        <table class="grid-table kikikosei-table">
+            <thead>
+                <tr>
+                    <th style="width:35px">選択</th>
+                    <th style="width:300px">機器構成名</th>
+                    <th style="width:60px">セット数</th>
+                    <th style="width:50px">単位</th>
+                    <th style="width:150px">手配製番</th>
+                    <th style="width:200px">備考</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row, stat : *{kikikoseiRows}">
+                    <td class="text-center">
+                        <input type="checkbox"
+                               th:field="*{kikikoseiRows[__${stat.index}__].checked}"/>
+                    </td>
+                    <td th:text="${row.kikikoseiNk}"></td>
+                    <td class="text-right" th:text="${row.setNm}"></td>
+                    <td th:text="${row.tani}"></td>
+                    <td th:text="${row.tehaiseiban}"></td>
+                    <td th:text="${row.biko}"></td>
+                    <input type="hidden" th:field="*{kikikoseiRows[__${stat.index}__].kikikoseiId}"/>
+                    <input type="hidden" th:field="*{kikikoseiRows[__${stat.index}__].tmKikikoseiId}"/>
+                    <input type="hidden" th:field="*{kikikoseiRows[__${stat.index}__].hyojijun}"/>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- << 構成明細 >> -->
+        <h3>&lt;&lt; 構成明細 &gt;&gt;</h3>
+        <table class="grid-table kikimeisai-table">
+            <thead>
+                <tr>
+                    <th style="width:35px">選択</th>
+                    <th style="width:200px">製造メーカー名</th>
+                    <th style="width:300px">品名</th>
+                    <th style="width:300px">型式</th>
+                    <th style="width:55px">数量</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row, stat : *{kikimeisaiRows}">
+                    <td class="text-center">
+                        <input type="checkbox"
+                               th:field="*{kikimeisaiRows[__${stat.index}__].checked}"/>
+                    </td>
+                    <td th:text="${row.seizomakerNk}"></td>
+                    <td th:text="${row.kikihinmeiNk}"></td>
+                    <td th:text="${row.kikikatashiki}"></td>
+                    <td class="text-right" th:text="${row.suryoNm}"></td>
+                    <input type="hidden" th:field="*{kikimeisaiRows[__${stat.index}__].kikimeisaiId}"/>
+                    <input type="hidden" th:field="*{kikimeisaiRows[__${stat.index}__].kikikoseiId}"/>
+                    <input type="hidden" th:field="*{kikimeisaiRows[__${stat.index}__].seizomakerId}"/>
+                    <input type="hidden" th:field="*{kikimeisaiRows[__${stat.index}__].atsukaikikiId}"/>
+                    <input type="hidden" th:field="*{kikimeisaiRows[__${stat.index}__].hyojijun}"/>
+                    <input type="hidden" th:field="*{kikimeisaiRows[__${stat.index}__].oyakikibunruiCd}"/>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- << 個体管理明細 >> -->
+        <h3>&lt;&lt; 個体管理明細 &gt;&gt;</h3>
+        <table class="grid-table kotaimeisai-table">
+            <thead>
+                <tr>
+                    <th style="width:35px">選択</th>
+                    <th style="width:150px">個体名</th>
+                    <th style="width:120px">シリアルNo</th>
+                    <th style="width:150px">設置場所</th>
+                    <th style="width:100px">一次納入日</th>
+                    <th style="width:100px">契約期限</th>
+                    <th style="width:100px">延長契約期限</th>
+                    <th style="width:100px">撤去日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row, stat : *{kotaimeisaiRows}">
+                    <td class="text-center">
+                        <input type="checkbox"
+                               th:field="*{kotaimeisaiRows[__${stat.index}__].checked}"/>
+                    </td>
+                    <td th:text="${row.kotaiNk}"></td>
+                    <td th:text="${row.serialNo}"></td>
+                    <td th:text="${row.setchibasyo}"></td>
+                    <td th:text="${row.itijinonyuDt}"></td>
+                    <td th:text="${row.keiyakukigenDt}"></td>
+                    <td th:text="${row.enchokeiyakukigenDt}"></td>
+                    <td th:text="${row.tekkyoDt}"></td>
+                    <input type="hidden" th:field="*{kotaimeisaiRows[__${stat.index}__].kotaikanriId}"/>
+                    <input type="hidden" th:field="*{kotaimeisaiRows[__${stat.index}__].kikimeisaiId}"/>
+                    <input type="hidden" th:field="*{kotaimeisaiRows[__${stat.index}__].kikikoseiId}"/>
+                    <input type="hidden" th:field="*{kotaimeisaiRows[__${stat.index}__].brandId}"/>
+                    <input type="hidden" th:field="*{kotaimeisaiRows[__${stat.index}__].brandkoseiId}"/>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- ボタン -->
+        <div class="footer-buttons">
+            <button type="submit" class="btn btn-primary">次へ</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

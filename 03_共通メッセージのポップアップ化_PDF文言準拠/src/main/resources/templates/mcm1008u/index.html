@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<!--
+  【変換元】Mcm1008uScreen.Designer.vb - MCM1008U 取引先見積プラント選択
+  【変換元行数】約15,000行（Designer.vb全体）
+  【作成者】T.Kajimura (2009/02/13)
+
+  元コード: WinForms DataGridView (ReadOnly, サポートIDがリンク列)
+  変換後:   Thymeleaf テンプレート + HTML <table>
+-->
+<head>
+    <title>プラント選択</title>
+    <link rel="stylesheet" th:href="@{/css/mcm1008u.css}" />
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h2 class="page-title">取引先見積プラント選択（MCM1008U）</h2>
+
+    <!-- メッセージ -->
+    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+
+    <!-- 検索件数 -->
+    <div th:if="${resultCount != null}" class="result-count">
+        プラント数：<span th:text="${resultCount}">0</span> 件
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- プラント一覧テーブル                                              -->
+    <!-- ================================================================ -->
+    <!--
+      【変換元】Designer.vb - MCM_MA_PLANTDataGridView (ReadOnly=True)
+        可視カラム8列、非表示: PLANT_ID, NONYUSAKI_CD
+        サポートID列 = CPDataGridLinkColumn（リンク）
+    -->
+    <div class="table-container" th:if="${list != null and !list.isEmpty()}">
+        <table class="data-grid">
+            <thead>
+                <tr>
+                    <th class="col-support">サポートID</th>
+                    <th class="col-plant">プラント名</th>
+                    <th class="col-nonyusaki">納入先</th>
+                    <th class="col-date">納入日</th>
+                    <th class="col-date">保守終息日</th>
+                    <th class="col-num">稼働曜日</th>
+                    <th class="col-num">稼働日数</th>
+                    <th class="col-num">稼働時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${list}">
+                    <!-- サポートID（リンク → MCM1002U） -->
+                    <!--
+                      【変換元】CellContentClick - SUPPORT_ID_PLANT_Link
+                        元コード: ForwardScreen(MCM1002U, delivery1002)
+                    -->
+                    <td class="cell-link">
+                        <a th:href="@{/mcm1008u/select(
+                               plantId=${row.plantId},
+                               nonyusakiCd=${row.nonyusakiCd},
+                               nonyusakiNk=${row.nonyusakiNk},
+                               plantNk=${row.plantNk},
+                               supportId=${row.supportId})}"
+                           th:text="${row.supportId}" class="grid-link"></a>
+                    </td>
+                    <td th:text="${row.plantNk}"></td>
+                    <td th:text="${row.nonyusakiNk}"></td>
+                    <td th:text="${row.nonyuDt != null ? #temporals.format(row.nonyuDt, 'yyyy/MM/dd') : ''}"></td>
+                    <td th:text="${row.hosyusyusokuDt != null ? #temporals.format(row.hosyusyusokuDt, 'yyyy/MM/dd') : ''}"></td>
+                    <td class="cell-right" th:text="${row.systemkadoyoubi}"></td>
+                    <td class="cell-right" th:text="${row.systemkadonissu}"></td>
+                    <td class="cell-right" th:text="${row.systemkadojikan}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

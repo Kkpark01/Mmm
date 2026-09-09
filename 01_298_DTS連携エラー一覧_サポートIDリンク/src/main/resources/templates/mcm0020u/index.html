@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCM0020U DTS連携エラー一覧</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css" />
+    <link rel="stylesheet" th:href="@{/css/mcm0020u.css}" href="../css/mcm0020u.css" />
+    <script th:src="@{/js/common.js}"></script>
+</head>
+<body>
+<div class="screen-layout">
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center">
+            <h1 th:text="${screenTitle} + '（' + ${screenId} + '）'">DTS連携エラー一覧（MCM0020U）</h1>
+        </div>
+        <div class="header-right">
+            <a class="btn-close" id="btnCloseLink" th:href="@{/menu}">閉じる</a>
+        </div>
+    </div>
+
+    <form th:action="@{/mcm0020u/search}" method="post" id="searchForm" class="search-form">
+        <input type="hidden" th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <div class="search-area">
+            <div class="condition-lines">
+                <div class="condition-row">
+                    <label class="radio-label">
+                        <input type="radio" name="searchMode" value="DTSLOG"
+                               th:checked="${form.searchMode == 'DTSLOG'}" />
+                        <span>DTSマスタ連携ログ</span>
+                    </label>
+                    <div class="date-range" id="dateRangeArea">
+                        <label for="logDateFrom">ログ出力日</label>
+                        <input type="text" id="logDateFrom" name="logDateFrom"
+                               th:value="${form.logDateFrom}"
+                               placeholder="yyyy/MM/dd" maxlength="10" class="date-input" />
+                        <span class="date-separator">～</span>
+                        <input type="text" id="logDateTo" name="logDateTo"
+                               th:value="${form.logDateTo}"
+                               placeholder="yyyy/MM/dd" maxlength="10" class="date-input"
+                               aria-label="ログ出力日終了日" />
+                    </div>
+                </div>
+                <div class="condition-row">
+                    <label class="radio-label">
+                        <input type="radio" name="searchMode" value="GENZAIJOTAI"
+                               th:checked="${form.searchMode == 'GENZAIJOTAI'}" />
+                        <span>DTSマスタ連携エラー</span>
+                    </label>
+                </div>
+            </div>
+            <div class="search-action">
+                <button type="submit" id="searchBtn" class="btn btn-primary">検索</button>
+            </div>
+        </div>
+    </form>
+
+    <main class="result-area">
+        <div class="table-container">
+            <table id="resultTable" class="data-grid readonly">
+                <colgroup>
+                    <col class="col-log-date" />
+                    <col class="col-customer-code" />
+                    <col class="col-customer-name" />
+                    <col class="col-support-id" />
+                    <col class="col-plant-name" />
+                    <col class="col-content" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>ログ出力日</th>
+                        <th>納入先コード</th>
+                        <th>納入先名</th>
+                        <th>サポートID</th>
+                        <th>プラント名</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${results}">
+                        <td th:text="${row.logDt}"></td>
+                        <td th:text="${row.nonyusakiCd}"></td>
+                        <td th:text="${row.nonyusakiNk}"></td>
+                        <td th:with="canLink=${linkEnabled and row.plantId != null and row.plantId.signum() > 0 and !#strings.isEmpty(#strings.trim(row.supportIdHyoji))}">
+                            <a th:if="${canLink}"
+                               th:href="@{/mcm0021u(plantId=${row.plantId})}"
+                               th:text="${row.supportIdHyoji}"
+                               class="support-id-link"></a>
+                            <span th:unless="${canLink}"
+                                  th:text="${row.supportIdHyoji}"></span>
+                        </td>
+                        <td th:text="${row.plantNk}"></td>
+                        <td th:text="${row.naiyo}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(results)}">
+                        <td colspan="6" class="no-data"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="excel-action-area">
+            <button type="button" id="excelBtn" class="btn btn-excel" onclick="submitExcel()">Excel出力</button>
+        </div>
+    </main>
+</div>
+
+<div id="miniDialogOverlay" class="mini-dialog-overlay">
+    <div class="mini-dialog">
+        <div class="mini-dialog-head">
+            <span id="miniDialogTitle">メッセージ</span>
+            <button type="button" class="mini-close" id="miniDialogCloseX" aria-label="閉じる">✕</button>
+        </div>
+        <div class="mini-dialog-body">
+            <span class="mini-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="15" fill="#1a6fd4"/>
+                    <circle cx="16" cy="9" r="2" fill="#ffffff"/>
+                    <rect x="14" y="13" width="4" height="11" rx="1" fill="#ffffff"/>
+                </svg>
+            </span>
+            <span class="mini-msg" id="miniDialogMsg"></span>
+        </div>
+        <div class="mini-dialog-foot"><button type="button" id="miniDialogOk">OK</button></div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    "use strict";
+
+    function showMessage(title, message) {
+        var overlay = document.getElementById('miniDialogOverlay');
+        var titleElement = document.getElementById('miniDialogTitle');
+        var messageElement = document.getElementById('miniDialogMsg');
+        var okButton = document.getElementById('miniDialogOk');
+        var closeButton = document.getElementById('miniDialogCloseX');
+
+        titleElement.textContent = title;
+        messageElement.textContent = message;
+        overlay.style.display = 'flex';
+
+        function closeDialog() {
+            overlay.style.display = 'none';
+            okButton.onclick = null;
+            closeButton.onclick = null;
+        }
+        okButton.onclick = closeDialog;
+        closeButton.onclick = closeDialog;
+        setTimeout(function () { okButton.focus(); }, 50);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var radios = document.querySelectorAll('input[name="searchMode"]');
+        var dateArea = document.getElementById('dateRangeArea');
+        var fromInput = document.getElementById('logDateFrom');
+        var toInput = document.getElementById('logDateTo');
+
+        function toggleDateArea() {
+            var selected = document.querySelector('input[name="searchMode"]:checked');
+            var disabled = selected && selected.value === 'GENZAIJOTAI';
+            dateArea.classList.toggle('is-disabled', disabled);
+            fromInput.disabled = disabled;
+            toInput.disabled = disabled;
+        }
+        radios.forEach(function (radio) { radio.addEventListener('change', toggleDateArea); });
+        toggleDateArea();
+
+        var serverMessage = /*[[${message}]]*/ null;
+        var serverErrors = /*[[${errors}]]*/ null;
+        if (serverErrors && serverErrors.length) {
+            showMessage('入力エラー', serverErrors.join('\n'));
+        } else if (serverMessage) {
+            showMessage('完了', serverMessage);
+        }
+    });
+
+    function submitExcel() {
+        var form = document.getElementById('searchForm');
+        var originalAction = form.action;
+        form.action = /*[[@{/mcm0020u/excel}]]*/ '/mcm0020u/excel';
+        form.submit();
+        form.action = originalAction;
+    }
+</script>
+</body>
+</html>

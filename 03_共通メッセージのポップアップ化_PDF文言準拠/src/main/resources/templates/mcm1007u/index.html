@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<!--
+  【変換元】Mcm1007uScreen.Designer.vb - MCM1007U 単価精査
+  【変換元行数】約37,000行（Designer.vb全体）
+  【作成者】T.Kajimura (2009/02/10)
+
+  元コード: WinForms TextBox（ヘッダー5項目）+ DataGridView（一覧11カラム）
+  変換後:   Thymeleaf テンプレート + HTML <table>
+-->
+<head>
+    <title>単価精査</title>
+    <link rel="stylesheet" th:href="@{/css/mcm1007u.css}" />
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h2 class="page-title">単価精査（MCM1007U）</h2>
+
+    <!-- メッセージ表示 -->
+    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+
+    <!-- ================================================================ -->
+    <!-- ヘッダー情報（読み取り専用）                                       -->
+    <!-- ================================================================ -->
+    <!--
+      【変換元】Designer.vb
+        元コード: TORIHIKISAKI_NK_TextBox (ReadOnly=True),
+                  SEIZOMAKER_NK_TextBox, ATSUKAIKIKI_NK_TextBox,
+                  KATASHIKI_TextBox, KEIYAKUJIKANTAITextBox
+    -->
+    <div class="header-area" th:if="${header != null}">
+        <div class="header-row">
+            <label>取引先名</label>
+            <span class="header-value" th:text="${header.torihikisakiNk}"></span>
+        </div>
+        <div class="header-row">
+            <label>製造メーカー名</label>
+            <span class="header-value" th:text="${header.seizomakerNk}"></span>
+        </div>
+        <div class="header-row">
+            <label>品名</label>
+            <span class="header-value" th:text="${header.atsukaikikiNk}"></span>
+            <label class="label-inline">型式</label>
+            <span class="header-value" th:text="${header.katashiki}"></span>
+        </div>
+        <div class="header-row">
+            <label>契約時間帯</label>
+            <span class="header-value" th:text="${keiyakujikantai}"></span>
+        </div>
+    </div>
+
+    <!-- 検索件数 -->
+    <div th:if="${resultCount != null}" class="result-count">
+        検索結果：<span th:text="${resultCount}">0</span> 件
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- データ一覧テーブル（読み取り専用）                                  -->
+    <!-- ================================================================ -->
+    <!--
+      【変換元】Designer.vb - DataGridView (ReadOnly=True)
+        可視カラム11列、Frozen = 納入先/サポートID/プラント/機器構成名
+    -->
+    <div class="table-container" th:if="${list != null and !list.isEmpty()}">
+        <table class="data-grid">
+            <thead>
+                <tr>
+                    <th class="col-nonyusaki">納入先</th>
+                    <th class="col-support">サポートID</th>
+                    <th class="col-plant">プラント</th>
+                    <th class="col-kikikosei">機器構成名</th>
+                    <th class="col-hyojun">標準価格</th>
+                    <th class="col-sikiri">仕切り価格</th>
+                    <th class="col-suryo">数量</th>
+                    <th class="col-tenken">点検有無</th>
+                    <th class="col-date">見積日</th>
+                    <th class="col-date">開始日</th>
+                    <th class="col-date">終了日</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row : ${list}">
+                    <td th:text="${row.nonyusakiNk}"></td>
+                    <td th:text="${row.supportId}"></td>
+                    <td th:text="${row.plantNk}"></td>
+                    <td th:text="${row.kikikoseiNk}"></td>
+                    <td class="cell-right"
+                        th:text="${row.hyojunKin != null ? #numbers.formatDecimal(row.hyojunKin, 1, 'COMMA', 0, 'POINT') : ''}"></td>
+                    <td class="cell-right"
+                        th:text="${row.sikiriKin != null ? #numbers.formatDecimal(row.sikiriKin, 1, 'COMMA', 0, 'POINT') : ''}"></td>
+                    <td class="cell-right" th:text="${row.suryoNm}"></td>
+                    <td class="cell-center" th:text="${row.tenkenumu}"></td>
+                    <td th:text="${row.mitsumoriDt != null ? #temporals.format(row.mitsumoriDt, 'yyyy/MM/dd') : ''}"></td>
+                    <td th:text="${row.kaisiDt != null ? #temporals.format(row.kaisiDt, 'yyyy/MM/dd') : ''}"></td>
+                    <td th:text="${row.syuryoDt != null ? #temporals.format(row.syuryoDt, 'yyyy/MM/dd') : ''}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</body>
+</html>

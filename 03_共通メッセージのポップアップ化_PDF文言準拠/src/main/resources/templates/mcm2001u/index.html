@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>保守見積作成検索</title>
+    <link rel="stylesheet" th:href="@{/css/mcm2001u.css}" />
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <script th:src="@{/js/common.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<div th:fragment="content">
+    <nav style="text-align:right;padding:6px 8px;"><a th:href="@{/mcm2004u}">見積・契約検索へ戻る</a></nav>
+
+    <!-- ========== エラーメッセージ ========== -->
+    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+    
+
+    <!-- ========== 検索条件エリア ========== -->
+    <!--
+        【変換元】Mcm2001uScreen.Designer.vb - 検索条件コントロール
+          NONYUSAKI_CDTextBox / SUPPORT_IDTextBox / NONYUSAKI_NKTextBox
+          PLANT_NKTextBox / ETCTextBox / SEARCHButton
+    -->
+    <form th:action="@{/mcm2001u/search}" method="post" class="search-area">
+        <div class="search-row">
+            <label for="nonyusakiCd">納入先コード</label>
+            <input type="text" id="nonyusakiCd" name="nonyusakiCd"
+                   th:value="${form.nonyusakiCd}"
+                   th:readonly="${readOnly}" maxlength="12" class="input-cd" />
+
+            <label for="supportId">サポートID</label>
+            <input type="text" id="supportId" name="supportId"
+                   th:value="${form.supportId}"
+                   th:readonly="${readOnly}" maxlength="7" class="input-support" />
+        </div>
+        <div class="search-row">
+            <label for="nonyusakiNk">納入先名(旧名・カナなど)</label>
+            <input type="text" id="nonyusakiNk" name="nonyusakiNk"
+                   th:value="${form.nonyusakiNk}"
+                   th:readonly="${readOnly}" class="input-wide" />
+
+            <label for="plantNk">プラント名</label>
+            <input type="text" id="plantNk" name="plantNk"
+                   th:value="${form.plantNk}"
+                   th:readonly="${readOnly}" class="input-wide" />
+        </div>
+        <div class="search-row">
+            <label for="etc">その他(住所など)</label>
+            <input type="text" id="etc" name="etc"
+                   th:value="${form.etc}"
+                   th:readonly="${readOnly}" class="input-wide" />
+
+            <button type="submit" th:disabled="${readOnly}" class="btn-search">検索</button>
+        </div>
+    </form>
+
+    <!-- ========== 納入先情報グリッド ========== -->
+    <!--
+        【変換元】MCM_MA_NONYUSAKIDataGridView
+          7列(6表示+NONYUSAKI_ID hidden) / ReadOnly / Selection=FullRowSelect
+    -->
+    <div class="section-label">&lt;&lt;納入先情報&gt;&gt;</div>
+    <div class="grid-container grid-nonyusaki">
+        <table class="data-grid">
+            <thead>
+                <tr>
+                    <th style="width:100px">納入先コード</th>
+                    <th style="width:160px">納入先名</th>
+                    <th style="width:180px">納入先カナ名</th>
+                    <th style="width:180px">納入先英名</th>
+                    <th style="width:160px">納入先工場名</th>
+                    <th style="width:140px">旧納入先名</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row, stat : ${nonyusakiList}"
+                    th:classappend="${stat.index == 0} ? 'selected' : ''"
+                    th:data-nonyusaki-id="${row['NONYUSAKI_ID']}"
+                    class="grid-row clickable-row">
+                    <td th:text="${row['NONYUSAKI_CD']}"></td>
+                    <td th:text="${row['NONYUSAKI_NK']}"></td>
+                    <td th:text="${row['NONYUSAKIKANA_KN']}"></td>
+                    <td th:text="${row['NONYUSAKIEIMEI_EN']}"></td>
+                    <td th:text="${row['NONYUSAKIKOJO_NK']}"></td>
+                    <td th:text="${row['KYUNONYUSAKI_NK']}"></td>
+                </tr>
+                <tr th:if="${nonyusakiList == null or #lists.isEmpty(nonyusakiList)}">
+                    <td colspan="6" class="no-data">データなし</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== プラント情報グリッド ========== -->
+    <!--
+        【変換元】MCM_MA_PLANTDataGridView
+          9列(7表示+PLANT_ID,NONYUSAKI_ID hidden) / ReadOnly / Selection=FullRowSelect
+    -->
+    <div class="section-label">&lt;&lt;プラント情報&gt;&gt;</div>
+    <div class="grid-container grid-plant">
+        <table class="data-grid">
+            <thead>
+                <tr>
+                    <th style="width:120px">サポートID</th>
+                    <th style="width:230px">プラント名</th>
+                    <th style="width:117px">納入日</th>
+                    <th style="width:90px">保守終息日</th>
+                    <th style="width:80px">稼働曜日</th>
+                    <th style="width:80px" class="text-right">稼働日数</th>
+                    <th style="width:80px" class="text-right">稼働時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row, stat : ${plantList}"
+                    th:classappend="${stat.index == 0} ? 'selected' : ''"
+                    th:data-plant-id="${row['PLANT_ID']}"
+                    th:data-nonyusaki-id="${row['NONYUSAKI_ID']}"
+                    class="grid-row clickable-row">
+                    <td th:text="${row['SUPPORT_ID']}"></td>
+                    <td th:text="${row['PLANT_NK']}"></td>
+                    <td th:text="${row['NONYU_DT']}"></td>
+                    <td th:text="${row['HOSYUSYUSOKU_DT']}"></td>
+                    <td th:text="${row['SYSTEMKADOYOUBI']}"></td>
+                    <td class="text-right" th:text="${row['SYSTEMKADONISSU']}"></td>
+                    <td class="text-right" th:text="${row['SYSTEMKADOJIKAN']}"></td>
+                </tr>
+                <tr th:if="${plantList == null or #lists.isEmpty(plantList)}">
+                    <td colspan="7" class="no-data">データなし</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== 取引先見積情報グリッド + 選定ボタン ========== -->
+    <!--
+        【変換元】MCM_TM_MITSUMORIDataGridView + SENTEIButton
+          20列(10表示+10hidden) / チェックボックス + リンク2種
+    -->
+    <div class="section-label">&lt;&lt;取引先見積情報&gt;&gt;</div>
+    <form th:action="@{/mcm2001u/sentei}" method="post" id="senteiForm">
+        <input type="hidden" name="selectedNonyusakiId" id="selectedNonyusakiId" value="" />
+        <input type="hidden" name="selectedPlantId" id="selectedPlantId" value="" />
+
+        <div class="grid-container grid-mitsumori">
+            <table class="data-grid">
+                <thead>
+                    <tr>
+                        <th style="width:30px"></th>
+                        <th style="width:130px">取引先</th>
+                        <th style="width:80px">見積日付</th>
+                        <th style="width:100px">見積依頼NO</th>
+                        <th style="width:130px">契約NO</th>
+                        <th style="width:60px" class="text-right">時間帯</th>
+                        <th style="width:78px">保守方法</th>
+                        <th style="width:78px">点検有無</th>
+                        <th style="width:102px">点検可能曜日</th>
+                        <th style="width:130px">夜間対応有無</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row, stat : ${mitsumoriList}" class="grid-row" th:data-plant-id="${row.plantId}">
+                        <!-- チェックボックス（SENTAKU_MITSUMORI_CheckBox） -->
+                        <td class="text-center">
+                            <input type="checkbox"
+                                   name="selectedTmKeiyakujikanId"
+                                   th:checked="${row.checkbox == 1}" th:value="${row.tmKeiyakujikanId}" />
+                        </td>
+                        <!-- 取引先名（TORIHIKISAKI_NK / ReadOnly / Width=130） -->
+                        <td th:text="${row.torihikisakiNk}"></td>
+                        <!-- 見積日付（MITSUMORI_DT / ReadOnly / Width=80） -->
+                        <td th:text="${row.mitsumoriDt}"></td>
+                        <!-- 見積依頼NO（TM_IRAI_NO / Link → MCM1004U） -->
+                        <td>
+                            <a th:if="${row.tmIraiNo != null}"
+                               th:href="@{/mcm2001u/link/mcm1004u(tmKeiyakujikanId=${row.tmKeiyakujikanId})}"
+                               th:text="${row.tmIraiNo}" class="grid-link"></a>
+                        </td>
+                        <!-- 契約NO（TKA_KEIYAKU_NO / Link → MCM1005U） -->
+                        <td>
+                            <a th:if="${row.tkaKeiyakuNo != null}"
+                               th:href="@{/mcm2001u/link/mcm1005u(keiyakuId=${row.tkaTkKeiyakuId})}"
+                               th:text="${row.tkaKeiyakuNo}" class="grid-link"></a>
+                        </td>
+                        <!-- 契約時間帯（KEIYAKUJIKANTAI / Width=60 / 右寄せ） -->
+                        <td class="text-right" th:text="${row.keiyakujikantai}"></td>
+                        <!-- 保守方法（HOSYUHOHO / Width=78） -->
+                        <td th:text="${row.hosyuhoho}"></td>
+                        <!-- 点検有無（TENKENUMU / Width=78） -->
+                        <td th:text="${row.tenkenumu}"></td>
+                        <!-- 点検可能曜日（TENKENKANOYOBI / Width=102） -->
+                        <td th:text="${row.tenkenkanoyobi}"></td>
+                        <!-- 夜間対応有無（YAKANTAIOUMU / Width=130） -->
+                        <td th:text="${row.yakantaioumu}"></td>
+
+                    </tr>
+                    <tr th:if="${mitsumoriList == null or #lists.isEmpty(mitsumoriList)}">
+                        <td colspan="10" class="no-data">データなし</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button-area">
+            <button type="submit" class="btn-sentei">選定</button>
+        </div>
+    </form>
+
+    <!-- ========== JavaScript（親子孫連動） ========== -->
+    <!--
+        【変換元】VB.NETのDataSetリレーション
+          MCM_MA_NONYUSAKI_MCM_MA_PLANT / MCM_MA_PLANT_MCM_TM_MITSUMORI
+          Java版: 行クリック時にselectedId更新 + ハイライト
+          納入先→プラント→見積を絞り込み、表示対象のチェックだけを送信する。
+    -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const customers=[...document.querySelectorAll('.grid-nonyusaki .clickable-row')];
+        const plants=[...document.querySelectorAll('.grid-plant .clickable-row')];
+        const estimates=[...document.querySelectorAll('.grid-mitsumori tr[data-plant-id]')];
+        function choosePlant(row) {
+            plants.forEach(r=>r.classList.toggle('selected',r===row));
+            document.getElementById('selectedPlantId').value=row?row.dataset.plantId:'';
+            estimates.forEach(r=>{
+                r.hidden=!row||r.dataset.plantId!==row.dataset.plantId;
+                const check=r.querySelector('input[type=checkbox]');if(check)check.disabled=r.hidden;
+            });
+        }
+        function chooseCustomer(row) {
+            customers.forEach(r=>r.classList.toggle('selected',r===row));
+            document.getElementById('selectedNonyusakiId').value=row?row.dataset.nonyusakiId:'';
+            plants.forEach(r=>r.hidden=!row||r.dataset.nonyusakiId!==row.dataset.nonyusakiId);
+            choosePlant(plants.find(r=>!r.hidden));
+        }
+        customers.forEach(r=>r.addEventListener('click',()=>chooseCustomer(r)));
+        plants.forEach(r=>r.addEventListener('click',()=>choosePlant(r)));
+        chooseCustomer(customers[0]);
+    });
+    </script>
+
+</div>
+</body>
+</html>

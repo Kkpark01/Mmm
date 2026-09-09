@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm2005uScreen.Designer.vb / Mcm2005uTabControl.vb
+  MCM2005U — 店舗見積ブランド詳細設定
+  【デザイン参照】MCM0017U（紫帯ヘッダー / data-grid）
+  Web版省略: Excel帳票出力、SP_UM、DREMOSフラグ/リモートフラグ計算、保守時間チェック
+             MCM_UM_KIHON_BRAND 更新、MCM_UM_MITSUMORI.MITSUMORI_GKIN 再計算
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf"        th:content="${_csrf != null} ? ${_csrf.token}      : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM2005U - 店舗見積ブランド詳細設定</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px; background: #fff; }
+        button, .btn, .btn-close { cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 30px; padding: 0 10px;
+        }
+        .header .header-center { flex: 1; text-align: center; }
+        .header .header-center h1 { margin: 0; font-size: 16px; font-weight: bold; color: #fff; letter-spacing: 1px; line-height: 30px; }
+        .header .header-left, .header .header-right { display: flex; align-items: center; }
+        .btn-close {
+            display: inline-block; padding: 2px 12px; font-size: 12px; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
+        }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+
+        .action-bar { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-bottom: 1px solid #ccc; background: #f0f0f0; }
+        .btn-primary { padding: 3px 14px; font-size: 12px; background: #0078d4; color: #fff; border: 1px solid #0067b8; border-radius: 2px; }
+        .btn-primary:hover:not(:disabled) { background: #0067b8; }
+        .btn-default { padding: 3px 14px; font-size: 12px; background: #e1e1e1; color: #000; border: 1px solid #adadad; border-radius: 2px; }
+        .btn-default:hover { background: #e5f1fb; border-color: #0078d4; }
+        button:disabled { opacity: 0.5; cursor: default; }
+
+        .msg-area { padding: 4px 10px; }
+        .msg-info  { background: #cfe2ff; border: 1px solid #9ec5fe; color: #084298; padding: 4px 10px; border-radius: 3px; }
+        .msg-error { background: #f8d7da; border: 1px solid #f5c2c7; color: #842029; padding: 4px 10px; border-radius: 3px; }
+
+        .section { padding: 6px 10px; border-bottom: 1px solid #e0e0e0; }
+        .section-title { font-size: 12px; font-weight: bold; color: #fff; background: #453f78; padding: 2px 8px; margin-bottom: 6px; display: inline-block; border-radius: 2px; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 4px 16px; }
+        .form-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+        .form-row label { white-space: nowrap; min-width: 110px; color: #333; font-size: 12px; }
+        .form-row input[type="text"],
+        .form-row input[type="number"] {
+            height: 22px; border: 1px solid #aaa; padding: 0 4px; font-size: 12px; border-radius: 2px; background: #fff;
+        }
+        .form-row input:read-only, .form-row input:disabled, .form-row textarea:disabled {
+            background: #f5f5f5; color: #555;
+        }
+        .form-row textarea { border: 1px solid #aaa; padding: 2px 4px; font-size: 12px; border-radius: 2px; resize: vertical; font-family: inherit; }
+        .form-row .val-text { font-size: 12px; color: #222; }
+        .input-sm  { width: 100px; }
+        .input-md  { width: 160px; }
+        .input-lg  { width: 260px; }
+        .input-num { width: 120px; text-align: right; }
+
+        .badge { display: inline-block; padding: 1px 8px; border-radius: 3px; font-size: 11px; }
+        .badge-sakuseichu  { background: #f0f0f0; color: #555; border: 1px solid #ccc; }
+        .badge-shinsachu   { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+        .badge-shoninchu   { background: #cfe2ff; color: #084298; border: 1px solid #9ec5fe; }
+        .badge-shoninzumi  { background: #d1e7dd; color: #0f5132; border: 1px solid #a3cfbb; }
+        .badge-sashimodoshi { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+
+        .grid-section { padding: 6px 10px; border-bottom: 1px solid #e0e0e0; }
+        .grid-wrap { overflow-x: auto; max-height: 360px; overflow-y: auto; border: 1px solid #ccc; }
+        .data-grid {
+            border-collapse: separate; border-spacing: 0;
+            table-layout: fixed; font-size: 11px; white-space: nowrap; width: max-content; min-width: 100%;
+        }
+        .data-grid thead th {
+            position: sticky; top: 0; z-index: 5;
+            background: #eef2f5;
+            border-right: 1px solid #b0bec5; border-bottom: 2px solid #b0bec5;
+            padding: 4px 6px; text-align: left; font-size: 11px;
+        }
+        .data-grid th.text-right, .data-grid td.text-right { text-align: right; }
+        .data-grid th:first-child, .data-grid td:first-child { border-left: 1px solid #d5dbdb; }
+        .data-grid td {
+            border-right: 1px solid #d5dbdb; border-bottom: 1px solid #d5dbdb;
+            padding: 2px 6px; vertical-align: middle; height: 22px; line-height: 18px;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .data-grid tbody tr:hover td { background: #f5f5f5; }
+        .data-grid input[type="number"] {
+            height: 18px; width: 100%; border: none; padding: 0 2px; font-size: 11px;
+            text-align: right; background: transparent;
+        }
+        .data-grid input[type="number"]:focus { outline: 1px solid #0078d4; background: #fff; }
+        .data-grid input[type="number"]:read-only,
+        .data-grid input[type="number"]:disabled { background: #f5f5f5; color: #555; outline: none; }
+        .controller-row td { background: #fff8e1; }
+        .no-data { color: #888; font-size: 12px; padding: 8px 10px; }
+        .kin-sum-row td { background: #eef2f5; font-weight: bold; border-top: 2px solid #b0bec5; }
+    </style>
+    <script th:src="@{/js/common.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+
+<!-- ===================================================================
+     ヘッダー
+     =================================================================== -->
+<div class="header">
+    <div class="header-left">
+        <span th:text="${functionId}" style="font-size:11px; color:#ddd;"></span>
+    </div>
+    <div class="header-center">
+        <h1 th:text="${screenTitle}">店舗見積ブランド詳細設定</h1>
+    </div>
+    <div class="header-right">
+        <span th:if="${loginUserName}" th:text="${loginUserName}" style="font-size:11px; color:#ddd; margin-right:8px;"></span>
+        <a th:href="@{/mcm2005u/back}" class="btn-close">MCM2003U へ戻る</a>
+    </div>
+</div>
+
+<!-- アクションバー -->
+<div class="action-bar">
+    <button type="button" class="btn-primary" id="btnSave"
+            th:disabled="${readOnly}" onclick="submitSave()">保存</button>
+    <a th:href="@{/mcm2005u/back}" class="btn-default">戻る（MCM2003U）</a>
+</div>
+
+<!-- メッセージ -->
+<div class="msg-area">
+    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+    
+</div>
+
+<!-- ===================================================================
+     保存フォーム (POST /mcm2005u/save)
+     =================================================================== -->
+<form id="saveForm" th:action="@{/mcm2005u/save}" method="post" th:object="${form}">
+    <input type="hidden" th:field="*{umKihonBrandId}"/>
+    <input type="hidden" th:field="*{umMitsumoriId}"/>
+    <input type="hidden" th:field="*{umKihonMitsumoriId}"/>
+    <!-- HOSHU_KIN 計算用（表示は読み取り専用フィールドで行う） -->
+    <input type="hidden" id="hoseisofthosyuKin" th:field="*{hoseisofthosyuKin}"/>
+    <input type="hidden" id="hardhosyuKinHidden" th:field="*{hardhosyuKin}"/>
+
+    <!-- ===================================================================
+         ブランド・期間情報（表示のみ）
+         【変換元】BrandNameLabel / MitsumoriKikanLabel
+         =================================================================== -->
+    <div class="section">
+        <div class="section-title">ブランド・期間情報</div>
+        <div class="form-grid">
+            <div class="form-row">
+                <label>ブランド</label>
+                <span class="val-text" th:text="${form.brandNk}"></span>
+                <span class="val-text" style="margin-left:8px; color:#666;"
+                      th:text="${form.brandsyosaiNk}"></span>
+            </div>
+            <div class="form-row">
+                <label>契約時間帯</label>
+                <span class="val-text" th:text="${form.keiyakujikantai}"></span>
+            </div>
+            <div class="form-row">
+                <label>契約期間</label>
+                <span class="val-text"
+                      th:text="${(form.kaisiDt != null ? form.kaisiDt : '') + ' ～ ' + (form.syuryoDt != null ? form.syuryoDt : '')}"></span>
+            </div>
+            <div class="form-row">
+                <label>ハード保守費（基本）</label>
+                <span class="val-text"
+                      th:text="${form.hardhosyuKinKihon != null ? #numbers.formatInteger(form.hardhosyuKinKihon, 1, 'COMMA') + ' 円' : ''}"></span>
+            </div>
+            <div class="form-row">
+                <label>承認状態</label>
+                <span class="badge"
+                      th:classappend="${form.syouninJotai == '0' ? 'badge-sakuseichu'
+                                   : form.syouninJotai == '1' ? 'badge-shinsachu'
+                                   : form.syouninJotai == '2' ? 'badge-shoninchu'
+                                   : form.syouninJotai == '3' ? 'badge-shoninzumi'
+                                   : 'badge-sashimodoshi'}"
+                      th:text="${form.syouninJotai == '0' ? '作成中'
+                             : form.syouninJotai == '1' ? '審査中'
+                             : form.syouninJotai == '2' ? '承認中'
+                             : form.syouninJotai == '3' ? '承認済'
+                             : form.syouninJotai == '4' ? '差し戻し' : ''}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         見積条件（MCM_UM_BRAND - 編集可）
+         【変換元】MITSUMORICHUKITextBox / CHOSEIHITextBox / HOSHU_KINTextBox / BIKOTextBox
+         =================================================================== -->
+    <div class="section">
+        <div class="section-title">見積条件</div>
+        <div class="form-grid">
+            <div class="form-row" style="align-items: flex-start;">
+                <label style="padding-top: 2px;">見積注記</label>
+                <textarea name="mitsumorichuki" rows="4" style="width:400px;"
+                          th:text="${form.mitsumorichuki}"
+                          th:disabled="${readOnly}"
+                          placeholder="見積注記を入力してください"></textarea>
+            </div>
+            <div>
+                <div class="form-row">
+                    <label>ハード保守費</label>
+                    <input type="number" class="input-num" id="hardhosyuKinDisp"
+                           th:value="${form.hardhosyuKin}"
+                           readonly tabindex="-1"/>
+                    <span style="font-size:11px; color:#666;">円</span>
+                </div>
+                <div class="form-row">
+                    <label>調整費</label>
+                    <input type="number" class="input-num" name="choseiKin" id="choseiKin"
+                           th:value="${form.choseiKin != null ? form.choseiKin : 0}"
+                           th:disabled="${readOnly}"
+                           onchange="calcHoshuKin()"
+                           oninput="calcHoshuKin()"/>
+                    <span style="font-size:11px; color:#666;">円</span>
+                </div>
+                <div class="form-row">
+                    <label>保守費</label>
+                    <input type="number" class="input-num" id="hoshuKinDisp"
+                           th:value="${form.hoshuKin}"
+                           readonly tabindex="-1"/>
+                    <input type="hidden" name="hoshuKin" id="hoshuKinHidden"
+                           th:value="${form.hoshuKin}"/>
+                    <span style="font-size:11px; color:#666;">円</span>
+                </div>
+            </div>
+            <div class="form-row" style="align-items: flex-start;">
+                <label style="padding-top: 2px;">備考</label>
+                <textarea name="biko" rows="3" style="width:400px;"
+                          th:text="${form.biko}"
+                          th:disabled="${readOnly}"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         機器単価グリッド（MCM_UM_TANKA）
+         【変換元】MCM_UM_TANKACPDataGridView (Mcm2005uTabControl.vb)
+         親子: MCM_UM_KIKIKOSEI → MCM_UM_TANKA → MCM_UM_KIKIMEISAI
+         =================================================================== -->
+    <div class="grid-section">
+        <div class="section-title">機器単価</div>
+        <div class="grid-wrap">
+            <table class="data-grid">
+                <colgroup>
+                    <col style="width: 160px;"/><!-- 機器構成名称 -->
+                    <col style="width: 160px;"/><!-- 機器明細名称 -->
+                    <col style="width: 60px;"/> <!-- 数量 -->
+                    <col style="width: 110px;"/><!-- 標準単価 -->
+                    <col style="width: 110px;"/><!-- 標準小計 -->
+                    <col style="width: 110px;"/><!-- 仕切り小計 -->
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>機器構成名称</th>
+                        <th>機器明細名称</th>
+                        <th class="text-right">数量</th>
+                        <th class="text-right">標準単価</th>
+                        <th class="text-right">標準小計</th>
+                        <th class="text-right">仕切り小計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row, rowStat : ${form.tankaRows}"
+                        th:classappend="${row.controllerFlg == '1'} ? 'controller-row' : ''">
+                        <!-- 隠しフィールド -->
+                        <input type="hidden"
+                               th:name="|tankaRows[${rowStat.index}].umTankaId|"
+                               th:value="${row.umTankaId}"/>
+                        <input type="hidden"
+                               th:name="|tankaRows[${rowStat.index}].umKikoseiId|"
+                               th:value="${row.umKikoseiId}"/>
+                        <input type="hidden"
+                               th:name="|tankaRows[${rowStat.index}].suryoNm|"
+                               th:value="${row.suryoNm}"/>
+                        <input type="hidden"
+                               th:name="|tankaRows[${rowStat.index}].controllerFlg|"
+                               th:value="${row.controllerFlg}"/>
+                        <input type="hidden"
+                               th:name="|tankaRows[${rowStat.index}].setNm|"
+                               th:value="${row.setNm}"/>
+                        <input type="hidden"
+                               th:name="|tankaRows[${rowStat.index}].meisaiNm|"
+                               th:value="${row.meisaiNm}"/>
+                        <!-- 表示列 -->
+                        <td th:text="${row.setNm}"></td>
+                        <td th:text="${row.meisaiNm}"></td>
+                        <td class="text-right" th:text="${row.suryoNm}"></td>
+                        <td class="text-right">
+                            <input type="number" step="1"
+                                   th:name="|tankaRows[${rowStat.index}].hyojunKin|"
+                                   th:id="|hyojunKin_${rowStat.index}|"
+                                   th:value="${row.hyojunKin != null ? row.hyojunKin : 0}"
+                                   th:readonly="${readOnly}"
+                                   th:disabled="${readOnly}"
+                                   th:data-idx="${rowStat.index}"
+                                   th:data-suryo="${row.suryoNm}"
+                                   onchange="calcShokei(this)"
+                                   oninput="calcShokei(this)"/>
+                        </td>
+                        <td class="text-right">
+                            <input type="number" step="1" readonly tabindex="-1"
+                                   th:name="|tankaRows[${rowStat.index}].hyojunshokeiKin|"
+                                   th:id="|hyojunshokeiKin_${rowStat.index}|"
+                                   th:value="${row.hyojunshokeiKin != null ? row.hyojunshokeiKin : 0}"/>
+                        </td>
+                        <td class="text-right">
+                            <input type="number" step="1"
+                                   th:name="|tankaRows[${rowStat.index}].sikirishokeiKin|"
+                                   th:value="${row.sikirishokeiKin != null ? row.sikirishokeiKin : 0}"
+                                   th:readonly="${readOnly}"
+                                   th:disabled="${readOnly}"/>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(form.tankaRows)}">
+                        <td colspan="6" class="no-data">機器単価データがありません。</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</form>
+
+<!-- ===================================================================
+     JavaScript
+     =================================================================== -->
+<script th:inline="javascript">
+    var readOnly = /*[[${readOnly}]]*/ false;
+
+    /** 保存フォーム送信 */
+    function submitSave() {
+        if (readOnly) return;
+        document.getElementById('saveForm').submit();
+    }
+
+    /**
+     * 標準小計再計算 (hyojunKin 変更時)
+     * HYOJUNSHOKEI_KIN = HYOJUN_KIN × SURYO_NM（整数切り捨て）
+     */
+    function calcShokei(input) {
+        var idx   = input.getAttribute('data-idx');
+        var suryo = parseFloat(input.getAttribute('data-suryo')) || 1;
+        var kin   = parseFloat(input.value) || 0;
+        var shokei = Math.floor(kin * suryo);
+        var shokeiEl = document.getElementById('hyojunshokeiKin_' + idx);
+        if (shokeiEl) shokeiEl.value = shokei;
+    }
+
+    /**
+     * 保守費再計算 (choseiKin 変更時)
+     * HOSHU_KIN = HARDHOSYU_KIN(MCM_UM_BRAND) + HOSEISOFTHOSHU_KIN(MCM_UM_KIHON_BRAND) - CHOSEI_KIN
+     */
+    function calcHoshuKin() {
+        var hardhosyu      = parseFloat(document.getElementById('hardhosyuKinHidden').value) || 0;
+        var hoseisofthosyu = parseFloat(document.getElementById('hoseisofthosyuKin').value) || 0;
+        var chosei         = parseFloat(document.getElementById('choseiKin').value) || 0;
+        var hoshu = hardhosyu + hoseisofthosyu - chosei;
+        document.getElementById('hoshuKinDisp').value   = hoshu;
+        document.getElementById('hoshuKinHidden').value = hoshu;
+    }
+</script>
+</body>
+</html>

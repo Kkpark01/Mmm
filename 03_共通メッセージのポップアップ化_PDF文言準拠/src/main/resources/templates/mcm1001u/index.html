@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<!--
+  【変換元】Mcm1001uScreen.Designer.vb（全体）
+    MCM1001U（取引先見積依頼作成検索）画面
+
+    VB.NETコントロール → HTML要素の対応:
+      TextBox_NONYUSAKI_CD  → #nonyusakiCd
+      TextBox_SUPPORT_ID    → #supportId
+      TextBox_NONYUSAKI_NK  → #nonyusakiNk
+      TextBox_PLANT_NK      → #plantNk
+      TextBox_ETC           → #etc
+      Button_SearchButton   → #searchBtn
+      DataGridView_NONYUSAKI → #nonyusakiGrid
+      DataGridView_PLANT     → #plantGrid
+-->
+<head>
+    <title>見積依頼作成検索</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
+    <link rel="stylesheet" th:href="@{/css/mcm1001u.css}" />
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <h2 class="screen-title">見積依頼作成検索</h2>
+
+    <!-- メッセージ -->
+    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+    
+
+    <!-- 検索条件エリア -->
+    <form th:action="@{/mcm1001u/search}" method="post" class="search-area">
+        <div class="search-row">
+            <div class="search-item">
+                <label for="nonyusakiCd">納入先コード</label>
+                <input type="text" id="nonyusakiCd" name="nonyusakiCd"
+                       th:value="${form?.nonyusakiCd}"
+                       class="search-input" style="width:110px;" maxlength="10" />
+            </div>
+            <div class="search-item">
+                <label for="supportId">サポートID</label>
+                <input type="text" id="supportId" name="supportId"
+                       th:value="${form?.supportId}"
+                       class="search-input" style="width:65px;" maxlength="20" />
+            </div>
+            <div class="search-item">
+                <label for="nonyusakiNk">納入先名(旧名・カナなど)</label>
+                <input type="text" id="nonyusakiNk" name="nonyusakiNk"
+                       th:value="${form?.nonyusakiNk}"
+                       class="search-input" style="width:390px;" maxlength="100" />
+            </div>
+            <div class="search-item">
+                <label for="plantNk">プラント名</label>
+                <input type="text" id="plantNk" name="plantNk"
+                       th:value="${form?.plantNk}"
+                       class="search-input" style="width:393px;" maxlength="100" />
+            </div>
+            <div class="search-item">
+                <label for="etc">その他(住所など)</label>
+                <input type="text" id="etc" name="etc"
+                       th:value="${form?.etc}"
+                       class="search-input" style="width:390px;" maxlength="200" />
+            </div>
+            <div class="search-item">
+                <button type="submit" id="searchBtn" class="btn btn-search">検索</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- 納入先グリッド -->
+    <div class="grid-container nonyusaki-grid-container">
+        <table id="nonyusakiGrid" class="data-grid">
+            <thead>
+                <tr>
+                    <th class="col-nonyusaki-cd">納入先コード</th>
+                    <th class="col-nonyusaki-nk">納入先名</th>
+                    <th class="col-nonyusakikana-kn">納入先カナ名</th>
+                    <th class="col-nonyusakieimei-en">納入先英名</th>
+                    <th class="col-nonyusakikojo-nk">納入先工場名</th>
+                    <th class="col-kyunonyusaki-nk">旧納入先名</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="n : ${nonyusakiList}"
+                    th:data-nonyusaki-id="${n.nonyusakiId}"
+                    class="nonyusaki-row"
+                    onclick="selectNonyusakiRow(this)">
+                    <td class="col-nonyusaki-cd" th:text="${n.nonyusakiCd}"></td>
+                    <td class="col-nonyusaki-nk" th:text="${n.nonyusakiNk}"></td>
+                    <td class="col-nonyusakikana-kn" th:text="${n.nonyusakikanaKn}"></td>
+                    <td class="col-nonyusakieimei-en" th:text="${n.nonyusakieimeiEn}"></td>
+                    <td class="col-nonyusakikojo-nk" th:text="${n.nonyusakikojoNk}"></td>
+                    <td class="col-kyunonyusaki-nk" th:text="${n.kyunonyusakiNk}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(nonyusakiList)}">
+                    <td colspan="6" class="no-data">データがありません</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- プラントグリッド -->
+    <div class="grid-container plant-grid-container">
+        <table id="plantGrid" class="data-grid">
+            <thead>
+                <tr>
+                    <th class="col-support-id">サポートID</th>
+                    <th class="col-plant-nk">プラント名</th>
+                    <th class="col-nonyu-dt">納入日</th>
+                    <th class="col-hosyusyusoku-dt">保守終息日</th>
+                    <th class="col-systemkadoyoubi">稼働開始</th>
+                    <th class="col-systemkadonissu">稼働日数</th>
+                    <th class="col-systemkadojikan">稼働時間</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${plantList}"
+                    th:data-nonyusaki-id="${p.nonyusakiId}"
+                    class="plant-row">
+                    <td class="col-support-id">
+                        <a th:href="@{/mcm1002u(mitsumori=1,
+                                                 supportId=${p.supportId},
+                                                 plantNk=${p.plantNk},
+                                                 plantId=${p.plantId},
+                                                 nonyusakiCd=${p.nonyusakiCd},
+                                                 nonyusakiNk=${p.nonyusakiNk},
+                                                 copyFlg=false)}"
+                           class="link-support-id"
+                           th:text="${p.supportId}"></a>
+                    </td>
+                    <td class="col-plant-nk" th:text="${p.plantNk}"></td>
+                    <td class="col-nonyu-dt" th:text="${p.nonyuDt}"></td>
+                    <td class="col-hosyusyusoku-dt" th:text="${p.hosyusyusokuDt}"></td>
+                    <td class="col-systemkadoyoubi" th:text="${p.systemkadoyoubi}"></td>
+                    <td class="col-systemkadonissu text-right"
+                        th:text="${p.systemkadonissu}"></td>
+                    <td class="col-systemkadojikan text-right"
+                        th:text="${p.systemkadojikan}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(plantList)}">
+                    <td colspan="7" class="no-data">データがありません</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<th:block layout:fragment="scripts">
+<script th:inline="javascript">
+    function selectNonyusakiRow(row) {
+        document.querySelectorAll('#nonyusakiGrid tbody tr').forEach(function(tr) {
+            tr.classList.remove('selected');
+        });
+        row.classList.add('selected');
+
+        var nonyusakiId = row.getAttribute('data-nonyusaki-id');
+
+        document.querySelectorAll('#plantGrid tbody tr.plant-row').forEach(function(tr) {
+            var plantNonyusakiId = tr.getAttribute('data-nonyusaki-id');
+            if (plantNonyusakiId === nonyusakiId) {
+                tr.style.display = '';
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var firstRow = document.querySelector('#nonyusakiGrid tbody tr.nonyusaki-row');
+        if (firstRow) {
+            selectNonyusakiRow(firstRow);
+        }
+    });
+</script>
+</th:block>
+
+</body>
+</html>

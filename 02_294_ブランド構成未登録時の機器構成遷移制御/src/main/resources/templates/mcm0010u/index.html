@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MCM0010U - 納入先マスタ検索</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css"/>
+    <link rel="stylesheet" th:href="@{/css/mcm0010u.css}" href="../css/mcm0010u.css"/>
+    <script th:src="@{/js/common.js}"></script>
+</head>
+<body>
+<div class="page-shell">
+    <header class="header">
+        <div class="header-left"></div>
+        <div class="header-center"><h1>納入先マスタ検索（MCM0010U）</h1></div>
+        <div class="header-right"><a class="btn-close" th:href="@{/menu}">閉じる</a></div>
+    </header>
+
+    <!-- MCM0017U準拠：サーバー側メッセージは画面内に直書きせず、ポップアップへ渡す -->
+    <div id="serverMessageData" hidden
+         th:attr="data-error=${errorMessage}"></div>
+
+<form class="search-form" th:action="@{/mcm0010u/search}" method="post" th:object="${form}">
+    <div class="search-grid">
+        <div class="search-field field-nonyusaki-cd">
+            <label for="nonyusakiCd">納入先コード</label>
+            <input type="text" id="nonyusakiCd" th:field="*{nonyusakiCd}" maxlength="12"/>
+        </div>
+        <div class="search-field field-support-id">
+            <label for="supportId">サポートID</label>
+            <input type="text" id="supportId" th:field="*{supportId}" maxlength="7"/>
+        </div>
+        <div class="search-field field-nonyusaki-name">
+            <label for="nonyusakiNk">納入先名(旧名・カナなど)</label>
+            <input type="text" id="nonyusakiNk" th:field="*{nonyusakiNk}"/>
+        </div>
+        <div class="search-field field-plant-name">
+            <label for="plantNk">プラント名</label>
+            <input type="text" id="plantNk" th:field="*{plantNk}"/>
+        </div>
+        <div class="search-field field-other">
+            <label for="jusyo">その他(住所など)</label>
+            <input type="text" id="jusyo" th:field="*{jusyo}"/>
+        </div>
+        <div class="search-actions">
+            <button type="submit" class="btn btn-search">検索</button>
+        </div>
+    </div>
+</form>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- ── 納入先一覧 ── -->
+<!-- 【変換元】NONYUSAKIDataGridView (7列 + 非表示NONYUSAKI_ID) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="table-section">
+    <div class="section-header">
+        <div class="section-title-actions">
+            <h2>&lt;&lt; 納入先情報 &gt;&gt;</h2>
+            <a th:href="@{/mcm0011u}" class="btn btn-add">納入先追加</a>
+        </div>
+        <span class="result-count"
+              th:text="${nonyusakiList != null ? nonyusakiList.size() + ' 件' : ''}"></span>
+    </div>
+    <div class="table-scroll">
+        <table class="data-table" id="nonyusakiTable">
+            <thead>
+            <tr>
+                <th>納入先コード</th>
+                <th>納入先名</th>
+                <th>納入先カナ名</th>
+                <th>納入先英名</th>
+                <th>納入先工場名</th>
+                <th>旧納入先名</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="n : ${nonyusakiList}"
+                th:data-nonyusaki-id="${n.nonyusakiId}" tabindex="0"
+                th:data-nonyusaki-cd="${n.nonyusakiCd}"
+                th:data-nonyusaki-nk="${n.nonyusakiNk}"
+                th:classappend="${nStat.index == 0} ? 'selected' : ''">
+                <!-- 納入先コード（Link→MCM0011U、納入先IDを渡す） -->
+                <td>
+					<a th:href="@{/mcm0011u(nonyusakiId=${n.nonyusakiId},returnUrl='/mcm0010u')}" th:text="${n.nonyusakiCd}">コード</a>
+                </td>
+                <td th:text="${n.nonyusakiNk}"></td>
+                <td th:text="${n.nonyusakikanaKn}"></td>
+                <td th:text="${n.nonyusakieimeiEn}"></td>
+                <td th:text="${n.nonyusakikojoNk}"></td>
+                <td th:text="${n.kyunonyusakiNk}"></td>
+                <!-- プラント追加（Link→MCM0012U、納入先CD/NK/IDを渡す） -->
+                <td>
+                    <a th:href="@{/mcm0012u(nonyusakiId=${n.nonyusakiId},nonyusakiCd=${n.nonyusakiCd},nonyusakiNk=${n.nonyusakiNk},returnUrl='/mcm0010u')}"
+                       class="btn-mini" th:text="${n.planttsuika}">プラント追加</a>
+                </td>
+            </tr>
+            <tr th:if="${searched and (nonyusakiList == null || nonyusakiList.isEmpty())}">
+                <td colspan="7" class="no-data">データがありません</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- ── プラント一覧 ── -->
+<!-- 【変換元】PLANTDataGridView (8列 + 非表示PLANT_ID) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="table-section">
+	<div class="section-header">
+	    <div class="section-title-actions">
+	        <h2><< プラント情報 >></h2>
+	        <span class="result-count"
+	              th:text="${plantList != null ? plantList.size() + ' 件' : ''}"></span>
+	    </div>
+		    <!-- 元VB: RowDeleteButton (2009/12/07 M.Ohsuka追加) -->
+		    <button type="button" id="plantRowDeleteBtn" class="btn-row-delete">行削除</button>
+		</div>
+    <div class="table-scroll">
+        <table class="data-table" id="plantTable">
+            <thead>
+            <tr>
+                <th>サポートID</th>
+                <th>プラント名</th>
+                <th>納入日</th>
+                <th>保守終息日</th>
+                <th>稼働開始</th>
+                <th>稼働日数</th>
+                <th>稼働時間</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${plantList}"
+                th:data-plant-id="${p.plantId}" tabindex="0"
+                th:data-nonyusaki-id="${p.nonyusakiId}">
+                <!-- サポートID（Link→MCM0012U、プラントID/納入先情報を渡す） -->
+                <td>
+                    <a th:href="@{/mcm0012u(plantId=${p.plantId},nonyusakiId=${p.nonyusakiId})}"
+                       class="link-cell" th:text="${p.supportId}">
+					   </a>
+                </td>
+                <td th:text="${p.plantNk}"></td>
+                <td th:text="${p.nonyuDt != null ? #temporals.format(p.nonyuDt, 'yyyy/MM/dd') : ''}"></td>
+                <td th:text="${p.hosyusyusokuDt != null ? #temporals.format(p.hosyusyusokuDt, 'yyyy/MM/dd') : ''}"></td>
+                <td th:text="${p.systemkadoyoubi}"></td>
+                <td class="right" th:text="${p.systemkadonissu}"></td>
+                <td class="right" th:text="${p.systemkadojikan}"></td>
+                <!-- 機器構成（Link→MCM0013U、ブランドデータ存在時のみ遷移可能） -->
+                <td>
+                    <a th:if="${p.kikikoseilink != null and !p.kikikoseilink.isEmpty()}"
+                       th:href="@{/mcm0010u/kikikosei(plantId=${p.plantId})}"
+                       th:data-brand-check-url="@{/mcm0010u/api/plant/{id}/hasBrand(id=${p.plantId})}"
+                       th:data-brand-error="${brandKoseiRequiredMessage}"
+                       class="btn-mini kikikosei-link"
+                       th:text="${p.kikikoseilink}"></a>
+                </td>
+            </tr>
+            <tr th:if="${searched and (plantList == null || plantList.isEmpty())}">
+                <td colspan="8" class="no-data">上の納入先一覧から行を選択してください</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- ── 下部パネル（左右分割）── -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="bottom-panels">
+
+    <!-- ── ブランド構成（左） ── -->
+    <!-- 【変換元】BRANDDataGridView (4列: 納入区分, ブランド名, ブランド詳細, 数量) -->
+    <div class="panel-left">
+        <div class="table-section">
+            <div class="section-header">
+                <h2>&lt;&lt; ブランド集計情報 &gt;&gt;</h2>
+            </div>
+            <div class="table-scroll-small">
+                <table class="data-table" id="brandTable">
+                    <thead>
+                    <tr>
+                        <th>納入区分</th>
+                        <th>ブランド名</th>
+                        <th>ブランド詳細</th>
+                        <th>数量</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="b : ${brandList}"
+                        th:data-plant-id="${b.plantId}">
+                        <td th:text="${b.nounyuKbn}"></td>
+                        <td th:text="${b.brandNk}"></td>
+                        <td th:text="${b.brandsyosaiNk}"></td>
+                        <td class="right" th:text="${b.suryo}"></td>
+                    </tr>
+                    <tr th:if="${searched and (brandList == null || brandList.isEmpty())}">
+                        <td colspan="4" class="no-data">プラントを選択してください</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── 機器構成（右） ── -->
+    <!-- 【変換元】KikikoseiDataGridView (4列: 製造メーカー, 品名, 型式, 数量) -->
+    <div class="panel-right">
+        <div class="table-section">
+            <div class="section-header">
+                <h2>&lt;&lt; 機器構成情報 &gt;&gt;</h2>
+            </div>
+            <div class="table-scroll-small">
+                <table class="data-table" id="kikiTable">
+                    <thead>
+                    <tr>
+                        <th>製造メーカー</th>
+                        <th>品名</th>
+                        <th>型式</th>
+                        <th>数量</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="k : ${kikiList}"
+                        th:data-plant-id="${k.plantId}">
+                        <td th:text="${k.seizomakerNk}"></td>
+                        <td th:text="${k.kikihinmeiNk}"></td>
+                        <td th:text="${k.kikikatashiki}"></td>
+                        <td class="right" th:text="${k.suryo}"></td>
+                    </tr>
+                    <tr th:if="${searched and (kikiList == null || kikiList.isEmpty())}">
+                        <td colspan="4" class="no-data">プラントを選択してください</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- ── JavaScript ── -->
+<!-- ══════════════════════════════════════════════════ -->
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // #294: 一覧の表示・選択・入力状態を保持し、クリック時点のDB情報で判定する。
+        document.querySelectorAll('.kikikosei-link').forEach(function (link) {
+            link.addEventListener('click', async function (event) {
+                // 別タブ等の操作はhref側のサーバー検証を通す。
+                if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+                event.preventDefault();
+                event.stopPropagation();
+                if (link.dataset.checking === 'true') return;
+                link.dataset.checking = 'true';
+                var controller = new AbortController();
+                var timeout = setTimeout(function () { controller.abort(); }, 15000);
+                try {
+                    var response = await fetch(link.dataset.brandCheckUrl, {
+                        credentials: 'same-origin', cache: 'no-store', signal: controller.signal,
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    if (!response.ok) throw new Error('brand check failed');
+                    var hasBrand = await response.json();
+                    if (hasBrand === false) {
+                        showError(link.dataset.brandError);
+                    } else if (hasBrand === true) {
+                        // 遷移時にも再検査し、直前にブランドが削除された場合を抑止する。
+                        window.location.assign(link.href);
+                    } else {
+                        throw new Error('invalid brand check response');
+                    }
+                } catch (error) {
+                    showError('ブランド構成を確認できませんでした。再度操作してください。');
+                } finally {
+                    clearTimeout(timeout);
+                    delete link.dataset.checking;
+                }
+            });
+        });
+
+        /* ===== [MCM0017U統一] 行選択／セル選択のロジック =====
+         * 元VB DataGridView と同じ挙動に統一する。
+         *   ・左端の三角マーカー（行ヘッダ）をクリック → 行全体をグレー選択（▶表示）
+         *   ・データセルをクリック            → そのセルだけをグレー（cell-active）
+         * MCM0010U ではマーカーが実セルではなく tr::before 疑似要素(17px)のため、
+         * マーカー領域のクリックは e.target が <tr> になり closest('td') が null になる。
+         * この差でマーカークリックとセルクリックを判定する。
+         * onCurrentRow は「現在行」が変わったとき（マーカー/セルどちらのクリックでも）に
+         * 呼ばれ、親子連動フィルタ（ドリルダウン）を従来どおり維持する。
+         */
+        function setupRowCellSelection(tableSel, onCurrentRow) {
+            var table = document.querySelector(tableSel);
+            if (!table) { return; }
+            var body = table.tBodies[0];
+            if (!body) { return; }
+            body.addEventListener('click', function(e) {
+                var tr = e.target.closest('tr');
+                if (!tr || !body.contains(tr)) { return; }
+                if (tr.querySelector('td.no-data')) { return; } // 「データがありません」等は対象外
+
+                var td = e.target.closest('td');
+                var isMarkerClick = (td === null); // ::before マーカー領域のクリック
+
+                // このテーブル内の既存の選択状態（行・セル）を一旦クリア
+                body.querySelectorAll('tr.selected').forEach(function(r) { r.classList.remove('selected'); });
+                body.querySelectorAll('td.cell-active').forEach(function(c) { c.classList.remove('cell-active'); });
+
+                if (isMarkerClick) {
+                    tr.classList.add('selected');      // 行全体グレー + ▶
+                } else {
+                    td.classList.add('cell-active');   // クリックしたセルのみグレー
+                }
+
+                // 現在行に対する親子連動フィルタ（マーカー/セルいずれのクリックでも実行）
+                if (typeof onCurrentRow === 'function') { onCurrentRow(tr); }
+            });
+        }
+
+        // 納入先: 現在行 → プラントをフィルタ
+        setupRowCellSelection('#nonyusakiTable', function(tr) {
+            var nonyusakiId = tr.getAttribute('data-nonyusaki-id');
+            if (nonyusakiId) { filterPlantsByNonyusakiId(nonyusakiId); }
+        });
+		// プラント: 現在行 → ブランド/機器構成をフィルタ
+		setupRowCellSelection('#plantTable', function(tr) {
+		    var plantId = tr.getAttribute('data-plant-id');
+		    if (plantId) { filterBrandsByPlantId(plantId); filterKikiByPlantId(plantId); }
+		});
+        // ブランド集計情報 / 機器構成情報: 末端テーブル（連動フィルタ無し）
+        setupRowCellSelection('#brandTable', null);
+        setupRowCellSelection('#kikiTable', null);
+
+        /* =====================================================================
+           [MCM3006U完全準拠] 左端の▶マーカーと同じ列に、昇順の行番号(1,2,3…)を表示。
+           ・0010U はマーカーが実セルではなく tr::before 疑似要素のため、行番号は
+             tr の data-rowno 属性に入れ、CSS content:attr(data-rowno) で右寄せ描画。
+             ▶は選択時に背景SVGで左端へ独立配置（3006U: marker左14px / 番号右寄せ22px）。
+           ・非表示(display:none)行は飛ばし、見えている行だけ 1 から連番。
+           ・番号は表示用のみ（name なし）。送信データ・登録処理に影響しない。
+           ・フィルタで表示行が変わるため、フィルタ後にも振り直す。
+           ===================================================================== */
+        function renumberTable(tableSel) {
+            var table = document.querySelector(tableSel);
+            if (!table || !table.tBodies[0]) { return; }
+            var rows = table.tBodies[0].querySelectorAll('tr');
+            var no = 0;
+            rows.forEach(function(tr) {
+                if (tr.querySelector('td.no-data')) { tr.removeAttribute('data-rowno'); return; }
+                if (tr.style.display === 'none') { tr.removeAttribute('data-rowno'); return; }
+                no++;
+                if (tr.getAttribute('data-rowno') !== String(no)) {
+                    tr.setAttribute('data-rowno', String(no));
+                }
+            });
+        }
+        function renumberAllTables() {
+            renumberTable('#nonyusakiTable');
+            renumberTable('#plantTable');
+            renumberTable('#brandTable');
+            renumberTable('#kikiTable');
+        }
+        window.renumberAllTables = renumberAllTables;
+        window.renumberTable = renumberTable;
+        renumberAllTables(); // 初期表示で採番
+
+        /**
+         * 納入先IDでプラント行をフィルタ
+         * 元VB: DataRelation MCM_MA_PLANT_MCM_MA_NONYUSAKI による親子連動
+         */
+		 /* =====================================================================
+		    [プラント情報] 行削除ボタン（元VB: RowDeleteButton 2009/12/07 M.Ohsuka追加）
+		    ・プラント一覧で行（またはセル）を選択している場合のみ活性化する。
+		    ・押下時は画面上の当該行を削除し、連動するブランド集計/機器構成情報の
+		      表示もクリアしたうえで行番号・件数表示を振り直す。
+		    ・本ボタンは表示上の削除のみを行う。DB上の削除確定（登録/保存）に
+		      ついては別途サーバー側処理との連携要否を要確認。
+		    ===================================================================== */
+			var plantRowDeleteBtn = document.getElementById('plantRowDeleteBtn');
+			if (plantRowDeleteBtn) {
+			    plantRowDeleteBtn.addEventListener('click', function() {
+			        var plantTable = document.querySelector('#plantTable');
+			        if (!plantTable || !plantTable.tBodies[0]) { return; }
+
+			        var targetRow = plantTable.tBodies[0].querySelector('tr.selected');
+			        if (!targetRow) {
+			            var activeCell = plantTable.tBodies[0].querySelector('td.cell-active');
+			            if (activeCell) { targetRow = activeCell.closest('tr'); }
+			        }
+			        if (!targetRow || targetRow.querySelector('td.no-data')) {
+			            showError('行が選択されていません。');
+			            return;
+			        }
+
+			        var plantId = targetRow.getAttribute('data-plant-id');
+			        showConfirm('行を削除します。よろしいですか？', function() {
+			            document.getElementById('plantDeleteId').value = plantId;
+			            document.getElementById('plantDeleteForm').submit();
+			        });
+			    });
+			}
+
+        function filterPlantsByNonyusakiId(nonyusakiId) {
+            var plantRows = document.querySelectorAll('#plantTable tbody tr[data-plant-id]');
+            plantRows.forEach(function(row) {
+                if (row.getAttribute('data-nonyusaki-id') === nonyusakiId) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+                row.classList.remove('selected');
+            });
+            // ブランド・機器構成もクリア
+            clearBrandTable();
+            clearKikiTable();
+            renumberTable('#plantTable'); // [MCM3006U準拠] 表示行が変わったので番号を振り直す
+        }
+
+        /**
+         * プラントIDでブランド構成行をフィルタ
+         * 元VB: DataRelation MCM_MA_PLANT_MCM_MA_BRAND_KOSEI
+         */
+        function filterBrandsByPlantId(plantId) {
+            var brandRows = document.querySelectorAll('#brandTable tbody tr[data-plant-id]');
+            brandRows.forEach(function(row) {
+                if (row.getAttribute('data-plant-id') === plantId) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            renumberTable('#brandTable'); // [MCM3006U準拠] 表示行が変わったので番号を振り直す
+        }
+
+        /**
+         * プラントIDで機器構成行をフィルタ
+         * 元VB: DataRelation MCM_MA_PLANT_MCM_MA_KIKIKOSEI
+         */
+        function filterKikiByPlantId(plantId) {
+            var kikiRows = document.querySelectorAll('#kikiTable tbody tr[data-plant-id]');
+            kikiRows.forEach(function(row) {
+                if (row.getAttribute('data-plant-id') === plantId) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            renumberTable('#kikiTable'); // [MCM3006U準拠] 表示行が変わったので番号を振り直す
+        }
+
+        function clearBrandTable() {
+            var brandRows = document.querySelectorAll('#brandTable tbody tr[data-plant-id]');
+            brandRows.forEach(function(row) { row.style.display = 'none'; });
+            renumberTable('#brandTable'); // [MCM3006U準拠] 表示0件でも整合を保つ
+        }
+
+        function clearKikiTable() {
+            var kikiRows = document.querySelectorAll('#kikiTable tbody tr[data-plant-id]');
+            kikiRows.forEach(function(row) { row.style.display = 'none'; });
+            renumberTable('#kikiTable'); // [MCM3006U準拠] 表示0件でも整合を保つ
+        }
+
+        /* ===== [MCM0017U統一] 列幅ドラッグ変更機能（列間の境界をマウスで掴んで幅変更） =====
+         * MCM0017U の setupColumnResize を移植。
+         * ただし MCM0010U は行番号マーカーを実列ではなく tr::before 疑似要素(17px)で
+         * 描画するため、疑似セル分を MARKER_W として table 全幅に加味している。
+         */
+        setupColumnResize('#nonyusakiTable');
+        setupColumnResize('#plantTable');
+        setupColumnResize('#brandTable');
+        setupColumnResize('#kikiTable');
+
+        function setupColumnResize(tableSel) {
+            var table = document.querySelector(tableSel);
+            if (!table) return;
+            var ths = table.querySelectorAll('thead th');
+            if (!ths.length) return;
+
+            var MARKER_W = 46; // tr::before 行番号+▶マーカーの固定幅（MCM3006U完全準拠: col-select 46px）
+            var baseWidths = [];
+            for (var i = 0; i < ths.length; i++) {
+                baseWidths.push(ths[i].offsetWidth);
+            }
+            var LAST = ths.length - 1;
+
+            function applyWidths(ws) {
+                var total = MARKER_W;
+                for (var i = 0; i < ths.length; i++) {
+                    ths[i].style.width = ws[i] + 'px';
+                    total += ws[i];
+                }
+                table.style.width = total + 'px';
+            }
+
+            function fitInitial() {
+                var ws = baseWidths.slice();
+                var total = MARKER_W;
+                for (var i = 0; i < ws.length; i++) { total += ws[i]; }
+                var wrap = table.parentElement;
+                var avail = wrap ? wrap.clientWidth : 0;
+                if (avail > total) { ws[LAST] += (avail - total); } // 余白は最終列で吸収
+                applyWidths(ws);
+            }
+
+            fitInitial();
+
+            var rt = null;
+            window.addEventListener('resize', function () {
+                if (rt) { clearTimeout(rt); }
+                rt = setTimeout(fitInitial, 100);
+            });
+
+            for (var c = 0; c < ths.length; c++) {
+                (function (idx) {
+                    var th = ths[idx];
+                    if (th.querySelector('.col-resizer')) return;
+                    var grip = document.createElement('span');
+                    grip.className = 'col-resizer';
+                    th.appendChild(grip);
+                    grip.addEventListener('mousedown', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        var startX = e.clientX;
+                        var startW = baseWidths[idx];
+                        document.body.classList.add('col-resizing');
+                        function onMove(ev) {
+                            var w = startW + (ev.clientX - startX);
+                            if (w < 40) { w = 40; } // 最小40px
+                            baseWidths[idx] = w;
+                            applyWidths(baseWidths.slice());
+                        }
+                        function onUp() {
+                            document.body.classList.remove('col-resizing');
+                            document.removeEventListener('mousemove', onMove);
+                            document.removeEventListener('mouseup', onUp);
+                        }
+                        document.addEventListener('mousemove', onMove);
+                        document.addEventListener('mouseup', onUp);
+                    });
+                })(c);
+            }
+        }
+    });
+</script>
+
+
+<!-- MCM0017U準拠 エラーポップアップ -->
+<div id="miniDialogOverlay" class="mini-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="miniDialogTitle">
+    <div class="mini-dialog">
+        <div class="mini-dialog-head">
+            <span id="miniDialogTitle">入力エラー</span>
+            <button type="button" class="mini-close" id="miniDialogCloseX" aria-label="閉じる">✕</button>
+        </div>
+        <div class="mini-dialog-body">
+            <span class="mini-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="15" fill="#1a6fd4"/>
+                    <circle cx="16" cy="9" r="2" fill="#ffffff"/>
+                    <rect x="14" y="13" width="4" height="11" rx="1" fill="#ffffff"/>
+                </svg>
+            </span>
+            <span class="mini-msg" id="miniDialogMsg"></span>
+        </div>
+        <div class="mini-dialog-foot"><button type="button" id="miniDialogOk">OK</button></div>
+    </div>
+</div>
+<!-- 行削除 確認ダイアログ -->
+<div id="confirmDialogOverlay" class="mini-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmDialogTitle">
+    <div class="mini-dialog">
+        <div class="mini-dialog-head">
+            <span id="confirmDialogTitle">確認</span>
+            <button type="button" class="mini-close" id="confirmDialogCloseX" aria-label="閉じる">✕</button>
+        </div>
+        <div class="mini-dialog-body">
+            <span class="mini-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <circle cx="16" cy="16" r="15" fill="#1a6fd4"/>
+                    <circle cx="16" cy="9" r="2" fill="#ffffff"/>
+                    <rect x="14" y="13" width="4" height="11" rx="1" fill="#ffffff"/>
+                </svg>
+            </span>
+            <span class="mini-msg" id="confirmDialogMsg"></span>
+        </div>
+        <div class="mini-dialog-foot">
+            <button type="button" id="confirmDialogOk">OK</button>
+            <button type="button" id="confirmDialogCancel">キャンセル</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    "use strict";
+
+    function showError(message) {
+        var overlay = document.getElementById("miniDialogOverlay");
+        var messageBody = document.getElementById("miniDialogMsg");
+        var okButton = document.getElementById("miniDialogOk");
+        var closeButton = document.getElementById("miniDialogCloseX");
+
+        if (!overlay || !messageBody || !okButton) {
+            window.alert(message);
+            return;
+        }
+
+        messageBody.textContent = message;
+        overlay.classList.add("is-open");
+
+        function closeDialog() {
+            overlay.classList.remove("is-open");
+            messageBody.textContent = "";
+            okButton.onclick = null;
+            if (closeButton) {
+                closeButton.onclick = null;
+            }
+        }
+
+        okButton.onclick = closeDialog;
+        if (closeButton) {
+            closeButton.onclick = closeDialog;
+        }
+        window.setTimeout(function() { okButton.focus(); }, 50);
+    }
+	function showConfirm(message, onOk) {
+	    var overlay = document.getElementById("confirmDialogOverlay");
+	    var messageBody = document.getElementById("confirmDialogMsg");
+	    var okButton = document.getElementById("confirmDialogOk");
+	    var cancelButton = document.getElementById("confirmDialogCancel");
+	    var closeButton = document.getElementById("confirmDialogCloseX");
+
+	    if (!overlay || !messageBody || !okButton || !cancelButton) {
+	        if (window.confirm(message)) { onOk(); }
+	        return;
+	    }
+
+	    messageBody.textContent = message;
+	    overlay.classList.add("is-open");
+
+	    function closeDialog() {
+	        overlay.classList.remove("is-open");
+	        messageBody.textContent = "";
+	        okButton.onclick = null;
+	        cancelButton.onclick = null;
+	        if (closeButton) { closeButton.onclick = null; }
+	    }
+
+	    okButton.onclick = function() {
+	        closeDialog();
+	        if (typeof onOk === "function") { onOk(); }
+	    };
+	    cancelButton.onclick = closeDialog;
+	    if (closeButton) { closeButton.onclick = closeDialog; }
+	    window.setTimeout(function() { okButton.focus(); }, 50);
+	}
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var messageData = document.getElementById("serverMessageData");
+        var errorMessage = messageData ? messageData.getAttribute("data-error") : "";
+        if (errorMessage) {
+            messageData.removeAttribute("data-error");
+            showError(errorMessage);
+        }
+    });
+</script>
+
+<!-- プラント削除用フォーム（確認ダイアログのOK押下時にsubmit） -->
+<form id="plantDeleteForm" th:action="@{/mcm0010u/plant/delete}" method="post" style="display:none;">
+    <input type="hidden" name="plantId" id="plantDeleteId"/>
+</form>
+
+</body>
+</html>

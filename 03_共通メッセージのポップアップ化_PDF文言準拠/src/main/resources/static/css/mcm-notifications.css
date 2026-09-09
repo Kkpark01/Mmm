@@ -1,0 +1,99 @@
+/* MCM business notifications. Isolated selectors keep each screen's layout intact. */
+[data-mcm-notifications] { display: none !important; }
+dialog.mcm-notification {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    padding: 0;
+    width: min(480px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+    font: 14px/1.6 'Meiryo', 'Yu Gothic UI', sans-serif;
+    text-align: left;
+}
+dialog.mcm-notification::backdrop { background: rgba(0, 0, 0, .32); }
+dialog.mcm-notification:not([open]) { display: none; }
+.mcm-notification .mcm-notification-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 10px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+.mcm-notification .mcm-notification-title { margin: 0; font-size: 12px; font-weight: normal; }
+.mcm-notification .mcm-notification-close {
+    flex: 0 0 24px;
+    min-width: 24px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: #555;
+    font: 20px/1 sans-serif;
+    cursor: pointer;
+}
+.mcm-notification .mcm-notification-close:hover { background: #ddd; }
+.mcm-notification .mcm-notification-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 24px;
+    min-height: 100px;
+    box-sizing: border-box;
+}
+.mcm-notification .mcm-notification-icon {
+    display: inline-flex;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1976d2;
+    color: #fff;
+    font: bold 24px/1 sans-serif;
+}
+.mcm-notification .mcm-notification-icon[data-icon="Exclamation"] { background: #d18b00; }
+.mcm-notification .mcm-notification-message {
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+    color: #333;
+    font: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.mcm-notification .mcm-notification-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 14px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+}
+.mcm-notification .mcm-notification-button {
+    min-width: 88px;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 6px 20px;
+    border: 1px solid #999;
+    border-radius: 3px;
+    background: #fff;
+    color: #333;
+    font: 13px/1.4 'Meiryo', 'Yu Gothic UI', sans-serif;
+    cursor: pointer;
+}
+.mcm-notification .mcm-notification-button:hover { background: #e3f2fd; border-color: #1976d2; }
+.mcm-notification button:focus-visible { outline: 2px solid #1976d2; outline-offset: 2px; }
+.mcm-notification button[hidden] { display: none !important; }

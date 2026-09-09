@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!-- 変換元: Mcm1004uScreen.Designer.vb + Mcm1004uTabControl.Designer.vb
+     DataGridView -> table + th:each / WinForms TabControl -> Bootstrap tabs
+     ConfirmMessage -> JavaScript confirm() -->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head><link rel="stylesheet" th:href="@{/css/mcm1004u.css}" />    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<div layout:fragment="content">
+<h2>需要家契約一覧</h2>
+
+<!-- メッセージ -->
+<th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+
+
+<!-- ヘッダ部 (ReadOnly) -->
+<div class="header-section">
+  <div class="header-row"><label>状態</label><span class="ro-field" th:text="${form.jotaiDisplay}"></span><label>取引先</label><span class="ro-field wide" th:text="${form.torihikisakiNk}"></span><label>登録日時</label><span class="ro-field" th:text="${form.createdDt}"></span></div>
+  <div class="header-row"><label>見積依頼NO</label><span class="ro-field" th:text="${form.tmIraiNo}"></span><label>納入先</label><span class="ro-field wide" th:text="${form.nonyusakiNk}"></span><label>登録者</label><span class="ro-field" th:text="${form.createdBy}"></span></div>
+  <div class="header-row"><label>見積日付</label><span class="ro-field" th:text="${form.mitsumoriDt}"></span><label>サポートID</label><span class="ro-field" th:text="${form.supportId}"></span><label>プラント名</label><span class="ro-field wide" th:text="${form.plantNk}"></span><label>更新日時</label><span class="ro-field" th:text="${form.lastupdateDt}"></span></div>
+  <div class="header-row"><label>契約時間帯</label><span class="ro-field" th:text="${form.keiyakujikantai}"></span><label>依頼事業所</label><span class="ro-field wide" th:text="${form.iraijigyosyoNk}"></span><label>依頼担当者</label><span class="ro-field" th:text="${form.iraitantosya}"></span><label>更新者</label><span class="ro-field" th:text="${form.lastupdateBy}"></span></div>
+</div>
+
+<form th:action="@{/mcm1004u/update}" method="post" th:object="${form}">
+<input type="hidden" th:field="*{tmKeiyakujikanId}" />
+<input type="hidden" th:field="*{tmIraiId}" />
+<input type="hidden" th:field="*{jotai}" />
+<input type="hidden" th:field="*{seniMotoKbn}" />
+
+<ul class="nav nav-tabs" role="tablist">
+  <li th:each="tab, stat : *{tabs}" class="nav-item">
+    <button class="nav-link" th:classappend="${stat.index == 0 ? 'active' : ''}"
+            type="button" data-bs-toggle="tab"
+            th:attr="data-bs-target='#tab-' + ${stat.index}"
+            th:text="${tab.tabLabel}"></button>
+  </li>
+</ul>
+
+<div class="tab-content">
+<div th:each="tab, stat : *{tabs}" class="tab-pane fade"
+     th:classappend="${stat.index == 0 ? 'show active' : ''}"
+     th:id="'tab-' + ${stat.index}">
+
+  <input type="hidden" th:field="*{tabs[__${stat.index}__].tmKikanId}" />
+
+  <div class="kikan-header">
+    <label>期間</label>
+    <input type="date" th:field="*{tabs[__${stat.index}__].kaisiDt}" th:readonly="${!form.viewFlg}" class="form-control-sm required" />
+    <span>～</span>
+    <input type="date" th:field="*{tabs[__${stat.index}__].syuryoDt}" th:readonly="${!form.viewFlg}" class="form-control-sm" />
+    <label>取引先見積NO</label>
+    <input type="text" th:field="*{tabs[__${stat.index}__].tmMitsumoriNo}" th:readonly="${!form.viewFlg}" class="form-control-sm" />
+    <label>回答日</label>
+    <input type="date" th:field="*{tabs[__${stat.index}__].kaitoDt}" th:readonly="${!form.viewFlg}" class="form-control-sm" />
+  </div>
+
+  <div class="kikan-detail">
+    <div class="biko-area"><label>備考</label>
+      <textarea th:field="*{tabs[__${stat.index}__].biko}" th:readonly="${!form.viewFlg}" rows="2" class="form-control"></textarea></div>
+    <div class="price-summary">
+      <div class="price-row"><label>標準価格合計</label><span class="price-ro" th:text="${tab.hyojungokeiKin}"></span></div>
+      <div class="price-row"><label>仕切小計</label><span class="price-ro" th:text="${tab.sikirisyokeiKin}"></span></div>
+      <div class="price-row"><label>出精値引き</label><input type="number" th:field="*{tabs[__${stat.index}__].syusseinebikiKin}" th:readonly="${!form.viewFlg}" class="price-input" /></div>
+      <div class="price-row"><label>仕切合計</label><span class="price-ro" th:text="${tab.sikirigokeiKin}"></span></div>
+    </div>
+  </div>
+
+  <div class="table-responsive"><table class="table table-bordered table-sm tanka-table">
+    <thead><tr><th class="frozen" style="width:125px">機器構成名</th><th class="frozen" style="width:95px">製造メーカー</th><th class="frozen" style="width:130px">品名</th><th class="frozen" style="width:130px">型式</th><th style="width:55px">数量</th><th style="width:40px">照会</th><th style="width:80px">標準価格</th><th style="width:90px">標準価格計</th><th style="width:80px">仕切価格</th><th style="width:90px">仕切価格計</th><th style="width:60px">パック</th><th style="width:100px">契約内容</th><th style="width:200px">保守契約時間</th><th style="width:35px">点検</th><th style="width:90px">保守方法</th><th style="width:115px">サービス形態</th><th style="width:100px">備考</th><th style="width:100px">手配製番</th></tr></thead>
+    <tbody><tr th:each="row, rstat : ${tab.tankaRows}">
+      <td class="frozen" th:text="${row.kikikoseiNk}"></td>
+      <td class="frozen" th:text="${row.seizomakerNk}"></td>
+      <td class="frozen" th:text="${row.kikihinmeiNk}"></td>
+      <td class="frozen" th:text="${row.kikikatashiki}"></td>
+      <td class="text-end" th:text="${row.suryoNm}"></td>
+      <td><a href="#">照会</a></td>
+      <td><input type="number" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].hyojunKin}" th:readonly="${!form.viewFlg}" class="price-input" /></td>
+      <td class="text-end" th:text="${row.hyojunkeiKin}"></td>
+      <td><input type="number" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].sikiriKin}" th:readonly="${!form.viewFlg}" class="price-input" /></td>
+      <td class="text-end" th:text="${row.sikirikeiKin}"></td>
+      <td class="text-center"><input type="checkbox" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].packFlg}" th:disabled="${!form.viewFlg}" value="1" /></td>
+      <td><input type="text" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].keiyakunaiyo}" th:readonly="${!form.viewFlg}" /></td>
+      <td><!-- TODO: ComboBox torihosyujikanId --></td>
+      <td class="text-center"><input type="checkbox" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].tenkenumu}" th:disabled="${!form.viewFlg}" value="1" /></td>
+      <td><!-- TODO: ComboBox hosyuhoho --></td>
+      <td><!-- TODO: ComboBox servicekeitai --></td>
+      <td><input type="text" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].biko}" th:readonly="${!form.viewFlg}" /></td>
+      <td th:text="${row.tehaiseiban}"></td>
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].tmTankaId}" />
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].tmKikimeisaiId}" />
+    </tr></tbody>
+  </table></div>
+
+  <h5>≪点検情報≫</h5>
+  <div class="table-responsive"><table class="table table-bordered table-sm tenken-table">
+    <thead><tr><th class="frozen" style="width:155px">機器構成名</th><th class="frozen" style="width:155px">機器品名</th><th class="frozen" style="width:155px">機器型式</th><th style="width:55px">回数</th><th style="width:80px">可能曜日</th><th style="width:75px">夜間対応</th><th style="width:130px">備考</th></tr></thead>
+    <tbody><tr th:each="row, rstat : ${tab.tenkenRows}">
+      <td class="frozen" th:text="${row.kikikoseiNk}"></td>
+      <td class="frozen" th:text="${row.kikihinmeiNk}"></td>
+      <td class="frozen" th:text="${row.kikikatashiki}"></td>
+      <td><input type="number" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].tenkenkaisu}" th:readonly="${!form.viewFlg}" class="text-end" /></td>
+      <td><!-- TODO: ComboBox tenkenkanoyobi --></td>
+      <td class="text-center"><input type="checkbox" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].yakantaioumu}" th:disabled="${!form.viewFlg}" value="1" /></td>
+      <td><input type="text" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].biko}" th:readonly="${!form.viewFlg}" /></td>
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].tmTenkenId}" />
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].tmKikikoseiId}" />
+    </tr></tbody>
+  </table></div>
+
+</div><!-- /tab-pane -->
+</div><!-- /tab-content -->
+
+<div class="footer-buttons">
+  <button type="button" th:disabled="${!form.viewFlg}" class="btn btn-secondary" onclick="document.getElementById('addTabForm').submit()">タブ追加</button>
+  <div>
+    <button type="button" th:unless="${form.viewFlg}" class="btn btn-warning me-2" onclick="document.getElementById('lockReleaseForm').submit()">ロック解除</button>
+    <button type="submit" th:disabled="${!form.viewFlg}" class="btn btn-primary" onclick="return confirm('登録してよろしいですか？')">登録</button>
+  </div>
+</div>
+</form>
+
+<form id="addTabForm" th:action="@{/mcm1004u/addTab}" method="post" style="display:none">
+  <input type="hidden" name="tmKeiyakujikanId" th:value="${form.tmKeiyakujikanId}" />
+</form>
+<form id="lockReleaseForm" th:action="@{/mcm1004u/lockRelease}" method="post" style="display:none">
+  <input type="hidden" name="tmKeiyakujikanId" th:value="${form.tmKeiyakujikanId}" />
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.price-input').forEach(function(input) {
+    input.addEventListener('change', function() {
+      // TODO: recalc prices
+    });
+  });
+});
+</script>
+
+</div></body></html>

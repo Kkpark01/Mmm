@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm1006u2Screen.vb / Mcm1006u2Screen.Designer.vb
+  MCM1006U — 取引先契約機器選定 (2/2) — 機器構成 / 機器明細 / 個体明細 選択
+  【レイアウト】MCM0017U準拠（3グリッド + JS連動チェックボックス）
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf" th:content="${_csrf != null} ? ${_csrf.token} : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM1006U - 取引先契約機器選定 (2/2)</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../../css/common.css"/>
+    <style>
+        body { margin: 0; font-family: 'Meiryo', 'メイリオ', sans-serif; font-size: 13px; }
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 30px; padding: 0 10px; box-sizing: border-box;
+        }
+        .header .header-center { flex: 1; text-align: center; }
+        .header .header-center h1 { margin: 0; font-size: 16px; font-weight: bold; color: #fff; line-height: 30px; }
+        .info-panel {
+            background: #f5f5f5; border-bottom: 1px solid #ccc;
+            padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px;
+        }
+        .info-item { display: flex; align-items: center; gap: 4px; }
+        .info-item label { color: #555; white-space: nowrap; }
+        .info-item span { font-weight: bold; }
+        .error-panel {
+            background: #fdecea; border: 1px solid #f44336; color: #c62828;
+            padding: 6px 12px; margin: 4px 8px; border-radius: 3px; font-size: 12px;
+        }
+        .toolbar {
+            padding: 4px 8px; display: flex; gap: 6px; border-bottom: 1px solid #ddd;
+            background: #fafafa;
+        }
+        .btn {
+            height: 24px; padding: 0 12px; font-size: 12px; cursor: pointer;
+            border: 1px solid #aaa; border-radius: 3px; background: #fff;
+        }
+        .btn:hover { background: #e8e8f8; }
+        .btn-complete { background: #453f78; color: #fff; border-color: #453f78; }
+        .btn-complete:hover { background: #5a5499; }
+        .grid-section { margin: 0 8px 6px; }
+        .grid-section-title {
+            background: #e8eaf6; padding: 3px 8px; font-size: 12px; font-weight: bold;
+            border-left: 3px solid #453f78; margin-bottom: 2px;
+        }
+        .grid-container {
+            max-height: 220px; overflow-y: auto; overflow-x: auto;
+            border: 1px solid #d5dbdb;
+        }
+        .data-grid { border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 11px; width: 100%; }
+        .data-grid thead th {
+            position: sticky; top: 0; z-index: 5;
+            background-color: #eef2f5;
+            box-shadow: inset 0 -1px 0 #b0bec5;
+            text-align: left; padding: 3px 5px; white-space: nowrap;
+        }
+        .data-grid th, .data-grid td { border-right: 1px solid #d5dbdb; border-bottom: 1px solid #d5dbdb; }
+        .data-grid th:first-child, .data-grid td:first-child { border-left: 1px solid #d5dbdb; }
+        .data-grid td { padding: 1px 4px; vertical-align: middle; height: 20px; line-height: 20px; }
+        .data-grid td.col-check { text-align: center; width: 32px; }
+        .data-grid tbody tr:hover { background: #f0f4ff; }
+        .data-grid tbody tr.row-checked { background: #e3f2fd; }
+        .data-grid tbody tr.row-disabled td { color: #bbb; background: #f9f9f9; }
+        .step-indicator { padding: 4px 12px; font-size: 11px; color: #888; }
+    </style>
+    <script th:src="@{/js/common.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="header">
+    <div class="header-left"></div>
+    <div class="header-center"><h1>MCM1006U　取引先契約機器選定</h1></div>
+    <div class="header-right"></div>
+</div>
+
+<div class="step-indicator">ステップ 2 / 2　機器選択</div>
+
+<!-- エラー表示 -->
+<th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+
+<!-- ヘッダー情報（読み取り専用） -->
+<div class="info-panel">
+    <div class="info-item"><label>納入先CD:</label><span th:text="${form.nonyusakiCd}"></span></div>
+    <div class="info-item"><label>納入先名:</label><span th:text="${form.nonyusakiNk}"></span></div>
+    <div class="info-item"><label>サポートID:</label><span th:text="${form.supportId}"></span></div>
+    <div class="info-item"><label>プラント:</label><span th:text="${form.plantNk}"></span></div>
+    <div class="info-item"><label>契約NO:</label><span th:text="${form.keiyakuNo}"></span></div>
+    <div class="info-item"><label>期間:</label>
+        <span th:text="${form.kaisiDt + ' ～ ' + form.syuryoDt}"></span></div>
+    <div class="info-item"><label>取引先CD:</label><span th:text="${form.torihikisakiCd}"></span></div>
+    <div class="info-item"><label>取引先名:</label><span th:text="${form.torihikisakiNk}"></span></div>
+</div>
+
+<!-- フォーム -->
+<form id="step2Form" th:action="@{/mcm1006u/step2/complete}" method="post">
+    <input type="hidden" name="_csrf" th:value="${_csrf != null} ? ${_csrf.token} : ''"/>
+
+    <!-- ツールバー（上部） -->
+    <div class="toolbar">
+        <button type="submit" class="btn btn-complete">摘要へ</button>
+        <button type="button" class="btn" id="btnBack">&#8592; 前へ</button>
+        <button type="button" class="btn" onclick="history.back()">閉じる</button>
+    </div>
+
+    <!-- ===== 機器構成グリッド ===== -->
+    <div class="grid-section">
+        <div class="grid-section-title">機器構成</div>
+        <div class="grid-container">
+            <table class="data-grid" id="koseiGrid">
+                <thead>
+                <tr>
+                    <th class="col-check" style="width:32px;">選択</th>
+                    <th style="width:120px;">機器構成ID</th>
+                    <th style="width:200px;">機器構成名</th>
+                    <th style="width:150px;">セット名</th>
+                    <th style="width:60px;">単位</th>
+                    <th style="width:100px;">手配製番</th>
+                    <th style="width:150px;">備考</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row, rowStat : ${form.koseiRows}"
+                    th:id="'koseiRow_' + ${rowStat.index}"
+                    th:classappend="${row.checkFlg == 1} ? 'row-checked' : ''"
+                    th:attr="data-kikikosei-id=${row.kikikoseiId},
+                             data-tm-irai-no=${row.tmIraiNo}">
+                    <td class="col-check">
+                        <input type="checkbox"
+                               th:name="|koseiRows[${rowStat.index}].checkFlg|"
+                               value="1"
+                               th:checked="${row.checkFlg == 1}"
+                               th:disabled="${row.tmIraiNo == 0}"
+                               th:attr="data-kosei-idx=${rowStat.index}"
+                               class="kosei-check"
+                               onchange="onKoseiCheck(this)"/>
+                        <input type="hidden" th:name="|koseiRows[${rowStat.index}].kikikoseiId|"
+                               th:value="${row.kikikoseiId}"/>
+                        <input type="hidden" th:name="|koseiRows[${rowStat.index}].tmIraiNo|"
+                               th:value="${row.tmIraiNo}"/>
+                        <input type="hidden" th:name="|koseiRows[${rowStat.index}].tmKikikoseiId|"
+                               th:value="${row.tmKikikoseiId}"/>
+                        <input type="hidden" th:name="|koseiRows[${rowStat.index}].tkKikikoseiId|"
+                               th:value="${row.tkKikikoseiId}"/>
+                        <input type="hidden" th:name="|koseiRows[${rowStat.index}].checkFlgOld|"
+                               th:value="${row.checkFlgOld}"/>
+                    </td>
+                    <td th:text="${row.kikikoseiId}"></td>
+                    <td th:text="${row.kikikoseiNk}"></td>
+                    <td th:text="${row.setNm}"></td>
+                    <td th:text="${row.tani}"></td>
+                    <td th:text="${row.tehaiseiban}"></td>
+                    <td th:text="${row.biko}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(form.koseiRows)}">
+                    <td colspan="7" style="text-align:center;color:#999;padding:8px;">データがありません</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== 機器明細グリッド ===== -->
+    <div class="grid-section">
+        <div class="grid-section-title">機器明細</div>
+        <div class="grid-container">
+            <table class="data-grid" id="meisaiGrid">
+                <thead>
+                <tr>
+                    <th class="col-check" style="width:32px;">選択</th>
+                    <th style="width:120px;">機器構成名</th>
+                    <th style="width:180px;">機器品名</th>
+                    <th style="width:120px;">型式</th>
+                    <th style="width:50px;">数量</th>
+                    <th style="width:140px;">製造メーカー</th>
+                    <th style="width:100px;">個体管理</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row, rowStat : ${form.meisaiRows}"
+                    th:id="'meisaiRow_' + ${rowStat.index}"
+                    th:classappend="${row.checkFlg == 1} ? 'row-checked' : ''"
+                    th:attr="data-kikikosei-id=${row.kikikoseiId},
+                             data-kikimeisai-id=${row.kikimeisaiId},
+                             data-tm-irai-no=${row.tmIraiNo}">
+                    <td class="col-check">
+                        <input type="checkbox"
+                               th:name="|meisaiRows[${rowStat.index}].checkFlg|"
+                               value="1"
+                               th:checked="${row.checkFlg == 1}"
+                               th:disabled="${row.tmIraiNo == 0}"
+                               th:attr="data-meisai-idx=${rowStat.index}"
+                               class="meisai-check"
+                               onchange="onMeisaiCheck(this)"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].kikikoseiId|"
+                               th:value="${row.kikikoseiId}"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].kikimeisaiId|"
+                               th:value="${row.kikimeisaiId}"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].tmIraiNo|"
+                               th:value="${row.tmIraiNo}"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].tmKikikoseiId|"
+                               th:value="${row.tmKikikoseiId}"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].tmKikimeisaiId|"
+                               th:value="${row.tmKikimeisaiId}"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].tkKikikoseiId|"
+                               th:value="${row.tkKikikoseiId}"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].tkKikimeisaiId|"
+                               th:value="${row.tkKikimeisaiId}"/>
+                        <input type="hidden" th:name="|meisaiRows[${rowStat.index}].checkFlgOld|"
+                               th:value="${row.checkFlgOld}"/>
+                    </td>
+                    <td th:text="${row.kikikoseiNk}"></td>
+                    <td th:text="${row.kikihinmeiNk}"></td>
+                    <td th:text="${row.kikikatashiki}"></td>
+                    <td th:text="${row.suryoNm}" style="text-align:right;"></td>
+                    <td th:text="${row.seizomakerNk}"></td>
+                    <td th:text="${row.kotaikanriFlg == 1} ? '個体管理あり' : ''"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(form.meisaiRows)}">
+                    <td colspan="7" style="text-align:center;color:#999;padding:8px;">データがありません</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== 個体明細グリッド ===== -->
+    <div class="grid-section">
+        <div class="grid-section-title">個体明細</div>
+        <div class="grid-container">
+            <table class="data-grid" id="kotaiGrid">
+                <thead>
+                <tr>
+                    <th class="col-check" style="width:32px;">選択</th>
+                    <th style="width:120px;">機器品名</th>
+                    <th style="width:100px;">個体名</th>
+                    <th style="width:100px;">シリアルNo</th>
+                    <th style="width:110px;">設置場所</th>
+                    <th style="width:80px;">数量</th>
+                    <th style="width:80px;">ブランド</th>
+                    <th style="width:110px;">撤去日</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row, rowStat : ${form.kotaiRows}"
+                    th:id="'kotaiRow_' + ${rowStat.index}"
+                    th:classappend="${row.checkFlg == 1} ? 'row-checked' : ''"
+                    th:attr="data-kikikosei-id=${row.kikikoseiId},
+                             data-kikimeisai-id=${row.kikimeisaiId},
+                             data-kotaikanri-id=${row.kotaikanriId},
+                             data-tm-irai-no=${row.tmIraiNo}">
+                    <td class="col-check">
+                        <input type="checkbox"
+                               th:name="|kotaiRows[${rowStat.index}].checkFlg|"
+                               value="1"
+                               th:checked="${row.checkFlg == 1}"
+                               th:disabled="${row.tmIraiNo == 0}"
+                               th:attr="data-kotai-idx=${rowStat.index}"
+                               class="kotai-check"
+                               onchange="onKotaiCheck(this)"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].kikikoseiId|"
+                               th:value="${row.kikikoseiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].kikimeisaiId|"
+                               th:value="${row.kikimeisaiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].kotaikanriId|"
+                               th:value="${row.kotaikanriId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].tmIraiNo|"
+                               th:value="${row.tmIraiNo}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].tmKikikoseiId|"
+                               th:value="${row.tmKikikoseiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].tmKikimeisaiId|"
+                               th:value="${row.tmKikimeisaiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].tmKotaimeisaiId|"
+                               th:value="${row.tmKotaimeisaiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].tkKikikoseiId|"
+                               th:value="${row.tkKikikoseiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].tkKikimeisaiId|"
+                               th:value="${row.tkKikimeisaiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].tkKotaimeisaiId|"
+                               th:value="${row.tkKotaimeisaiId}"/>
+                        <input type="hidden" th:name="|kotaiRows[${rowStat.index}].checkFlgOld|"
+                               th:value="${row.checkFlgOld}"/>
+                    </td>
+                    <td th:text="${row.kikihinmeiNk}"></td>
+                    <td th:text="${row.kotaiNk}"></td>
+                    <td th:text="${row.serialNo}"></td>
+                    <td th:text="${row.setchibasyo}"></td>
+                    <td th:text="${row.suryoNm}" style="text-align:right;"></td>
+                    <td th:text="${row.brandNk}"></td>
+                    <td th:text="${row.tekkyoDt}"></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(form.kotaiRows)}">
+                    <td colspan="8" style="text-align:center;color:#999;padding:8px;">データがありません</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 単価グリッド（hidden: MCM1005Uへの受け渡し用） -->
+    <th:block th:each="row, rowStat : ${form.tankaRows}">
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].kikikoseiId|"     th:value="${row.kikikoseiId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].kikimeisaiId|"    th:value="${row.kikimeisaiId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].tmTankaId|"       th:value="${row.tmTankaId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].tmKikanId|"       th:value="${row.tmKikanId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].tmKikikoseiId|"   th:value="${row.tmKikikoseiId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].tmKikimeisaiId|"  th:value="${row.tmKikimeisaiId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].tkKikikoseiId|"   th:value="${row.tkKikikoseiId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].tkKikimeisaiId|"  th:value="${row.tkKikimeisaiId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].tkTankaId|"       th:value="${row.tkTankaId}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].checkFlg|"        th:value="${row.checkFlg}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].checkFlgOld|"     th:value="${row.checkFlgOld}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].hyojunKin|"       th:value="${row.hyojunKin}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].sikiriKin|"       th:value="${row.sikiriKin}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].syusseinebikiKin|" th:value="${row.syusseinebikiKin}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].kaisiDt|"         th:value="${row.kaisiDt}"/>
+        <input type="hidden" th:name="|tankaRows[${rowStat.index}].syuryoDt|"        th:value="${row.syuryoDt}"/>
+    </th:block>
+
+</form>
+
+<!-- 「前へ」は別フォームでPOST -->
+<form id="backForm" th:action="@{/mcm1006u/step2/back}" method="post" style="display:none;">
+    <input type="hidden" name="_csrf" th:value="${_csrf != null} ? ${_csrf.token} : ''"/>
+</form>
+
+<script>
+// =========================================================================
+// チェックボックス連動ロジック
+// 【変換元】Mcm1006u2Screen.vb — 各チェックボックス変更イベント
+//   機器構成ON → 配下の機器明細ON → 配下の個体明細ON + 単価ON
+//   機器構成OFF → 配下の機器明細OFF → 配下の個体明細OFF
+//   機器明細ON → 配下の個体明細ON
+//   機器明細OFF → 配下の個体明細OFF
+// =========================================================================
+
+function getAttr(el, attr) {
+    return el.closest('tr').getAttribute(attr);
+}
+
+function onKoseiCheck(chk) {
+    var tr = chk.closest('tr');
+    var kikikoseiId = tr.getAttribute('data-kikikosei-id');
+    var checked = chk.checked;
+    tr.classList.toggle('row-checked', checked);
+
+    // 機器明細を連動
+    document.querySelectorAll('#meisaiGrid tbody tr').forEach(function(meisaiTr) {
+        if (meisaiTr.getAttribute('data-kikikosei-id') === kikikoseiId) {
+            var meisaiChk = meisaiTr.querySelector('.meisai-check');
+            if (meisaiChk && !meisaiChk.disabled) {
+                meisaiChk.checked = checked;
+                meisaiTr.classList.toggle('row-checked', checked);
+                // 個体明細も連動
+                cascadeKotai(meisaiTr.getAttribute('data-kikimeisai-id'), checked);
+            }
+        }
+    });
+}
+
+function onMeisaiCheck(chk) {
+    var tr = chk.closest('tr');
+    var kikimeisaiId = tr.getAttribute('data-kikimeisai-id');
+    var kikikoseiId  = tr.getAttribute('data-kikikosei-id');
+    var checked = chk.checked;
+    tr.classList.toggle('row-checked', checked);
+
+    // 個体明細を連動
+    cascadeKotai(kikimeisaiId, checked);
+
+    // 機器明細がすべてOFFになった場合、機器構成もOFF
+    if (!checked) {
+        var allOff = true;
+        document.querySelectorAll('#meisaiGrid tbody tr').forEach(function(mtr) {
+            if (mtr.getAttribute('data-kikikosei-id') === kikikoseiId) {
+                var mc = mtr.querySelector('.meisai-check');
+                if (mc && mc.checked) allOff = false;
+            }
+        });
+        if (allOff) {
+            document.querySelectorAll('#koseiGrid tbody tr').forEach(function(ktr) {
+                if (ktr.getAttribute('data-kikikosei-id') === kikikoseiId) {
+                    var kc = ktr.querySelector('.kosei-check');
+                    if (kc) { kc.checked = false; ktr.classList.remove('row-checked'); }
+                }
+            });
+        }
+    }
+}
+
+function onKotaiCheck(chk) {
+    var tr = chk.closest('tr');
+    tr.classList.toggle('row-checked', chk.checked);
+}
+
+function cascadeKotai(kikimeisaiId, checked) {
+    document.querySelectorAll('#kotaiGrid tbody tr').forEach(function(kotaiTr) {
+        if (kotaiTr.getAttribute('data-kikimeisai-id') === kikimeisaiId) {
+            var kotaiChk = kotaiTr.querySelector('.kotai-check');
+            if (kotaiChk && !kotaiChk.disabled) {
+                kotaiChk.checked = checked;
+                kotaiTr.classList.toggle('row-checked', checked);
+            }
+        }
+    });
+}
+
+// =========================================================================
+// 「前へ」ボタン
+// =========================================================================
+document.getElementById('btnBack').addEventListener('click', function() {
+    document.getElementById('backForm').submit();
+});
+
+// =========================================================================
+// submit前処理: 未チェックのcheckboxにvalue=0のhiddenを追加
+// =========================================================================
+document.getElementById('step2Form').addEventListener('submit', function(e) {
+    var names = ['koseiRows', 'meisaiRows', 'kotaiRows'];
+    names.forEach(function(prefix) {
+        var checks = document.querySelectorAll('input[type="checkbox"][name*="' + prefix + '"]');
+        checks.forEach(function(chk) {
+            if (!chk.checked) {
+                var h = document.createElement('input');
+                h.type = 'hidden';
+                h.name = chk.name;
+                h.value = '0';
+                chk.parentNode.insertBefore(h, chk);
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>
