@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm3005uScreen.Designer.vb / Mcm3005uScreen.vb
+  MCM3005U — 作業予定登録
+
+  Web版省略:
+    FileUpdateButton（ファイルアップロード）→ 省略
+    FileDelButton（ファイル削除）→ 省略
+    添付ファイル一覧表示のみ対応。
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf"        th:content="${_csrf != null} ? ${_csrf.token}      : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM3005U - 作業予定登録</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 8px; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px; background: #f4f6f7; }
+        button, .btn-close { cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+        .header { display: flex; align-items: center; justify-content: space-between; background-color: #453f78; color: #fff; height: 40px; padding: 0 10px; }
+        .header .header-center { flex: 1; text-align: center; }
+        .header .header-center h1 { margin: 0; font-size: 18px; font-weight: bold; color: #fff; letter-spacing: 2px; line-height: 30px; }
+        .header .header-left, .header .header-right { display: flex; align-items: center; }
+        .btn-close { display: inline-block; padding: 2px 12px; font-size: 12px; color: #000; background-color: #f0f0f0; border: 1px solid #adadad; border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6; text-decoration: none; }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+
+        .content { padding: 12px 16px; max-width: 900px; }
+        .form-table { border-collapse: collapse; width: 100%; }
+        .form-table tr { height: 28px; }
+        .form-table th { text-align: right; padding-right: 10px; color: #333; font-weight: normal; white-space: nowrap; width: 120px; }
+        .form-table td { padding: 2px 4px; }
+        .form-table input[type="text"] { height: 22px; border: 1px solid #aaa; padding: 0 4px; font-size: 12px; border-radius: 2px; }
+        .form-table input[type="text"]:focus { outline: 1px solid #7eb4ea; border-color: #7eb4ea; }
+        .form-table textarea { border: 1px solid #aaa; padding: 4px; font-size: 12px; border-radius: 2px; resize: vertical; width: 400px; }
+        .form-table textarea:focus { outline: 1px solid #7eb4ea; border-color: #7eb4ea; }
+
+        .action-bar { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; background: #f0f0f0; margin-top: 4px; }
+        .btn-save { padding: 3px 20px; font-size: 12px; background: #e1e1e1; color: #000; border: 1px solid #adadad; border-radius: 2px; }
+        .btn-save:hover { background: #e5f1fb; border-color: #0078d4; }
+        .btn-delete { padding: 3px 20px; font-size: 12px; background: #e1e1e1; color: #c00; border: 1px solid #adadad; border-radius: 2px; }
+        .btn-delete:hover { background: #ffe0e0; border-color: #c00; }
+
+        .section-title { font-size: 13px; font-weight: bold; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin: 16px 16px 6px; }
+
+        .tenpu-grid-wrap { padding: 0 16px 12px; }
+        .data-grid { border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 11px; white-space: nowrap; }
+        .data-grid thead th { background: #eef2f5; border-right: 1px solid #b0bec5; border-bottom: 2px solid #b0bec5; border-top: 1px solid #b0bec5; padding: 4px 6px; text-align: left; font-size: 11px; }
+        .data-grid th:first-child, .data-grid td:first-child { border-left: 1px solid #d5dbdb; }
+        .data-grid td { border-right: 1px solid #d5dbdb; border-bottom: 1px solid #d5dbdb; padding: 2px 6px; height: 22px; overflow: hidden; text-overflow: ellipsis; }
+        .omit-note { font-size: 11px; color: #888; border: 1px dashed #ccc; padding: 2px 8px; border-radius: 3px; background: #fafafa; margin-left: 8px; }
+
+        .mini-dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.25); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .mini-dialog-overlay.active { display: flex; }
+        .mini-dialog { background: #fbfbfb; min-width: 320px; max-width: 90%; border: 1px solid #7a7a7a; border-radius: 6px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+        .mini-dialog-head { display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 6px 8px 6px 12px; font-size: 12px; border-bottom: 1px solid #e5e5e5; }
+        .mini-dialog-head .mini-close { border: none; background: transparent; font-size: 15px; color: #444; cursor: pointer; padding: 2px 6px; border-radius: 3px; }
+        .mini-dialog-head .mini-close:hover { background: #e81123; color: #fff; }
+        .mini-dialog-body { display: flex; align-items: flex-start; gap: 12px; padding: 16px; white-space: pre-line; font-size: 13px; }
+        .mini-dialog-body .mini-icon { flex: 0 0 auto; font-size: 22px; }
+        .mini-dialog-foot { padding: 10px 16px 14px; text-align: right; }
+        .mini-dialog-foot button { min-width: 72px; padding: 4px 12px; font-size: 12px; background: #e1e1e1; border: 1px solid #adadad; border-radius: 3px; cursor: pointer; }
+        .mini-dialog-foot button:hover { background: #e5f1fb; border-color: #0078d4; }
+    button:disabled, input:disabled, textarea:disabled { color: #888; background: #e7e7e7; cursor: not-allowed; }
+    </style>
+    <script th:src="@{/js/common.js}"></script>
+</head>
+<body>
+<div id="serverMessageData" hidden th:attr="data-message=${message},data-error=${error},data-title=${messageTitle}"></div>
+<div id="isNewFlag" hidden th:attr="data-isnew=${form.newRecord}"></div>
+
+<!-- ヘッダー -->
+<div class="header">
+    <div class="header-left"><a class="btn-close" th:href="@{/mcm3004u}">戻る</a></div>
+    <div class="header-center"><h1>作業予定登録（MCM3005U）</h1></div>
+    <div class="header-right">
+        <a class="btn-close" th:href="@{/menu}" href="/mcm/menu">閉じる</a>
+    </div>
+</div>
+
+<!-- 入力フォーム -->
+<form id="mainForm" data-mcm-no-progress th:action="@{/mcm3005u/save}" th:object="${form}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <input type="hidden" th:field="*{torokuId}"/>
+    <input type="hidden" name="editToken" th:value="${editToken}"/>
+
+    <div class="content">
+        <table class="form-table">
+            <tr>
+                <th>登録ID:</th>
+                <td>
+                    <span th:text="${form.torokuId != null ? form.torokuId.toPlainString() : '（新規）'}"></span>
+                    <span th:if="${form.newRecord}"
+                          style="color:#888; font-size:11px;">　新規登録</span>
+                </td>
+            </tr>
+            <tr>
+                <th><span style="color:#c00;">*</span> 予定日:</th>
+                <td>
+                    <input th:disabled="${!canEdit}" type="text" th:field="*{yoteiDt}" maxlength="10" placeholder="例: 2026/08/01"
+                           style="width:110px;"/>
+                </td>
+            </tr>
+            <tr>
+                <th>完了:</th>
+                <td>
+                    <label style="display:flex;align-items:center;gap:4px;cursor:pointer;">
+                        <input type="hidden" name="kanryoFlg" id="kanryoValue" th:value="${form.kanryoFlg}"/>
+                        <input type="checkbox" id="kanryoCheck" th:checked="${form.kanryoFlg == 1}" th:disabled="${!canEdit}"/>完了済み
+                    </label>
+                </td>
+            </tr>
+            <tr>
+                <th style="vertical-align:top;padding-top:5px;">内容:</th>
+                <td>
+                    <textarea th:disabled="${!canEdit}" th:field="*{naiyo}" rows="5" maxlength="4000"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th style="vertical-align:top;padding-top:5px;">備考:</th>
+                <td>
+                    <textarea th:disabled="${!canEdit}" th:field="*{biko}" rows="3" maxlength="4000"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- アクションバー -->
+    <div class="action-bar">
+        <label><input type="checkbox" th:field="*{deleteFlg}" th:disabled="${!canEdit || form.newRecord}"/>作業予定削除</label>
+        <button type="submit" class="btn-save" id="btnSave" th:disabled="${!canEdit}">登録</button>
+    </div>
+</form>
+
+<!-- 添付ファイルセクション -->
+<div class="section-title">
+    添付ファイル
+    <span class="omit-note">添付ファイル一覧（参照）</span>
+</div>
+<div class="tenpu-grid-wrap">
+    <table class="data-grid">
+        <colgroup>
+            <col style="width:50px;"/>
+            <col style="width:300px;"/>
+            <col style="width:250px;"/>
+        </colgroup>
+        <thead>
+        <tr>
+            <th>No</th><th>ファイル名</th><th>備考</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${form.tenpuList == null or form.tenpuList.isEmpty()}">
+            <td colspan="3" style="text-align:center;color:#888;padding:8px;">添付ファイルはありません。</td>
+        </tr>
+        <tr th:each="tenpu,stat : ${form.tenpuList}">
+            <td style="text-align:right;" th:text="${stat.count}"></td>
+            <td th:text="${tenpu.tenpufileNk}" th:title="${tenpu.tenpufileNk}"></td>
+            <td th:text="${tenpu.biko}" th:title="${tenpu.biko}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- 削除確認ダイアログ -->
+<div id="deleteConfirmOverlay" class="mini-dialog-overlay" role="dialog" aria-modal="true">
+    <div class="mini-dialog">
+        <div class="mini-dialog-head">
+            <span>確認</span>
+            <button type="button" class="mini-close" onclick="closeDeleteConfirm()">✕</button>
+        </div>
+        <div class="mini-dialog-body">
+            <span class="mini-icon">?</span>
+            <span>登録を実施します。よろしいですか？</span>
+        </div>
+        <div class="mini-dialog-foot">
+            <button type="button" onclick="executeDelete()" style="margin-right:6px;">OK</button>
+            <button type="button" onclick="closeDeleteConfirm()">キャンセル</button>
+        </div>
+    </div>
+</div>
+
+<!-- エラーダイアログ -->
+<div id="miniDialogOverlay" class="mini-dialog-overlay" role="dialog" aria-modal="true">
+    <div class="mini-dialog">
+        <div class="mini-dialog-head">
+            <span id="messageTitle">入力エラー</span>
+            <button type="button" class="mini-close" onclick="closeMini()">✕</button>
+        </div>
+        <div class="mini-dialog-body">
+            <span class="mini-icon" id="messageIcon">⚠</span>
+            <span id="miniDialogMsg"></span>
+        </div>
+        <div class="mini-dialog-foot">
+            <button type="button" onclick="closeMini()">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const mainForm = document.getElementById('mainForm');
+    const saveButton = document.getElementById('btnSave');
+    const kanryo = document.getElementById('kanryoCheck');
+    const kanryoValue = document.getElementById('kanryoValue');
+    kanryo.addEventListener('change', function () { kanryoValue.value = kanryo.checked ? '1' : '0'; });
+    let busy = false;
+    function showError(msg, title) {
+        document.getElementById('messageTitle').textContent = title || '入力エラー';
+        document.getElementById('messageIcon').textContent = title === '完了' ? 'i' : '⚠';
+        document.getElementById('miniDialogMsg').textContent = msg;
+        document.getElementById('miniDialogOverlay').classList.add('active');
+        document.querySelector('#miniDialogOverlay .mini-dialog-foot button').focus();
+    }
+    function closeMini() { document.getElementById('miniDialogOverlay').classList.remove('active'); }
+    function closeDeleteConfirm() {
+        document.getElementById('deleteConfirmOverlay').classList.remove('active');
+        busy = false;
+    }
+    function executeDelete() {
+        document.getElementById('deleteConfirmOverlay').classList.remove('active');
+        saveButton.disabled = true;
+        HTMLFormElement.prototype.submit.call(mainForm);
+    }
+    mainForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        if (saveButton.disabled || busy) return;
+        busy = true;
+        kanryoValue.value = kanryo.checked ? '1' : '0';
+        try {
+            const response = await fetch(mainForm.action.replace(/\/save$/, '/validate'), {
+                method: 'POST', body: new URLSearchParams(new FormData(mainForm)),
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!response.ok || response.redirected) throw new Error('validation response');
+            const result = await response.json();
+            if (result.error) { busy = false; showError(result.error, result.title); return; }
+            document.getElementById('deleteConfirmOverlay').classList.add('active');
+            document.querySelector('#deleteConfirmOverlay .mini-dialog-foot button').focus();
+        } catch (error) {
+            busy = false;
+            showError('処理結果を確認できませんでした。再度画面を開いてください。', 'エラー');
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const el = document.getElementById('serverMessageData');
+        if (el.dataset.error) showError(el.dataset.error, el.dataset.title || '入力エラー');
+        else if (el.dataset.message) showError(el.dataset.message, el.dataset.title || '完了');
+    });
+</script>
+</body>
+</html>
