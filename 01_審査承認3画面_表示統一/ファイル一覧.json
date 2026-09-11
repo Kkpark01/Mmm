@@ -1,0 +1,20 @@
+[
+  {
+    "Path": "src/main/resources/templates/mcm1011u/index.html",
+    "Sha256": "104e348cf00a533c4c0478cbfc81093eeaf9da78ba3f6d40643e511acdbde1be",
+    "BaseSha256": "beea826d4af6f6f6ed875ed8f45bade01677381e3a481d31c8eebdd024fc7761",
+    "OnlyStyleChanged": true
+  },
+  {
+    "Path": "src/main/resources/templates/mcm2008u/index.html",
+    "Sha256": "d95e3ba4516066c67254907b439dafc63828279707bb456dc9b41151a3724cef",
+    "BaseSha256": "7662936a7baeb73159af61de4b72d8bdd33d0a80d3865a2d8319e0f03caefa55",
+    "OnlyStyleChanged": true
+  },
+  {
+    "Path": "src/main/resources/templates/mcm3001u/index.html",
+    "Sha256": "b7dad699c2254e2322bb8ce49a70402348e52e42d836fea31be2840d244a6af8",
+    "BaseSha256": "9e254fd41692342609da92a10b1461b56d4d9243e95a2abc799255372df08e0c",
+    "OnlyStyleChanged": true
+  }
+]
