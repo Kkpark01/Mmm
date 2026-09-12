@@ -18,6 +18,12 @@
     "sha256": "2BB391F26C3CD73EAC0706C34627B8C237BAC61468B6A1CD04475FD518C4D2A1"
   },
   {
+    "path": "main/java/com/daifuku/mcm/controller/Mcm1004uController.java",
+    "change": "modify",
+    "originalSha256": "11F4903FE8B33F89EB1FA75F3EA6F8441913E445D583A55DF7E6EF3F1CB7FF6D",
+    "sha256": "6B6C7D4EB94BE469B0A573CE77C655B34F3FD8126206F92B1645FB0529B9F206"
+  },
+  {
     "path": "main/java/com/daifuku/mcm/controller/Mcm2001pController.java",
     "change": "modify",
     "originalSha256": "603D3C162E8AFDA9ECC6D44306A42C185E218A55D8378F73627C423C308A7278",
@@ -69,7 +75,31 @@
     "path": "main/java/com/daifuku/mcm/controller/Mcm3007uController.java",
     "change": "modify",
     "originalSha256": "3D35742DB3CBD3B3B871B9F0CD335DC75A2F60B2E8E0628FA7F8DE30F3D9A596",
-    "sha256": "EC72B69FB2B8377F1EEAD32C59F86869C7EC4387C68249ACB58374BAB3F151F4"
+    "sha256": "53FC9113B329869A62310DB312A2240FCD46AC3CB1797B95327B282BF2CC1D2F"
+  },
+  {
+    "path": "main/java/com/daifuku/mcm/form/Mcm1004uForm.java",
+    "change": "modify",
+    "originalSha256": "A325664F0C57C762AFCBB684585420C24C3081477FBA5F449CE982204B760054",
+    "sha256": "D17D956AAC6AFD5573C783C6451B41669CFFB54824251D04CA8FEF47CDD2D984"
+  },
+  {
+    "path": "main/java/com/daifuku/mcm/form/Mcm1004uTabForm.java",
+    "change": "modify",
+    "originalSha256": "1BEC1B5188EEAB4A11405A5853B514D8195433A7CB37729E5BB5FA9EB8D4FB33",
+    "sha256": "76E48DECD9E3EAA3BA74EF966B80D2F7E3619C399C0C39E52FD03A9D643E0414"
+  },
+  {
+    "path": "main/java/com/daifuku/mcm/form/Mcm1004uTankaRow.java",
+    "change": "modify",
+    "originalSha256": "D936F0F5951A31DAD5C1DD8B16811F9C063BB20A7EE17B1134272D1DAE8C6E24",
+    "sha256": "84B44BC2F7645B6CE6BECADDB68A85C81734339B6AE0D24665AA5C738362A288"
+  },
+  {
+    "path": "main/java/com/daifuku/mcm/form/Mcm1004uTenkenRow.java",
+    "change": "modify",
+    "originalSha256": "913F46DE17B2F3E6A8A21C8B046E3979EB01A29A8CF1699E15407459821B9A5A",
+    "sha256": "438272C68F3B92EC4EE035091F482F021361EBC585828272AD3617FB7967CCEA"
   },
   {
     "path": "main/java/com/daifuku/mcm/form/Mcm2003uForm.java",
@@ -148,6 +178,12 @@
     "change": "modify",
     "originalSha256": "B776D3041D6F0E234E685EDB80323A87709DDF65A6C368E6F059785600B12021",
     "sha256": "2C96F60E73809B2885EA2BA408C63D0E3C5E9FFA86B7BF358C795E9741EE62BA"
+  },
+  {
+    "path": "main/java/com/daifuku/mcm/service/Mcm1004uService.java",
+    "change": "modify",
+    "originalSha256": "4E8D45A177F6FE7D59BE7DAABF6CC2F68C529034E15CEF1CA1DAD977B7F4809C",
+    "sha256": "9C816573BD2A507E8CF42E121DC4CE0C3CDBEF90F58C21BF9A2B8C95426C942C"
   },
   {
     "path": "main/java/com/daifuku/mcm/service/Mcm2002uService.java",
@@ -246,6 +282,12 @@
     "sha256": "B79EAE2C65D12FDB8DDB6765D3B8C48CE177C827721592553EC32FC511B36935"
   },
   {
+    "path": "main/resources/static/css/mcm1004u.css",
+    "change": "modify",
+    "originalSha256": "11EC850E050EFAABB0608BFCE8D126318E4133512CF83F3642CE05E8F8E8CBBE",
+    "sha256": "8C80A7F1EF4D9A596F53D7796F9C9FB14B47CCFEE5C001AE527684CB388431FF"
+  },
+  {
     "path": "main/resources/static/css/mcm2006u.css",
     "change": "add",
     "originalSha256": null,
@@ -298,6 +340,12 @@
     "change": "add",
     "originalSha256": null,
     "sha256": "4FEAAD9622BCFA637CA874098B48EC13D9C6A6BF0C5EE66F2B1F85F8AC7CF156"
+  },
+  {
+    "path": "main/resources/templates/mcm1004u/index.html",
+    "change": "modify",
+    "originalSha256": "1BA051EF5CE177BA76828F373DDF545A67C8E2F6E6D19C78795FCAE9E6F9C9E0",
+    "sha256": "D746FD103C0D82AA6AC055D81BBB5EDF654B3720C7503EF58BB6A3C5F647DA8E"
   },
   {
     "path": "main/resources/templates/mcm2001u/index.html",

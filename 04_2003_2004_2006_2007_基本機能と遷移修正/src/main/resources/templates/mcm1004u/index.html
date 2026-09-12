@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!-- 変換元: Mcm1004uScreen.Designer.vb + Mcm1004uTabControl.Designer.vb
+     DataGridView -> table + th:each / WinForms TabControl -> Bootstrap tabs
+     ConfirmMessage -> JavaScript confirm() -->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><title>取引先見積内容（MCM1004U）</title><link rel="stylesheet" th:href="@{/css/mcm1004u.css(v=20260912)}"/><link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/><script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script></head><body class="mcm1004u-screen">
+<header class="header"><div></div><h1>取引先見積内容（MCM1004U）</h1><a class="btn-close" id="closeButton" th:href="@{/mcm1004u/back}">閉じる</a></header><main class="screen-scroll"><div class="screen-canvas">
+
+<!-- メッセージ -->
+<th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+
+
+<form th:if="${error != null and !form.dataNotFound}" th:action="@{/mcm1004u/reload}" method="post" class="reload-help"><input type="hidden" name="workflowToken" th:value="${workflowToken}"/><button type="submit" onclick="return confirm('未保存の入力を破棄して再読み込みしますか？')">最新情報を再読み込み</button></form>
+<!-- ヘッダ部 (ReadOnly) -->
+<div class="header-section"><label style="left:9px;top:2px" for="info-jotaiDisplay">状態</label><input id="info-jotaiDisplay" class="ro-field" readonly tabindex="-1" th:value="${form.jotaiDisplay}" th:title="${form.jotaiDisplay}" style="left:85px;top:2px;width:43px"/><label style="left:10px;top:23px" for="info-tmIraiNo">見積依頼NO</label><input id="info-tmIraiNo" class="ro-field" readonly tabindex="-1" th:value="${form.tmIraiNo}" th:title="${form.tmIraiNo}" style="left:85px;top:23px;width:100px"/><label style="left:10px;top:44px" for="info-mitsumoriDt">見積日付</label><input id="info-mitsumoriDt" class="ro-field" readonly tabindex="-1" th:value="${form.mitsumoriDt}" th:title="${form.mitsumoriDt}" style="left:85px;top:44px;width:90px"/><label style="left:9px;top:65px" for="info-keiyakujikantai">契約時間帯</label><input id="info-keiyakujikantai" class="ro-field" readonly tabindex="-1" th:value="${form.keiyakujikantai}" th:title="${form.keiyakujikantai}" style="left:85px;top:65px;width:30px"/><label style="left:275px;top:2px" for="info-torihikisakiNk">取引先</label><input id="info-torihikisakiNk" class="ro-field" readonly tabindex="-1" th:value="${form.torihikisakiNk}" th:title="${form.torihikisakiNk}" style="left:344px;top:2px;width:309px"/><label style="left:275px;top:23px" for="info-nonyusakiNk">納入先</label><input id="info-nonyusakiNk" class="ro-field" readonly tabindex="-1" th:value="${form.nonyusakiNk}" th:title="${form.nonyusakiNk}" style="left:344px;top:23px;width:282px"/><label style="left:275px;top:44px" for="info-supportId">サポートID</label><input id="info-supportId" class="ro-field" readonly tabindex="-1" th:value="${form.supportId}" th:title="${form.supportId}" style="left:344px;top:44px;width:70px"/><label style="left:439px;top:44px" for="info-plantNk">プラント名</label><input id="info-plantNk" class="ro-field" readonly tabindex="-1" th:value="${form.plantNk}" th:title="${form.plantNk}" style="left:505px;top:44px;width:422px"/><label style="left:275px;top:65px" for="info-iraijigyosyoNk">依頼事業所</label><input id="info-iraijigyosyoNk" class="ro-field" readonly tabindex="-1" th:value="${form.iraijigyosyoNk}" th:title="${form.iraijigyosyoNk}" style="left:344px;top:65px;width:373px"/><label style="left:731px;top:65px" for="info-iraitantosya">依頼担当者</label><input id="info-iraitantosya" class="ro-field" readonly tabindex="-1" th:value="${form.iraitantosya}" th:title="${form.iraitantosya}" style="left:802px;top:65px;width:125px"/><label style="left:1065px;top:2px" for="info-createdDt">登録日時</label><input id="info-createdDt" class="ro-field" readonly tabindex="-1" th:value="${form.createdDt}" th:title="${form.createdDt}" style="left:1123px;top:2px;width:114px"/><label style="left:1065px;top:23px" for="info-createdBy">登録者</label><input id="info-createdBy" class="ro-field" readonly tabindex="-1" th:value="${form.createdBy}" th:title="${form.createdBy}" style="left:1123px;top:23px;width:100px"/><label style="left:1065px;top:44px" for="info-lastupdateDt">更新日時</label><input id="info-lastupdateDt" class="ro-field" readonly tabindex="-1" th:value="${form.lastupdateDt}" th:title="${form.lastupdateDt}" style="left:1123px;top:44px;width:114px"/><label style="left:1065px;top:65px" for="info-lastupdateBy">更新者</label><input id="info-lastupdateBy" class="ro-field" readonly tabindex="-1" th:value="${form.lastupdateBy}" th:title="${form.lastupdateBy}" style="left:1123px;top:65px;width:100px"/></div>
+<form id="estimateForm" th:action="@{/mcm1004u/update}" method="post" th:object="${form}">
+<input type="hidden" th:field="*{tmKeiyakujikanId}" /><input type="hidden" name="workflowToken" th:value="${workflowToken}"/><input type="hidden" th:field="*{selectedIndex}"/><input type="hidden" name="field" id="dateField"/><button type="submit" hidden id="datesSubmit" th:formaction="@{/mcm1004u/dates}"></button>
+<input type="hidden" th:field="*{tmIraiId}" />
+<input type="hidden" th:field="*{jotai}" />
+<input type="hidden" th:field="*{seniMotoKbn}" />
+
+<ul class="nav nav-tabs" role="tablist">
+  <li th:each="tab, stat : *{tabs}" class="nav-item">
+    <button class="nav-link" th:classappend="${stat.index == 0 ? 'active' : ''}"
+            type="button" data-bs-toggle="tab"
+            th:attr="data-bs-target='#tab-' + ${stat.index}"
+            th:text="${tab.tabLabel}"></button>
+  </li>
+</ul>
+
+<div class="tab-content">
+<div th:each="tab, stat : *{tabs}" class="tab-pane fade"
+     th:classappend="${stat.index == 0 ? 'show active' : ''}"
+     th:id="'tab-' + ${stat.index}">
+
+  <input type="hidden" th:field="*{tabs[__${stat.index}__].tmKikanId}" />
+
+  <div class="period-summary">
+<div class="period-row"><label>期間</label><input type="date" th:field="*{tabs[__${stat.index}__].kaisiDt}" th:readonly="${!form.viewFlg}" class="required"/><span>～</span><input type="date" th:field="*{tabs[__${stat.index}__].syuryoDt}" th:readonly="${!form.viewFlg}"/></div>
+<div class="quote-row"><label>取引先見積NO</label><input type="text" th:field="*{tabs[__${stat.index}__].tmMitsumoriNo}" th:readonly="${!form.viewFlg}"/><label>回答日</label><input type="date" th:field="*{tabs[__${stat.index}__].kaitoDt}" th:readonly="${!form.viewFlg}"/></div>
+<div class="biko-area"><label>備考</label><textarea th:field="*{tabs[__${stat.index}__].biko}" th:readonly="${!form.viewFlg}"></textarea></div>
+<div class="standard-summary"><div class="grid-heading">≪標準価格≫</div><label>合計</label><span class="price-ro" th:text="${tab.hyojungokeiKin}"></span></div>
+<div class="price-summary"><div class="grid-heading">≪仕切価格≫</div><div class="price-row"><label>小計</label><span class="price-ro" th:text="${tab.sikirisyokeiKin}"></span></div><div class="price-row"><label>出精値引き</label><input type="number" step="any" th:field="*{tabs[__${stat.index}__].syusseinebikiKin}" th:readonly="${!form.viewFlg}" class="price-input"/></div><div class="price-row"><label>合計</label><span class="price-ro" th:text="${tab.sikirigokeiKin}"></span></div></div>
+<div class="period-audit"><div><label>登録日時</label><span class="ro-field" th:text="${tab.createdDt}" th:title="${tab.createdDt}"></span></div><div><label>登録者</label><span class="ro-field" th:text="${tab.createdBy}" th:title="${tab.createdBy}"></span></div><div><label>更新日時</label><span class="ro-field" th:text="${tab.lastupdateDt}" th:title="${tab.lastupdateDt}"></span></div><div><label>更新者</label><span class="ro-field" th:text="${tab.lastupdateBy}" th:title="${tab.lastupdateBy}"></span></div></div></div>
+  <div class="table-responsive tanka-scroll"><table class="tanka-table">
+    <thead><tr><th class="frozen" style="width:125px">機器構成名</th><th class="frozen" style="width:95px">製造メーカー</th><th class="frozen" style="width:130px">品名</th><th class="frozen" style="width:130px">型式</th><th style="width:55px">数量</th><th style="width:40px">照会</th><th style="width:80px">標準価格</th><th style="width:90px">標準価格計</th><th style="width:80px">仕切価格</th><th style="width:90px">仕切価格計</th><th style="width:60px">パック契約</th><th style="width:100px">契約内容</th><th style="width:200px">保守契約時間</th><th style="width:35px">点検</th><th style="width:90px">保守方法</th><th style="width:115px">サービス形態</th><th style="width:100px">備考</th><th style="width:100px">手配製番</th><th style="width:110px">登録日時</th><th style="width:90px">登録者</th><th style="width:110px">更新日時</th><th style="width:90px">更新者</th></tr></thead>
+    <tbody><tr th:each="row, rstat : ${tab.tankaRows}">
+      <td class="frozen" th:text="${row.kikikoseiNk}"></td>
+      <td class="frozen" th:text="${row.seizomakerNk}"></td>
+      <td class="frozen" th:text="${row.kikihinmeiNk}"></td>
+      <td class="frozen" th:text="${row.kikikatashiki}"></td>
+      <td class="text-end" th:text="${row.suryoNm}"></td>
+      <td><button type="submit" class="inquiry-link" name="rowIndex" th:value="${rstat.index}" th:formaction="@{/mcm1004u/inquiry}" formtarget="mcm1007uInquiry" th:disabled="${row.atsukaikikiId == null}">照会</button></td>
+      <td><input type="number" step="any" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].hyojunKin}" th:readonly="${!form.viewFlg}" class="price-input" /></td>
+      <td class="text-end" th:text="${row.hyojunkeiKin}"></td>
+      <td><input type="number" step="any" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].sikiriKin}" th:readonly="${!form.viewFlg}" class="price-input" /></td>
+      <td class="text-end" th:text="${row.sikirikeiKin}"></td>
+      <td class="text-center"><input type="checkbox" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].packFlg}" th:disabled="${!form.viewFlg}" value="1" /></td>
+      <td><input type="text" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].keiyakunaiyo}" th:readonly="${!form.viewFlg}" /></td>
+      <td><select th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].torihosyujikanId}" th:disabled="${!form.viewFlg}"><option value=""></option><option th:if="${row.torihosyujikanId != null and !form.hoshuOptions.containsKey(row.torihosyujikanId.stripTrailingZeros().toPlainString())}" th:value="${row.torihosyujikanId}" th:text="${'登録済み（ID ' + row.torihosyujikanId.stripTrailingZeros().toPlainString() + '）'}"></option><option th:each="option : ${form.hoshuOptions}" th:value="${option.key}" th:text="${option.value}"></option></select></td>
+      <td class="text-center"><input type="checkbox" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].tenkenumu}" th:disabled="${!form.viewFlg}" value="1" /></td>
+      <td><select th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].hosyuhoho}" th:disabled="${!form.viewFlg}"><option value=""></option><option th:if="${row.hosyuhoho != null and !#strings.isEmpty(row.hosyuhoho) and !methods.containsKey(row.hosyuhoho)}" th:value="${row.hosyuhoho}" th:text="${'登録済み（' + row.hosyuhoho + '）'}"></option><option th:each="option : ${methods}" th:value="${option.key}" th:text="${option.value}"></option></select></td>
+      <td><select th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].servicekeitai}" th:disabled="${!form.viewFlg}"><option value=""></option><option th:if="${row.servicekeitai != null and !#strings.isEmpty(row.servicekeitai) and !services.containsKey(row.servicekeitai)}" th:value="${row.servicekeitai}" th:text="${'登録済み（' + row.servicekeitai + '）'}"></option><option th:each="option : ${services}" th:value="${option.key}" th:text="${option.value}"></option></select></td>
+      <td><input type="text" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].biko}" th:readonly="${!form.viewFlg}" /></td>
+      <td><span th:text="${row.tehaiseiban}"></span>
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].tmTankaId}" />
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tankaRows[__${rstat.index}__].tmKikimeisaiId}" /></td>
+      <td th:text="${row.createdDt}" th:title="${row.createdDt}"></td><td th:text="${row.createdBy}" th:title="${row.createdBy}"></td><td th:text="${row.lastupdateDt}" th:title="${row.lastupdateDt}"></td><td th:text="${row.lastupdateBy}" th:title="${row.lastupdateBy}"></td>
+    </tr></tbody>
+  </table></div>
+
+  <div class="grid-heading tenken-heading">≪点検情報≫</div>
+  <div class="table-responsive tenken-scroll"><table class="tenken-table">
+    <thead><tr><th class="frozen" style="width:155px">機器構成名</th><th class="frozen" style="width:155px">機器品名</th><th class="frozen" style="width:155px">機器型式</th><th style="width:55px">回数</th><th style="width:80px">可能曜日</th><th style="width:75px">夜間対応</th><th style="width:130px">備考</th><th style="width:110px">登録日時</th><th style="width:90px">登録者</th><th style="width:110px">更新日時</th><th style="width:90px">更新者</th></tr></thead>
+    <tbody><tr th:each="row, rstat : ${tab.tenkenRows}">
+      <td class="frozen" th:text="${row.kikikoseiNk}"></td>
+      <td class="frozen" th:text="${row.kikihinmeiNk}"></td>
+      <td class="frozen" th:text="${row.kikikatashiki}"></td>
+      <td><input type="number" step="any" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].tenkenkaisu}" th:readonly="${!form.viewFlg}" class="text-end" /></td>
+      <td><select th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].tenkenkanoyobi}" th:disabled="${!form.viewFlg}"><option value=""></option><option th:if="${row.tenkenkanoyobi != null and !#strings.isEmpty(row.tenkenkanoyobi) and !days.containsKey(row.tenkenkanoyobi)}" th:value="${row.tenkenkanoyobi}" th:text="${'登録済み（' + row.tenkenkanoyobi + '）'}"></option><option th:each="option : ${days}" th:value="${option.key}" th:text="${option.value}"></option></select></td>
+      <td class="text-center"><input type="checkbox" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].yakantaioumu}" th:disabled="${!form.viewFlg}" value="1" /></td>
+      <td><input type="text" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].biko}" th:readonly="${!form.viewFlg}" />
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].tmTenkenId}" />
+      <input type="hidden" th:field="*{tabs[__${stat.index}__].tenkenRows[__${rstat.index}__].tmKikikoseiId}" /></td>
+      <td th:text="${row.createdDt}" th:title="${row.createdDt}"></td><td th:text="${row.createdBy}" th:title="${row.createdBy}"></td><td th:text="${row.lastupdateDt}" th:title="${row.lastupdateDt}"></td><td th:text="${row.lastupdateBy}" th:title="${row.lastupdateBy}"></td>
+    </tr></tbody>
+  </table></div>
+
+</div><!-- /tab-pane -->
+</div><!-- /tab-content -->
+
+<div class="footer-buttons">
+  <button type="submit" th:disabled="${!form.viewFlg}" class="btn btn-secondary" th:formaction="@{/mcm1004u/addTab}" id="addTabButton">タブ追加</button>
+  <div>
+    <button type="button" th:if="${canUnlock}" class="btn btn-warning me-2" onclick="if(confirm('未保存の入力を破棄して最新情報を読み込み、編集制限を解除しますか？')) document.getElementById('lockReleaseForm').requestSubmit()">ロック解除</button>
+    <button type="submit" th:disabled="${!form.viewFlg}" class="btn btn-primary" id="saveButton" onclick="return confirm('登録してよろしいですか？')">登録</button>
+  </div>
+</div>
+</form>
+
+<form id="lockReleaseForm" th:action="@{/mcm1004u/lockRelease}" method="post" style="display:none">
+<input type="hidden" name="workflowToken" th:value="${workflowToken}"/>
+  <input type="hidden" name="tmKeiyakujikanId" th:value="${form.tmKeiyakujikanId}" />
+</form>
+
+<script th:inline="none">
+document.addEventListener('DOMContentLoaded', function () {
+  const tabs = [...document.querySelectorAll('.mcm1004u-screen .nav-link')];
+  function activate(button) {
+    document.getElementById('selectedIndex').value = tabs.indexOf(button);
+    tabs.forEach(tab => { const selected = tab === button; tab.classList.toggle('active', selected); tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1; });
+    document.querySelectorAll('.mcm1004u-screen .tab-pane').forEach(pane => { const selected = '#' + pane.id === button.getAttribute('data-bs-target'); pane.classList.toggle('active', selected); pane.hidden = !selected; });
+  }
+  tabs.forEach((tab, index) => { tab.setAttribute('role', 'tab'); tab.setAttribute('aria-controls', tab.getAttribute('data-bs-target').slice(1)); tab.addEventListener('click', () => activate(tab)); tab.addEventListener('keydown', event => { if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return; event.preventDefault(); const next = tabs[(index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; activate(next); next.focus(); }); });
+  const selected = document.getElementById('selectedIndex');
+  document.getElementById('estimateForm').addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target.matches('input[type=text],input[type=number]')){event.preventDefault();document.getElementById('saveButton').click();}});
+  tabs.forEach((tab,index) => tab.addEventListener('click', () => { selected.value = index; }));
+  if (tabs.length) activate(tabs[Math.min(Number(selected.value) || 0,tabs.length-1)]);
+  // Fixed-point arithmetic avoids rounding drift in displayed decimal prices.
+  const scale=1000000n;
+  function decimal(value){const m=String(value||'0').match(/^(-?)(\d*)(?:\.(\d{0,6}))?$/);if(!m)throw Error('number');const v=BigInt(m[2]||'0')*scale+BigInt((m[3]||'').padEnd(6,'0'));return m[1]?-v:v;}
+  function show(v){const sign=v<0n?'-':'';if(v<0n)v=-v;const a=(v/(scale*scale)).toString(),b=(v%(scale*scale)).toString().padStart(12,'0').replace(/0+$/,'');return sign+a+(b?'.'+b:'');}
+  document.querySelectorAll('.tab-pane').forEach((pane,index) => {
+    function totals(){try{let h=0n,s=0n;pane.querySelectorAll('.tanka-table tbody tr').forEach(row=>{const qty=decimal(row.cells[4].textContent.trim()),hp=decimal(row.querySelector('[name$=".hyojunKin"]').value)*qty,sp=decimal(row.querySelector('[name$=".sikiriKin"]').value)*qty;row.cells[7].textContent=show(hp);row.cells[9].textContent=show(sp);h+=hp;s+=sp;});pane.querySelector('.standard-summary .price-ro').textContent=show(h);const totals=pane.querySelectorAll('.price-summary .price-ro');totals[0].textContent=show(s);totals[1].textContent=show(s-decimal(pane.querySelector('[name$=".syusseinebikiKin"]').value)*scale);}catch(e){ /* Server validation explains invalid input on submit. */ }}
+    pane.querySelectorAll('input[type=number]').forEach(input=>input.addEventListener('input',totals));
+    pane.querySelectorAll('.period-row input[type=date]').forEach((input,pos)=>{const old=input.value;input.addEventListener('change',()=>{if(input.value===old)return;const adjacent=pos===0?index>0:index<tabs.length-1;if(!adjacent)return;if(!confirm('前後の期間も調整します。よろしいですか？')){input.value=old;return;}selected.value=index;document.getElementById('dateField').value=pos===0?'start':'end';document.getElementById('estimateForm').requestSubmit(document.getElementById('datesSubmit'));});});
+  });
+});
+</script>
+
+</div></main></body></html>
