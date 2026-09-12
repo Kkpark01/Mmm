@@ -1,0 +1,34 @@
+{
+  "created": "2026-09-12",
+  "applyOrder": [
+    "base",
+    "04",
+    "05",
+    "06"
+  ],
+  "sourceFiles": 1,
+  "modified": 1,
+  "added": 0,
+  "overlapWith04": 0,
+  "overlapWith05": 0,
+  "verifiedDependencies": [
+    {
+      "pack": "04",
+      "path": "main/java/com/daifuku/mcm/common/CustomerScreenSupport.java",
+      "sha256": "bbab8d086dfccab8b0f161d0f36857cc39d16315130b36d1811b0dc13b252451"
+    },
+    {
+      "pack": "05",
+      "path": "main/java/com/daifuku/mcm/controller/Mcm0010uController.java",
+      "sha256": "b6cf6c3f57bb4db8f1025e0bb522e13c2806ed9dbde2ae7f7bbd9e2524c4ad36"
+    }
+  ],
+  "files": [
+    {
+      "path": "main/java/com/daifuku/mcm/controller/MenuController.java",
+      "kind": "modified",
+      "sha256": "6b79c8d7b9ea03b11e30edfecd34605aa7871efa1d9b8e2f0ab8da8f995a55fd",
+      "originalSha256": "df1b21689b187dbc76ea23d0fd250b1d5441ec35984f8917436af2db4b0cb5aa"
+    }
+  ]
+}

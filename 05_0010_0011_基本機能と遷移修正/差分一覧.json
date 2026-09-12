@@ -1,0 +1,117 @@
+{
+  "created": "2026-09-12",
+  "base": "2026-09-11受領版 mcm-web/src",
+  "applyOrder": [
+    "base",
+    "04",
+    "05"
+  ],
+  "sourceFiles": 12,
+  "modified": 12,
+  "added": 0,
+  "overlapWith04": 0,
+  "verified04Dependencies": [
+    {
+      "path": "main/java/com/daifuku/mcm/common/CustomerScreenSupport.java",
+      "sha256": "bbab8d086dfccab8b0f161d0f36857cc39d16315130b36d1811b0dc13b252451"
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/repository/Mcm2004uJdbcRepository.java",
+      "sha256": "4067db0dc718da20fe959a3e250b5401484bc9bb0d59327a7cdae1cf7a9d7ca8"
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/service/Mcm3007uService.java",
+      "sha256": "213379b335eb0e2bdfe13d6f4117dfd86aa12329fae4b7b51b89157fb11145e1"
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/form/Mcm3007uForm.java",
+      "sha256": "f349d53e6aeaaa944ad9ec12a6426febf5e3f7cefb276c06801c569ec2e997e3"
+    }
+  ],
+  "files": [
+    {
+      "path": "main/java/com/daifuku/mcm/controller/Mcm0010uController.java",
+      "kind": "modified",
+      "sha256": "b6cf6c3f57bb4db8f1025e0bb522e13c2806ed9dbde2ae7f7bbd9e2524c4ad36",
+      "originalSha256": "fa5ef6baab73f96d9966a2806d2a8e0cc91720a712a7bb82d8bbc9d2e426392d",
+      "overlaps04": false
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/controller/Mcm0011uController.java",
+      "kind": "modified",
+      "sha256": "9a401813633097da2cd257bf05d02228136e3117afa26dbd59f9511553a69b89",
+      "originalSha256": "c8be35d43edfb2a0db16bc1300889b4497710a03557ab756ae2e424baaf189a8",
+      "overlaps04": false
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/controller/Mcm0012uController.java",
+      "kind": "modified",
+      "sha256": "2d5446752911fc03006c1639a7a8d01fd0cdab90d0999ea8f16174f8561d196c",
+      "originalSha256": "56f96f43b90708365802ddf6533355fd92fdefe8ca799607ccf8263a027e99c5",
+      "overlaps04": false
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/dto/Mcm0010uKikiKoseiDto.java",
+      "kind": "modified",
+      "sha256": "60a28df3b20902301a54d7db6d45301ccd634a2aea9d333187a277bebab7151b",
+      "originalSha256": "2fbf5271308b37f052348561f395b8e8999b0a7aa2d8666288b83a3e3c1ea1d9",
+      "overlaps04": false
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/form/Mcm0010uForm.java",
+      "kind": "modified",
+      "sha256": "080e4bd81be087aa759f63e11424c770cf877e71ca46d00ec3c4ab8ebbd70a95",
+      "originalSha256": "460e8c4745d3a26277267afac98ab4aa75e510461247457823549672675a1593",
+      "overlaps04": false
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/form/Mcm0011uForm.java",
+      "kind": "modified",
+      "sha256": "a518ec6ac60f835b7ed5b38b799339823fa5474db960b0fb7d13fb08a7abf2a0",
+      "originalSha256": "d74b0e34d53cff4117a04f82c028a32dee8445b05b62cf1818f789afd08986e1",
+      "overlaps04": false
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/service/Mcm0010uService.java",
+      "kind": "modified",
+      "sha256": "0781e555f02f3c7498fdd5de104ee4f9a8330cacb2e8bcec591a44ac144837d6",
+      "originalSha256": "74fefb16ddb4f624d5181f0489d94da6a6b5e1541a01d6cbbcad5b85f6bdeae7",
+      "overlaps04": false
+    },
+    {
+      "path": "main/java/com/daifuku/mcm/service/Mcm0011uService.java",
+      "kind": "modified",
+      "sha256": "ae4dd2170f279c2f7a8891fab37093705e9cf9e499971e8351dd86984e99b2cf",
+      "originalSha256": "3a14d73d6cb26c6dae9416db347f6268fcbd3a7a396e63c41d38060bc1270ad9",
+      "overlaps04": false
+    },
+    {
+      "path": "main/resources/static/css/mcm0010u.css",
+      "kind": "modified",
+      "sha256": "fd4966448de99d9fc510603541f4c3cf9e92a663f8f2e0bc725534759e2fff2d",
+      "originalSha256": "9693c3b1e1fea1e269970ca971a211bae8c171a8e53c9f0a3f92b225d4882b7a",
+      "overlaps04": false
+    },
+    {
+      "path": "main/resources/static/css/mcm0011u.css",
+      "kind": "modified",
+      "sha256": "3fc0660996af193b702d2c728d2eb10176410a2cea21340ae974823b12417a25",
+      "originalSha256": "4210f7c45066dbfbe1eea7ccdc544626df31e4e14deba385118f8c2fb1561ca5",
+      "overlaps04": false
+    },
+    {
+      "path": "main/resources/templates/mcm0010u/index.html",
+      "kind": "modified",
+      "sha256": "96c544187cb1db80562c00f0c72cd03319ecaea374d2cfade84d8822e194f705",
+      "originalSha256": "12d90c90b4a566356875b7e40975952174d20bb6586cc99a3534690a3ec2d3fd",
+      "overlaps04": false
+    },
+    {
+      "path": "main/resources/templates/mcm0011u/index.html",
+      "kind": "modified",
+      "sha256": "9ddebc30faf35460b3b6279f32ffdb1a2467e1d6aebb3b91949c7b5662549ab0",
+      "originalSha256": "9d7606e5fc144e755c7d46fc3f5d904eefe2909db19c2371ee4bff49ed4d1b88",
+      "overlaps04": false
+    }
+  ]
+}

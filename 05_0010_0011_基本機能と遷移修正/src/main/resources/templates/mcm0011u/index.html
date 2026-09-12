@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MCM0011U - 納入先マスタ</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../static/css/common.css"/>
+    <link rel="stylesheet" th:href="@{/css/mcm0011u.css}" href="../static/css/mcm0011u.css"/>
+    <link rel="stylesheet" th:href="@{/css/custom-dialog.css}" href="../static/css/custom-dialog.css"/>
+    <script th:src="@{/js/common.js}"></script>
+</head>
+<body>
+<div class="header">
+    <div class="header-left"><a class="btn-close" id="btnBackLink" th:href="@{/mcm0011u/back}" href="/mcm0011u/back">戻る</a></div>
+    <div class="header-center"><h1>納入先マスタ（MCM0011U）</h1></div>
+    <div class="header-right"><a class="btn-close" id="btnCloseLink" th:href="@{/mcm0011u/close}" href="/mcm0011u/close">閉じる</a></div>
+</div>
+
+<form th:action="@{/mcm0011u/save}" method="post" th:object="${form}" id="mainForm" novalidate>
+    <input type="hidden" th:field="*{nonyusakiId}"/>
+    <input type="hidden" th:field="*{newMode}"/>
+    <input type="hidden" name="workflowToken" th:value="${workflowToken}"/>
+    <input type="hidden" name="returnUrl" th:value="${returnUrl}"/>
+
+    <div id="serverMessageData" hidden
+         th:attr="data-success=${successMessage},data-error=${errorMessage}"></div>
+    <div id="validationMessages" hidden>
+        <span th:each="err : ${#fields.allErrors()}" th:text="${err}"></span>
+    </div>
+
+    <main class="screen-content"><div class="screen-canvas">
+        <div class="flag-area">
+            <label class="flag-label" for="nonyusakiSakujo">
+                <span>納入先削除</span>
+                <input id="nonyusakiSakujo" type="checkbox" th:field="*{nonyusakiSakujo}"
+                       th:disabled="${form.newMode || dataNotFound || !canUpdate}"/>
+            </label>
+            <label class="flag-label" for="dtsrenkeiFlgDisplay">
+                <span>DTSマスタ連携</span>
+                <input id="dtsrenkeiFlgDisplay" type="checkbox"
+                       th:checked="${form.dtsrenkeiFlg != null and form.dtsrenkeiFlg.intValue() == 1}" disabled/>
+            </label>
+            <input type="hidden" name="dtsrenkeiFlg" th:value="${form.dtsrenkeiFlg}"/>
+        </div>
+        <fieldset class="panel delivery-panel">
+            <legend>納入先</legend>
+            <div class="delivery-layout">
+                <div class="delivery-fields">
+                    <div class="form-row split-row">
+                        <div class="field-group left-field">
+                            <label class="required" for="nonyusakiCd">納入先コード</label>
+                           <input id="nonyusakiCd" maxlength="12" type="text" th:field="*{nonyusakiCd}" th:readonly="${!canUpdate || dataNotFound}" class="input-code"/>
+                        </div>
+                        <div class="field-group right-field empty-field" aria-hidden="true"></div>
+                    </div>
+                    <div class="form-row split-row">
+                        <div class="field-group left-field">
+                            <label class="required" for="nonyusakiNk">納入先名</label>
+                            <input id="nonyusakiNk" maxlength="80" type="text" th:field="*{nonyusakiNk}" th:readonly="${!canUpdate || dataNotFound}" class="input-long"/>
+                        </div>
+                        <div class="field-group right-field">
+                            <label for="kyunonyusakiNk">旧納入先名</label>
+                            <input id="kyunonyusakiNk" maxlength="80" type="text" th:field="*{kyunonyusakiNk}" th:readonly="${!canUpdate || dataNotFound}" class="input-long"/>
+                        </div>
+                    </div>
+                    <div class="form-row split-row">
+                        <div class="field-group left-field">
+                            <label class="required" for="nonyusakikanaKn">納入先カナ名</label>
+                            <input id="nonyusakikanaKn" maxlength="60" type="text" th:field="*{nonyusakikanaKn}" th:readonly="${!canUpdate || dataNotFound}" class="input-long"/>
+                        </div>
+                        <div class="field-group right-field">
+                            <label for="nonyusakieimeiEn">納入先英名</label>
+                            <input id="nonyusakieimeiEn" maxlength="40" type="text" th:field="*{nonyusakieimeiEn}" th:readonly="${!canUpdate || dataNotFound}" class="input-long"/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="field-group factory-field">
+                            <label for="nonyusakikojoNk">納入先工場名</label>
+                            <input id="nonyusakikojoNk" maxlength="80" type="text" th:field="*{nonyusakikojoNk}" th:readonly="${!canUpdate || dataNotFound}" class="input-long"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="panel contact-panel">
+            <legend>連絡先</legend>
+            <div class="form-row split-row contact-top">
+                <div class="field-group left-field">
+                    <label for="yubinNo">郵便番号</label>
+                    <input id="yubinNo" maxlength="8" type="text" th:field="*{yubinNo}" th:readonly="${!canUpdate || dataNotFound}" class="input-postal"/>
+                </div>
+                <div class="field-group right-field">
+                    <label for="kuniNk">国名</label>
+                    <input id="kuniNk" maxlength="20" type="text" th:field="*{kuniNk}" th:readonly="${!canUpdate || dataNotFound}" class="input-country"/>
+                </div>
+            </div>
+            <div class="form-row full-row">
+                <label class="required" for="jusyo1Nk">住所1</label>
+                <input id="jusyo1Nk" maxlength="80" type="text" th:field="*{jusyo1Nk}" th:readonly="${!canUpdate || dataNotFound}"/>
+            </div>
+            <div class="form-row full-row">
+                <label for="jusyo2Nk">住所2</label>
+                <input id="jusyo2Nk" maxlength="80" type="text" th:field="*{jusyo2Nk}" th:readonly="${!canUpdate || dataNotFound}"/>
+            </div>
+            <div class="form-row split-row">
+                <div class="field-group left-field">
+                    <label for="telNo">電話番号</label>
+                    <input id="telNo" maxlength="50" type="text" th:field="*{telNo}" th:readonly="${!canUpdate || dataNotFound}" class="input-phone"/>
+                </div>
+                <div class="field-group right-field">
+                    <label for="faxNo">FAX番号</label>
+                    <input id="faxNo" maxlength="50" type="text" th:field="*{faxNo}" th:readonly="${!canUpdate || dataNotFound}" class="input-phone"/>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="panel audit-panel">
+            <legend>更新履歴</legend>
+            <div class="form-row split-row">
+                <div class="field-group left-field">
+                    <label>登録日時</label>
+                    <input type="text" readonly th:value="${entity?.createdDt != null ? #temporals.format(entity.createdDt, 'yyyy/MM/dd HH:mm:ss') : ''}"/>
+                </div>
+                <div class="field-group right-field">
+                    <label>登録者</label>
+                    <input type="text" readonly th:value="${entity?.createdBy}"/>
+                </div>
+            </div>
+            <div class="form-row split-row">
+                <div class="field-group left-field">
+                    <label>更新日時</label>
+                    <input type="text" readonly th:value="${entity?.lastupdateDt != null ? #temporals.format(entity.lastupdateDt, 'yyyy/MM/dd HH:mm:ss') : ''}"/>
+                </div>
+                <div class="field-group right-field">
+                    <label>更新者</label>
+                    <input type="text" readonly th:value="${entity?.lastupdateBy}"/>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="remarks-row">
+            <label for="biko">備考</label>
+            <textarea id="biko" maxlength="4000" th:field="*{biko}" th:readonly="${!canUpdate || dataNotFound}"></textarea>
+        </div>
+    </div></main>
+
+    <div class="form-actions">
+        <button type="submit" id="btnPlantAdd" name="plantAdd" th:formaction="@{/mcm0011u/plantAdd}"
+                class="btn btn-secondary" th:disabled="${!canAddPlant || dataNotFound}">プラント追加</button>
+        <button type="button" id="btnSave" class="btn btn-primary" th:disabled="${!canUpdate || dataNotFound}">登録</button>
+    </div>
+</form>
+
+<div id="confirmDialogOverlay" class="mini-dialog-overlay" aria-hidden="true">
+    <div class="mini-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <div class="mini-dialog-head"><span id="confirmTitle">確認</span><button type="button" class="mini-close" id="confirmCloseX" aria-label="閉じる">✕</button></div>
+        <div class="mini-dialog-body"><span class="mini-icon" aria-hidden="true">?</span><span class="mini-msg" id="confirmMsg"></span></div>
+        <div class="mini-dialog-foot"><button type="button" id="confirmOk">OK</button><button type="button" id="confirmCancel">キャンセル</button></div>
+    </div>
+</div>
+<div id="miniDialogOverlay" class="mini-dialog-overlay" aria-hidden="true">
+    <div class="mini-dialog" role="alertdialog" aria-modal="true" aria-labelledby="messageTitle">
+        <div class="mini-dialog-head"><span id="messageTitle">メッセージ</span><button type="button" class="mini-close" id="miniDialogCloseX" aria-label="閉じる">✕</button></div>
+        <div class="mini-dialog-body"><span class="mini-icon info-icon" aria-hidden="true">i</span><span class="mini-msg" id="miniDialogMsg"></span></div>
+        <div class="mini-dialog-foot"><button type="button" id="miniDialogOk">OK</button></div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+(function () {
+    'use strict';
+    var form = document.getElementById('mainForm');
+    var saveButton = document.getElementById('btnSave');
+    function closeDialog(overlay) { overlay.style.display = 'none'; overlay.setAttribute('aria-hidden', 'true'); }
+    function showMessage(message) {
+        if (!message) return;
+        var overlay = document.getElementById('miniDialogOverlay');
+        var ok = document.getElementById('miniDialogOk');
+        var close = document.getElementById('miniDialogCloseX');
+        document.getElementById('miniDialogMsg').textContent = message;
+        overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden', 'false');
+        ok.onclick = function () { closeDialog(overlay); };
+        close.onclick = function () { closeDialog(overlay); };
+        setTimeout(function () { ok.focus(); }, 0);
+    }
+    function showConfirm(message, onOk) {
+        var overlay = document.getElementById('confirmDialogOverlay');
+        var ok = document.getElementById('confirmOk');
+        var cancel = document.getElementById('confirmCancel');
+        var close = document.getElementById('confirmCloseX');
+        document.getElementById('confirmMsg').textContent = message;
+        overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden', 'false');
+        function cancelDialog() { closeDialog(overlay); }
+        ok.onclick = function () { closeDialog(overlay); onOk(); };
+        cancel.onclick = cancelDialog; close.onclick = cancelDialog;
+        setTimeout(function () { ok.focus(); }, 0);
+    }
+	function getRequiredFields() {
+	    return Array.prototype.map.call(document.querySelectorAll('label.required'), function (label) {
+	        return document.getElementById(label.getAttribute('for'));
+	    }).filter(Boolean);
+	}
+
+	// 納入先コード：半角チェック用
+	var nonyusakiCdInput = document.getElementById('nonyusakiCd');
+	var hankakuPattern = /^[\x20-\x7E]*$/;
+
+	function checkNonyusakiCdHankaku() {
+	    var value = nonyusakiCdInput.value;
+	    if (value && !hankakuPattern.test(value)) {
+	        showMessage('納入先コードは半角で入力してください。');
+	        return false;
+	    }
+	    return true;
+	}
+
+	// 別項目へフォーカス移動したタイミングでもチェック
+	nonyusakiCdInput.addEventListener('blur', function () {
+	    checkNonyusakiCdHankaku();
+	});
+
+	// 変更有無チェック用：編集対象項目と初期値のスナップショット
+	var editableFieldIds = [
+	    'nonyusakiSakujo', 'nonyusakiCd', 'nonyusakiNk', 'kyunonyusakiNk',
+	    'nonyusakikanaKn', 'nonyusakieimeiEn', 'nonyusakikojoNk',
+	    'yubinNo', 'kuniNk', 'jusyo1Nk', 'jusyo2Nk', 'telNo', 'faxNo', 'biko'
+	];
+
+	function getFieldValue(input) {
+	    if (!input) return '';
+	    if (input.type === 'checkbox') return input.checked ? '1' : '0';
+	    return input.value;
+	}
+
+	function captureFormSnapshot() {
+	    var snapshot = {};
+	    editableFieldIds.forEach(function (id) {
+	        snapshot[id] = getFieldValue(document.getElementById(id));
+	    });
+	    return snapshot;
+	}
+
+	var initialSnapshot = captureFormSnapshot();
+    var serverDirty = /*[[${hasUnsavedChanges}]]*/ false;
+
+	function isFormChanged() {
+        if (serverDirty) return true;
+	    var current = captureFormSnapshot();
+	    return editableFieldIds.some(function (id) {
+	        return current[id] !== initialSnapshot[id];
+	    });
+	}
+
+	// 戻る：未保存の変更がある場合のみ破棄確認を表示する
+	var backLink = document.getElementById('btnBackLink');
+	if (backLink) {
+	    backLink.addEventListener('click', function (event) {
+	        if (!isFormChanged()) return;
+	        event.preventDefault();
+	        var href = backLink.getAttribute('href');
+	        showConfirm('データが変更されています。破棄されますがよろしいですか？', function () {
+	            window.location.href = href;
+	        });
+	    });
+	}
+
+	// 閉じる：未保存の変更がある場合のみ破棄確認を表示する
+	var closeLink = document.getElementById('btnCloseLink');
+	if (closeLink) {
+	    closeLink.addEventListener('click', function (event) {
+	        if (!isFormChanged()) return;
+	        event.preventDefault();
+	        var href = closeLink.getAttribute('href');
+	        showConfirm('データが変更されています。破棄されますがよろしいですか？', function () {
+	            window.location.href = href;
+	        });
+	    });
+	}
+
+	// 納入先削除チェックがONの場合、「登録」ボタン押下タイミングでプラント紐付きの有無を
+	// サーバーへ問い合わせ、登録済みなら確認ダイアログを出さずに即座にエラーを表示する。
+	function checkPlantExists(nonyusakiId, callback) {
+	    var url = form.getAttribute('action').replace(/\/save$/, '/checkPlantExists')
+	        + '?nonyusakiId=' + encodeURIComponent(nonyusakiId || '0');
+	    fetch(url, { method: 'GET', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+	        .then(function (res) { return res.json(); })
+	        .then(function (data) { callback(!!data.hasPlant); })
+	        .catch(function () {
+	            // 事前チェックに失敗した場合はサーバー側save()の削除チェックに委ねる（多重防御）。
+	            callback(false);
+	        });
+	}
+
+	function proceedWithConfirm() {
+	    showConfirm(document.getElementById('nonyusakiSakujo').checked ? '納入先を削除します。よろしいですか？' : '登録を実施します。よろしいですか？', function () {
+	        saveButton.disabled = true;
+	        form.requestSubmit();
+	    });
+	}
+
+	function handleSave() {
+	    if (saveButton.disabled) return;
+        var deleting = document.getElementById('nonyusakiSakujo').checked;
+	    var emptyFields = (deleting ? [] : getRequiredFields()).filter(function (input) {
+	        return !input.value.trim();
+	    });
+	    if (emptyFields.length) {
+				var messages = emptyFields.map(function (input) {
+			    var label = document.querySelector('label[for="' + input.id + '"]');
+			    var name = label ? label.textContent.trim() : input.name;
+			    return name + 'は必ず入力してください。';
+			});
+	        showMessage(messages.join('\n'));
+	        return;
+	    }
+	    if (!deleting && !checkNonyusakiCdHankaku()) {
+	        return;
+	    }
+	    // 納入先削除チェックがONの場合は、内容が未変更でも必ずサーバー側の
+	    // 削除条件チェック（プラント紐付き判定）を実施させるため、変更有無チェックをスキップする。
+	    var nonyusakiSakujoInput = document.getElementById('nonyusakiSakujo');
+	    var isDeleteChecked = nonyusakiSakujoInput && nonyusakiSakujoInput.checked;
+	    if (!isDeleteChecked && !isFormChanged()) {
+	        showMessage('値が変更されていません。');
+	        return;
+	    }
+
+	    if (isDeleteChecked) {
+	        var nonyusakiIdInput = document.querySelector('input[name="nonyusakiId"]');
+	        var nonyusakiId = nonyusakiIdInput ? nonyusakiIdInput.value : '0';
+	        checkPlantExists(nonyusakiId, function (hasPlant) {
+	            if (hasPlant) {
+	                showMessage('既にプラント情報が登録されている為、削除する事が出来ません。');
+	                return;
+	            }
+	            proceedWithConfirm();
+	        });
+	        return;
+	    }
+
+	    proceedWithConfirm();
+	}
+
+	saveButton.addEventListener('click', handleSave);
+    var plantButton = document.getElementById('btnPlantAdd');
+    var plantConfirmed = false;
+    form.addEventListener('submit', function (event) {
+        if (event.submitter !== plantButton) return;
+        if (plantButton.disabled) { event.preventDefault(); return; }
+        if (document.getElementById('nonyusakiSakujo').checked) {
+            event.preventDefault(); showMessage('納入先削除を選択しているため、プラントを追加できません。'); return;
+        }
+        if (isFormChanged() && !plantConfirmed) {
+            event.preventDefault();
+            showConfirm('変更した納入先情報を登録してプラント追加へ進みます。よろしいですか？', function () {
+                plantConfirmed = true; form.requestSubmit(plantButton); plantConfirmed = false;
+            });
+        }
+    });
+
+	// Enterキー押下時も登録ボタン押下時と同一のチェックを実施する（別ルート送信を防止）
+	form.addEventListener('keydown', function (event) {
+	    if (event.key !== 'Enter') return;
+	    if (['TEXTAREA', 'BUTTON', 'A'].includes(event.target.tagName)) return; // 備考欄は改行を許可
+	    event.preventDefault();
+	    if (saveButton.disabled) return;
+	    handleSave();
+	});
+    var validation = Array.prototype.map.call(document.querySelectorAll('#validationMessages span'), function (e) {
+        return e.textContent.trim();
+    }).filter(Boolean);
+    var messageData = document.getElementById('serverMessageData');
+    var serverMessage = messageData.dataset.error || messageData.dataset.success || '';
+    if (validation.length) showMessage(validation.join('\n'));
+    else if (serverMessage) showMessage(serverMessage);
+})();
+</script>
+</body>
+</html>

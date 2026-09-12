@@ -1,0 +1,56 @@
+@charset "UTF-8";
+/* VBの2列配置・項目幅を保ち、外周とタイトルはWeb共通意匠に合わせる。 */
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; color: #202124; background: #f4f6f7; font: 12px "Yu Gothic UI", "Meiryo UI", Meiryo, sans-serif; }
+body { display: flex; flex-direction: column; overflow: hidden; padding: 8px; gap: 4px; }
+.header { flex: 0 0 40px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 40px; padding: 0 10px; background: #453f78; color: #fff; }
+.header-left, .header-right { display: flex; align-items: center; }
+.header-right { justify-content: flex-end; }
+.header-center h1 { margin: 0; color: #fff; font-size: 18px; line-height: 30px; letter-spacing: 2px; font-weight: bold; }
+.btn-close { display: inline-block; padding: 2px 12px; font: inherit; color: #000; text-decoration: none; background: #f0f0f0; border: 1px solid #adadad; border-radius: 2px; line-height: 1.6; }
+.btn-close:hover { background: #e5f1fb; border-color: #7eb4ea; }
+#mainForm { display: flex; flex: 1; min-height: 0; flex-direction: column; }
+.screen-content { flex: 1; min-height: 0; overflow: auto; }
+.screen-canvas { position: relative; min-width: 1246px; padding: 3px 6px 18px; }
+.panel { width: 1064px; margin: 0 0 28px; padding: 4px 16px 10px 6px; border: 1px solid #d2d2d2; background: transparent; }
+.panel legend { padding: 0 4px; font-size: 12px; }
+.form-row { height: 25px; display: flex; align-items: center; }
+.split-row { display: grid; grid-template-columns: 503px 493px; column-gap: 45px; }
+.field-group { display: grid; grid-template-columns: 102px minmax(0,1fr); align-items: center; }
+.right-field { grid-template-columns: 92px minmax(0,1fr); }
+.field-group label, .full-row > label, .remarks-row > label { white-space: nowrap; padding-right: 6px; }
+label.required { color: #d00000; font-weight: bold; }
+input[type="text"], textarea { border: 1px solid #b9bec3; border-radius: 0; background: #fff; color: #111; font: inherit; }
+input[type="text"] { height: 22px; padding: 1px 4px; min-width: 0; }
+input[type="text"]:focus, textarea:focus { outline: 1px solid #68aee8; }
+input[readonly], textarea[readonly] { background: #e7e7e7; color: #444; }
+.input-code { width: 110px; }
+.input-long { width: 402px; }
+.factory-field { width: 504px; }
+.flag-area { position: absolute; top: 4px; left: 1128px; display: flex; flex-direction: column; gap: 4px; }
+.flag-label { display: flex; align-items: center; justify-content: space-between; width: 106px; white-space: nowrap; }
+.flag-label input { margin: 0; }
+.input-postal { width: 82px; }
+.input-country { width: 130px; }
+.full-row { display: grid; grid-template-columns: 102px 938px; }
+.input-phone { width: 150px; }
+.audit-panel { height: 101px; padding-top: 14px; margin-bottom: 33px; }
+.audit-panel input { width: 155px; }
+.remarks-row { display: grid; grid-template-columns: 103px 938px; align-items: start; padding: 0 6px; }
+.remarks-row label { padding-top: 4px; }
+.remarks-row textarea { width: 938px; height: 400px; padding: 4px; resize: vertical; }
+.form-actions { flex: 0 0 36px; display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-top: 1px solid #d8d8d8; background: #f0f0f0; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-width: 75px; height: 24px; padding: 0 10px; border-radius: 3px; font: inherit; font-weight: 600; cursor: pointer; }
+.btn-primary { border: 1px solid #393364; background: #453f78; color: #fff; }
+.btn-secondary { border: 1px solid #1e8449; background: #27ae60; color: #fff; }
+.btn:hover:not(:disabled) { filter: brightness(.94); }
+.btn:disabled { background: #d4d4d4; color: #666; border-color: #aaa; cursor: default; }
+.mini-dialog-overlay { position: fixed; inset: 0; z-index: 3000; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.26); }
+.mini-dialog { width: 410px; border: 1px solid #444; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.35); font-size: 13px; }
+.mini-dialog-head { display: flex; align-items: center; justify-content: space-between; height: 30px; padding-left: 10px; background: #453f78; color: #fff; font-weight: bold; }
+.mini-close { width: 31px; height: 29px; border: 0; background: transparent; color: #fff; cursor: pointer; }
+.mini-close:hover { background: #c42b1c; }
+.mini-dialog-body { display: flex; align-items: center; min-height: 86px; padding: 18px; white-space: pre-line; }
+.mini-icon { flex: 0 0 34px; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin-right: 15px; border-radius: 50%; background: #2d70b7; color: #fff; font-size: 22px; font-weight: bold; }
+.mini-dialog-foot { display: flex; justify-content: center; gap: 10px; padding: 0 12px 14px; }
+.mini-dialog-foot button { min-width: 84px; height: 27px; border: 1px solid #777; background: linear-gradient(#fff, #e7e7e7); cursor: pointer; }
