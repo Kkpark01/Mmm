@@ -32,12 +32,27 @@ public class Mcm2007uForm implements Serializable {
     private String supportId;
     private String plantNk;
 
+    // 表示中の見積。選択チェックと独立し、戻る・入力エラー後も保持する。
+    private int selectedEstimateIndex = -1;
+    public int getSelectedEstimateIndex(){return selectedEstimateIndex;}
+    public void setSelectedEstimateIndex(int value){selectedEstimateIndex=value;}
+
     // Step1入力: 適用開始日・終了日
     private String kaisiDt;
     private String syuryoDt;
 
     // Step1選択行（MCM_UM_MITSUMORI = 店舗見積）
     private List<MitsumoriRowForm> mitsumoriRows = new ArrayList<>();
+
+    private List<java.util.Map<String,String>> step2Brands = new ArrayList<>();
+    public List<java.util.Map<String,String>> getStep2Brands(){return step2Brands;}
+    public void setStep2Brands(List<java.util.Map<String,String>> value){step2Brands=value;}
+    private int selectedBrandIndex = -1;
+    private int selectedKoseiIndex = -1;
+    public int getSelectedBrandIndex(){return selectedBrandIndex;}
+    public void setSelectedBrandIndex(int value){selectedBrandIndex=value;}
+    public int getSelectedKoseiIndex(){return selectedKoseiIndex;}
+    public void setSelectedKoseiIndex(int value){selectedKoseiIndex=value;}
 
     // Step2選択行
     private List<KoseiRowForm> koseiRows   = new ArrayList<>();
@@ -87,6 +102,15 @@ public class Mcm2007uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class MitsumoriRowForm implements Serializable {
+        // DBから取得する参照表示。HTTP入力にはバインドしない。
+        private java.util.Map<String,String> display = new java.util.LinkedHashMap<>();
+        public java.util.Map<String,String> getDisplay(){return display;}
+        public void setDisplay(java.util.Map<String,String> value){display=value;}
+        private List<java.util.Map<String,String>> previewRows = new ArrayList<>();
+        public List<java.util.Map<String,String>> getPreviewRows(){return previewRows;}
+        public void setPreviewRows(List<java.util.Map<String,String>> value){previewRows=value;}
+        public boolean isCheckFlg(){return brandRows.stream().anyMatch(KihonBrandRowForm::isCheckFlg);}
+
         private static final long serialVersionUID = 1L;
 
         // MCM_UM_MITSUMORI
@@ -114,6 +138,11 @@ public class Mcm2007uForm implements Serializable {
     }
 
     public static class KihonBrandRowForm implements Serializable {
+        // DBから取得する参照表示。HTTP入力にはバインドしない。
+        private java.util.Map<String,String> display = new java.util.LinkedHashMap<>();
+        public java.util.Map<String,String> getDisplay(){return display;}
+        public void setDisplay(java.util.Map<String,String> value){display=value;}
+
         private BigDecimal hoshuKin;
         public BigDecimal getHoshuKin(){return hoshuKin;}
         public void setHoshuKin(BigDecimal value){hoshuKin=value;}
@@ -151,6 +180,14 @@ public class Mcm2007uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class KoseiRowForm implements Serializable {
+        // 選定元の表示・所属情報。HTTP入力にはバインドしない。
+        private java.util.Map<String,String> display = new java.util.LinkedHashMap<>();
+        private boolean quoted;
+        public java.util.Map<String,String> getDisplay(){return display;}
+        public void setDisplay(java.util.Map<String,String> value){display=value;}
+        public boolean isQuoted(){return quoted;}
+        public void setQuoted(boolean value){quoted=value;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal kikikoseiId;     // MCM_MA_KIKIKOSEI.KIKIKOSEI_ID
@@ -173,6 +210,7 @@ public class Mcm2007uForm implements Serializable {
         public void setUmKihonBrandId(BigDecimal v) { this.umKihonBrandId = v; }
         public String getKikikoseiNk() { return kikikoseiNk; }
         public void setKikikoseiNk(String v) { this.kikikoseiNk = v; }
+        public String getSetNmText(){return setNm==null||setNm.isBlank()?"":new BigDecimal(setNm).stripTrailingZeros().toPlainString();}
         public String getSetNm() { return setNm; }
         public void setSetNm(String v) { this.setNm = v; }
         public String getTani() { return tani; }
@@ -194,6 +232,14 @@ public class Mcm2007uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class MeisaiRowForm implements Serializable {
+        // 選定元の表示・所属情報。HTTP入力にはバインドしない。
+        private java.util.Map<String,String> display = new java.util.LinkedHashMap<>();
+        private boolean quoted;
+        public java.util.Map<String,String> getDisplay(){return display;}
+        public void setDisplay(java.util.Map<String,String> value){display=value;}
+        public boolean isQuoted(){return quoted;}
+        public void setQuoted(boolean value){quoted=value;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal kikimeisaiId;
@@ -230,6 +276,7 @@ public class Mcm2007uForm implements Serializable {
         public void setKikihinmeiNk(String v) { this.kikihinmeiNk = v; }
         public String getKikikatashiki() { return kikikatashiki; }
         public void setKikikatashiki(String v) { this.kikikatashiki = v; }
+        public String getSuryoNmText(){return suryoNm==null||suryoNm.isBlank()?"":new BigDecimal(suryoNm).stripTrailingZeros().toPlainString();}
         public String getSuryoNm() { return suryoNm; }
         public void setSuryoNm(String v) { this.suryoNm = v; }
         public String getKeiyakunaiyo() { return keiyakunaiyo; }
@@ -261,6 +308,14 @@ public class Mcm2007uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class KotaiRowForm implements Serializable {
+        // 選定元の表示・所属情報。HTTP入力にはバインドしない。
+        private java.util.Map<String,String> display = new java.util.LinkedHashMap<>();
+        private boolean quoted;
+        public java.util.Map<String,String> getDisplay(){return display;}
+        public void setDisplay(java.util.Map<String,String> value){display=value;}
+        public boolean isQuoted(){return quoted;}
+        public void setQuoted(boolean value){quoted=value;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal kotaikanriId;

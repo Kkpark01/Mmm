@@ -4,7 +4,7 @@
   MCM2003U — 保守見積内容基本設定
   【機能構成・ボタン配置】VB版準拠（戻る/閉じる、店舗見積・契約検索画面へ、ロック解除、申請、見積発行、見積登録）
   【デザイン】Web版他画面（MCM1001U等）準拠：紫帯ヘッダー + data-grid スタイル
-  Web版省略: Excel帳票出力、メール送信、SP_UM、ブランドタブ詳細編集（MCM2005Uへ）
+  ブランド別の構成・明細・保守方法を表示。期間別の詳細設定はMCM2005Uへ遷移。
 -->
 <html xmlns:th="http://www.thymeleaf.org" lang="ja">
 <head>
@@ -244,8 +244,9 @@
     <script th:src="@{/js/common.js}"></script>
     <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
     <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+    <link rel="stylesheet" th:href="@{/css/mcm-customer-screens.css(v=20260911-edit1)}"/>
 </head>
-<body>
+<body class="mcm-customer-screen mcm2003u-screen">
 
 <!-- ===== ヘッダー（MCM1001U 準拠：紫帯・左=戻る/右=閉じる） ===== -->
 <header class="header">
@@ -256,104 +257,40 @@
         <h1>保守見積内容基本設定（MCM2003U）</h1>
     </div>
     <div class="header-right">
-        <a th:href="@{/menu}" class="btn-close">閉じる</a>
+        <a th:href="@{/mcm2003u/close}" class="btn-close">閉じる</a>
     </div>
 </header>
 
 <!-- サーバーメッセージ -->
 <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
 
+<div class="reload-help" th:if="${!pendingEstimate and error != null}">
+    <a th:href="@{/mcm2003u/reload}" onclick="return confirm('未保存の入力を破棄し、最新の情報を読み込みます。よろしいですか？')">最新の情報を読み直す</a>
+</div>
+
 <!-- ===== メインフォーム ===== -->
+<p th:if="${adminUnlocked}" class="admin-unlock-status" style="margin:4px 12px;color:#453f78;">管理者用ロック解除中</p>
 <form enctype="multipart/form-data" id="mainForm" th:object="${form}" method="post" th:action="@{/mcm2003u/save}">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
     <input type="hidden" name="workflowToken" th:value="${workflowToken}"/>
+    <input th:if="${pendingEstimate}" type="hidden" name="periodSelectionPresent" value="1"/>
+    <div th:if="${pendingEstimate}" class="draft-actions">選定した見積を編集中です。見積NOと内容を確認して登録してください。契約時間帯の確認は機器選定画面、詳細設定・添付・発行・申請は登録後に行えます。 <button class="btn" type="submit" th:formaction="@{/mcm2003u/navigate(destination='selection')}">機器選定に戻る</button></div>
 
-    <!-- ===== 基本情報（画像同様：左2列に納入先/サポートID等、右に状態/承認状態/登録者情報） ===== -->
+<!-- VB: 基本情報3行、依頼元・送付先各1行、見積条件2行。 -->
     <div class="info-panel">
-        <div>
-            <div class="info-row">
-                <div class="info-item"><label>納入先コード</label>
-                    <input type="text" th:value="${form.nonyusakiCd}" readonly class="readonly-field"/></div>
-                <div class="info-item"><label>納入先名</label>
-                    <input type="text" th:value="${form.nonyusakiNk}" readonly class="readonly-field"/></div>
-            </div>
-            <div class="info-row">
-                <div class="info-item"><label>サポートID</label>
-                    <input type="text" th:value="${form.supportId}" readonly class="readonly-field"/></div>
-                <div class="info-item"><label>プラント名</label>
-                    <input type="text" th:value="${form.plantNk}" readonly class="readonly-field"/></div>
-            </div>
-            <div class="info-row">
-                <div class="info-item"><label>見積NO</label>
-                    <input type="text" th:value="${form.umMitsumoriNo}" readonly class="readonly-field"/></div>
-                <div class="info-item"><label>契約時間帯</label>
-                    <input type="text" th:field="*{keiyakujikantai}" th:disabled="${readOnly}" class="editable-field" style="width:50px;flex:0 0 50px;"/>
-                    <label style="margin-left:8px;">見積レベル</label>
-                    <input type="text" th:field="*{mitsumoriLevel}" th:disabled="${readOnly}" class="editable-field" style="width:80px;flex:0 0 80px;"/></div>
-            </div>
-            <div class="info-row">
-                <div class="info-item"><label>見積有効期限</label>
-                    <input type="text" th:field="*{mitsumorigiken}" th:disabled="${readOnly}" class="editable-field"/></div>
-                <div class="info-item"></div>
-            </div>
-        </div>
-        <div>
-            <div class="info-row">
-                <div class="info-item">
-                    <label>状態</label>
-                    <span class="badge"
-                          th:classappend="${form.jotai == '9'} ? 'badge-sakuseichu'
-                                        : (${form.jotai == '1'} ? 'badge-mitsumori'
-                                        : (${form.jotai == '2'} ? 'badge-keiyaku' : 'badge-sakuseichu'))"
-                          th:text="${form.jotai == '9'} ? '作成中'
-                                   : (${form.jotai == '1'} ? '見積'
-                                   : (${form.jotai == '2'} ? '契約' : ${form.jotai}))"></span>
-                </div>
-                <div class="info-item">
-                    <label>承認状態</label>
-                    <span class="badge"
-                          th:classappend="${form.syouninJotai == '0'} ? 'badge-sakuseichu'
-                                        : (${form.syouninJotai == '1'} ? 'badge-shinsachu'
-                                        : (${form.syouninJotai == '2'} ? 'badge-shoninchu'
-                                        : (${form.syouninJotai == '3'} ? 'badge-shoninzumi' : 'badge-sashimodoshi')))"
-                          th:text="${form.syouninJotai == '0'} ? '作成中'
-                                   : (${form.syouninJotai == '1'} ? '審査中'
-                                   : (${form.syouninJotai == '2'} ? '承認中'
-                                   : (${form.syouninJotai == '3'} ? '承認済' : '差戻中')))"></span>
-                </div>
-            </div>
-        </div>
+      <div class="info-item delivery-code"><label for="nonyusakiCd">納入先コード</label><input id="nonyusakiCd" type="text" th:value="${form.nonyusakiCd}" th:title="${form.nonyusakiCd}" readonly class="readonly-field" /></div><div class="info-item delivery-name"><label for="nonyusakiNk">納入先名</label><input id="nonyusakiNk" type="text" th:value="${form.nonyusakiNk}" th:title="${form.nonyusakiNk}" readonly class="readonly-field" /></div>
+      <div class="info-item support-id"><label for="supportId">サポートID</label><input id="supportId" type="text" th:value="${form.supportId}" th:title="${form.supportId}" readonly class="readonly-field" /></div><div class="info-item plant-name"><label for="plantNk">プラント名</label><input id="plantNk" type="text" th:value="${form.plantNk}" th:title="${form.plantNk}" readonly class="readonly-field" /></div>
+      <div class="info-item estimate-no"><label for="umMitsumoriNo">見積NO</label><input id="umMitsumoriNo" type="text" th:field="*{umMitsumoriNo}" th:disabled="${readOnly}" class="editable-field" th:readonly="${!pendingEstimate and !adminUnlocked}" maxlength="20" /></div>
+      <div class="estimate-terms"><div class="info-item validity"><label for="mitsumorigiken">見積有効期限</label><input id="mitsumorigiken" type="text" th:field="*{mitsumorigiken}" th:disabled="${readOnly}" class="editable-field"  /></div><div class="info-item hours"><label for="keiyakujikantai">契約時間帯</label><input id="keiyakujikantai" type="text" th:field="*{keiyakujikantai}" th:disabled="${readOnly}" class="editable-field" th:readonly="${pendingEstimate}" /></div><div class="info-item level"><label for="mitsumoriLevel">見積レベル</label><input id="mitsumoriLevel" type="text" th:field="*{mitsumoriLevel}" th:disabled="${readOnly}" class="editable-field" maxlength="2" /></div></div>
+      <div class="info-item status"><label>状態</label><span class="readonly-field" th:text="${form.jotai == '9' ? '作成中' : (form.jotai == '1' ? '見積' : (form.jotai == '2' ? '契約' : form.jotai))}"></span></div>
+      <div class="info-item approval"><label>承認状態</label><span class="readonly-field" th:text="${form.syouninJotai == '0' ? '作成中' : (form.syouninJotai == '1' ? '審査中' : (form.syouninJotai == '2' ? '承認中' : (form.syouninJotai == '3' ? '承認済' : '差戻中')))}"></span></div>
+      <div class="info-item address irai"><label for="iraitenpoId">依頼元店舗・事業所</label><input th:unless="${pendingEstimate or adminUnlocked}" type="text" readonly class="readonly-field" th:value="${form.iraiKaishaMeisho}" th:title="${form.iraiKaishaMeisho}" aria-label="依頼元店舗・事業所"/><select th:if="${pendingEstimate or adminUnlocked}" th:field="*{iraitenpoId}" th:disabled="${readOnly}"><option value="">選択してください</option><option th:each="tenpo : ${tenpoChoices}" th:value="${tenpo.TENPO_ID}" th:text="${tenpo.LABEL}"></option></select></div><div class="info-item request-person"><label for="iraitantoNk">依頼元担当者</label><input id="iraitantoNk" type="text" th:field="*{iraitantoNk}" th:disabled="${readOnly}" class="editable-field"  /></div>
+      <div class="info-item address sofu"><label for="sofutenpoId">送付先店舗・事業所</label><input th:unless="${pendingEstimate or adminUnlocked}" type="text" readonly class="readonly-field" th:value="${form.sofuKaishaMeisho}" th:title="${form.sofuKaishaMeisho}" aria-label="送付先店舗・事業所"/><select th:if="${pendingEstimate or adminUnlocked}" th:field="*{sofutenpoId}" th:disabled="${readOnly}"><option value="">選択してください</option><option th:each="tenpo : ${tenpoChoices}" th:value="${tenpo.TENPO_ID}" th:text="${tenpo.LABEL}"></option></select></div><div class="info-item delivery-person"><label for="sofutantoNk">送付担当者</label><input id="sofutantoNk" type="text" th:field="*{sofutantoNk}" th:disabled="${readOnly}" class="editable-field"  /></div>
+      <div class="info-item conditions"><label for="mitsumoriJouken">見積条件</label><textarea th:field="*{mitsumoriJouken}" rows="2" th:disabled="${readOnly}"></textarea></div>
+      <div class="meta-panel header-meta"><div class="meta-row"><label>登録日時</label><span th:text="${form.createdDt}" th:title="${form.createdDt}"></span></div><div class="meta-row"><label>登録者</label><span th:text="${form.createdBy}" th:title="${form.createdBy}"></span></div><div class="meta-row"><label>更新日時</label><span th:text="${form.lastupdateDt}" th:title="${form.lastupdateDt}"></span></div><div class="meta-row"><label>更新者</label><span th:text="${form.lastupdateBy}" th:title="${form.lastupdateBy}"></span></div></div>
     </div>
 
-    <!-- ===== 依頼元・送付先店舗事業所/担当者/見積条件（右端に登録情報） ===== -->
-    <div class="grid-section" style="margin-top:6px;">
-        <div class="form-row">
-            <label>依頼元店舗・事業所</label>
-            <input type="text" th:value="${form.iraiKaishaMeisho}" readonly class="readonly-field" style="flex:1;"/>
-            <label style="margin-left:16px;">依頼元担当者</label>
-            <input type="text" th:field="*{iraitantoNk}" th:disabled="${readOnly}" style="width:140px;flex:0 0 140px;"/>
-            <div class="meta-panel" style="flex:0 0 220px;margin-left:16px;">
-                <div class="meta-row"><label>登録日時</label><span th:text="${form.createdDt}"></span></div>
-                <div class="meta-row"><label>登録者</label><span th:text="${form.createdBy}"></span></div>
-            </div>
-        </div>
-        <div class="form-row">
-            <label>送付先店舗・事業所</label>
-            <input type="text" th:value="${form.sofuKaishaMeisho}" readonly class="readonly-field" style="flex:1;"/>
-            <label style="margin-left:16px;">送付担当者</label>
-            <input type="text" th:field="*{sofutantoNk}" th:disabled="${readOnly}" style="width:140px;flex:0 0 140px;"/>
-            <div class="meta-panel" style="flex:0 0 220px;margin-left:16px;">
-                <div class="meta-row"><label>更新日時</label><span th:text="${form.lastupdateDt}"></span></div>
-                <div class="meta-row"><label>更新者</label><span th:text="${form.lastupdateBy}"></span></div>
-            </div>
-        </div>
-        <div class="form-row">
-            <label>見積条件</label>
-            <textarea th:field="*{mitsumoriJouken}" rows="2" th:disabled="${readOnly}"></textarea>
-        </div>
-    </div>
-
-    <!-- ===== 契約金額変動時期 / 添付資料（画像同様に横並び） ===== -->
+        <!-- ===== 契約金額変動時期 / 添付資料（画像同様に横並び） ===== -->
     <div class="grid-row-top">
         <div class="grid-col">
             <div class="section-title">&lt;&lt;契約金額変動時期&gt;&gt;</div>
@@ -365,6 +302,7 @@
                             <th style="width:30px;">選択</th>
                             <th style="width:100px;">開始日</th>
                             <th style="width:140px;">ハード保守費</th>
+                            <th style="width:85px;">詳細設定</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -376,14 +314,15 @@
                                 </label>
                             </td>
                             <td class="col-chk">
-                                <input type="checkbox" th:checked="${row.checkFlg}" disabled/>
+                                <input type="checkbox" name="periodSelection" th:value="${stat.index}" th:checked="${row.checkFlg}" th:disabled="${!pendingEstimate or readOnly}"/>
                             </td>
-                            <td><a th:href="@{/mcm2003u/detail(mitsumoriId=${row.umMitsumoriId})}" th:text="${row.kaisiDt}"></a></td>
+                            <td th:text="${row.kaisiDt}"></td>
                             <td class="text-right"
                                 th:text="${row.hardhosyuKin != null} ? ${#numbers.formatDecimal(row.hardhosyuKin,1,'COMMA',0,'DEFAULT')} : ''"></td>
+                            <td><span th:if="${pendingEstimate}">登録後に設定</span><a th:unless="${pendingEstimate}" th:href="@{/mcm2003u/detail(mitsumoriId=${row.umMitsumoriId})}">詳細設定</a></td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(form.mitsumoriRows)}">
-                            <td colspan="4" class="no-data-cell">契約金額変動時期データがありません。</td>
+                            <td colspan="5" class="no-data-cell">契約金額変動時期データがありません。</td>
                         </tr>
                     </tbody>
                 </table>
@@ -392,7 +331,7 @@
         <div class="grid-col">
             <div class="section-with-action">
                 <span class="section-title" style="margin:0;">&lt;&lt;添付資料&gt;&gt;</span>
-                <span th:unless="${readOnly}"><input type="file" name="file" aria-label="添付資料" style="width:180px"/><button type="submit" class="btn btn-mini" th:formaction="@{/mcm2003u/attachment/add}">ファイル追加</button></span>
+                <span class="attachment-actions" th:unless="${readOnly or pendingEstimate}"><input id="attachmentFile" type="file" name="file" aria-label="添付資料" hidden onchange="uploadSelectedAttachment()"/><button type="button" class="btn btn-mini" onclick="chooseAttachment()">ファイル追加</button><button type="button" class="btn btn-mini" id="removeAttachmentButton" th:disabled="${#lists.isEmpty(form.tenpuRows)}" onclick="removeAttachment()">ファイル削除</button></span>
             </div>
             <div class="grid-container grid-tenpu">
                 <table class="data-grid">
@@ -407,11 +346,11 @@
                         <tr th:each="row,stat : ${form.tenpuRows}">
                             <td class="col-select">
                                 <label class="row-select-label">
-                                    <input type="radio" name="tenpuRowSelect" class="row-select-radio" th:checked="${stat.index == 0}"/>
+                                    <input type="radio" name="attachmentId" class="row-select-radio" th:value="${row.umTenpuId}" th:attr="aria-label=${row.tenpufileNk},data-filename=${row.tenpufileNk}" th:checked="${stat.index == 0}"/>
                                     <span class="row-marker"></span>
                                 </label>
                             </td>
-                            <td><a th:href="@{/mcm2003u/attachment(attachmentId=${row.umTenpuId})}" th:text="${row.tenpufileNk}"></a> <button th:unless="${readOnly}" type="submit" class="btn btn-mini" name="attachmentId" th:value="${row.umTenpuId}" th:formaction="@{/mcm2003u/attachment/remove}">削除</button></td>
+                            <td><a th:href="@{/mcm2003u/attachment(attachmentId=${row.umTenpuId})}" th:text="${row.tenpufileNk}"></a></td>
                             <td th:text="${row.biko}"></td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(form.tenpuRows)}">
@@ -423,85 +362,32 @@
         </div>
     </div>
 
-    <!-- ===== 機器構成パターン（ブランド一覧） / 保守方法・契約時間帯（右側詳細） ===== -->
-    <div class="grid-row-bottom">
-        <div class="grid-col-main">
-            <div class="section-title">&lt;&lt;機器構成パターン&gt;&gt;</div>
-            <p style="font-size:11px;color:#888;margin:2px 0 4px;">
-                ブランド詳細の編集は「詳細設定」リンクより MCM2005U で行ってください。
-            </p>
-            <div class="grid-container grid-brand">
-                <table class="data-grid">
-                    <thead>
-                        <tr>
-                            <th class="col-select"></th>
-                            <th style="width:160px;">機器構成名</th>
-                            <th style="width:220px;">ブランド詳細名</th>
-                            <th style="width:100px;">契約時間帯</th>
-                            <th style="width:100px;" class="text-right">ハード保守費</th>
-                            <th style="width:80px;">詳細設定</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="row,stat : ${form.brandRows}">
-                            <td class="col-select">
-                                <label class="row-select-label">
-                                    <input type="radio" name="brandRowSelect" class="row-select-radio" th:checked="${selectedBrand != null and row.umKihonBrandId == selectedBrand.umKihonBrandId}" th:attr="data-url=@{/mcm2003u(brandId=${row.umKihonBrandId})}" onchange="navigatePreserving(this.dataset.url,'brand')"/>
-                                    <span class="row-marker"></span>
-                                </label>
-                            </td>
-                            <td th:text="${row.brandNk}"></td>
-                            <td th:text="${row.brandsyosaiNk}"></td>
-                            <td th:text="${row.keiyakujikantai}"></td>
-                            <td class="text-right"
-                                th:text="${row.hardhosyuKin != null} ? ${#numbers.formatDecimal(row.hardhosyuKin,1,'COMMA',0,'DEFAULT')} : ''"></td>
-                            <td>
-                                <a th:href="@{/mcm2003u/detail(brandId=${row.umKihonBrandId})}">詳細設定</a>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(form.brandRows)}">
-                            <td colspan="6" class="no-data-cell">ブランドデータがありません。</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <div class="grid-col-side" th:with="b=${selectedBrand}">
-            <div class="summary-box" style="height:170px; overflow-y:auto;">
-                <div class="kikan-side-header">
-                    <label>契約時間帯</label>
-                    <input type="text" th:value="${b != null} ? ${b.keiyakujikantai} : ''" readonly class="readonly-field" style="width:50px;flex:0 0 50px;"/>
-                    <label class="chk-label"><input type="checkbox" th:checked="${b != null and b.dremosFlg}" disabled/>DREMOS契約</label>
-                    <label class="chk-label"><input type="checkbox" th:checked="${b != null and b.remoteFlg}" disabled/>リモート保守</label>
-                    <label class="chk-label"><input type="checkbox" th:checked="${b != null and b.softFlg}" disabled/>ソフト契約</label>
-                </div>
-                <div class="form-row">
-                    <label>保守方法</label>
-                    <textarea th:field="*{hosyuhoho}" rows="5" th:disabled="${readOnly}"></textarea>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== 機器明細（左） / システムサポート費・ソフトウェア保守費・補正・登録情報（右） ===== -->
-    <div class="grid-row-cost" th:with="b=${selectedBrand}">
-        <div class="grid-col-main">
+    <!-- VB: ブランド別タブ内の機器構成・機器明細・保守条件。 -->
+    <section class="brand-section" th:with="b=${selectedBrand}"><div class="brand-tabs" role="group" aria-label="ブランド選択"><button th:each="row : ${form.brandRows}" type="button" class="brand-tab" th:classappend="${selectedBrand != null and row.umKihonBrandId == selectedBrand.umKihonBrandId} ? 'active'" th:attr="aria-pressed=${selectedBrand != null and row.umKihonBrandId == selectedBrand.umKihonBrandId},data-url=@{/mcm2003u(brandId=${row.umKihonBrandId})},data-brand-id=${row.umKihonBrandId}" th:title="${row.brandsyosaiNk}" th:text="${#strings.isEmpty(row.brandsyosaiNk) ? row.brandNk : row.brandsyosaiNk}" onclick="navigatePreserving(this.dataset.url,'brand')"></button><span th:if="${#lists.isEmpty(form.brandRows)}">ブランドデータがありません。</span></div>
+    <div class="brand-content"><div class="equipment-config"><div class="section-title">&lt;&lt;機器構成パターン&gt;&gt;</div>
+      <div class="grid-container grid-kosei"><table class="data-grid"><colgroup><col style="width:20px"/><col style="width:150px"/><col style="width:70px"/><col style="width:60px"/><col style="width:110px"/><col style="width:120px"/><col style="width:140px"/></colgroup>
+        <thead><tr><th class="col-select"></th><th>機器構成名</th><th>セット数</th><th>単位</th><th>手配製番</th><th>保守方法</th><th>備考</th></tr></thead>
+        <tbody><tr th:each="row,stat : ${visibleKosei}" th:attr="data-kosei-id=${row.umKikikoseiId}">
+          <td class="col-select"><label class="row-select-label"><input type="radio" name="koseiRowSelect" class="row-select-radio" th:value="${row.umKikikoseiId}" th:checked="${stat.first}" th:attr="aria-label=${row.kikikoseiNk}" onchange="selectKosei(this.value)"/><span class="row-marker"></span></label></td>
+          <td th:text="${row.kikikoseiNk}" th:title="${row.kikikoseiNk}"></td><td class="text-right" th:text="${row.setNm != null ? row.setNm.stripTrailingZeros().toPlainString() : ''}"></td><td th:text="${row.tani}"></td><td th:text="${row.tehaiseiban}" th:title="${row.tehaiseiban}"></td><td><select aria-label="機器構成の保守方法" th:name="${'kosei.' + row.umKikikoseiId.stripTrailingZeros().toPlainString() + '.hosyuhoho'}" th:disabled="${readOnly}"><option value="" th:selected="${row.hosyuhoho == ''}"></option><option value="F" th:selected="${row.hosyuhoho == 'F'}">ｵﾝｻｲﾄ</option><option value="S" th:selected="${row.hosyuhoho == 'S'}">ｾﾝﾄﾞﾊﾞｯｸ</option><option value="C" th:selected="${row.hosyuhoho == 'C'}">ｺﾝﾃｯｸ製品</option><option value="H" th:selected="${row.hosyuhoho == 'H'}">持ち帰り</option><option value="I" th:selected="${row.hosyuhoho == 'I'}">ｽﾎﾟｯﾄ</option><option value="T" th:selected="${row.hosyuhoho == 'T'}">TEL対応</option></select></td><td><input type="text" aria-label="機器構成の備考" th:name="${'kosei.' + row.umKikikoseiId.stripTrailingZeros().toPlainString() + '.biko'}" th:value="${row.biko}" th:readonly="${readOnly}" maxlength="4000"/></td>
+        </tr><tr th:if="${#lists.isEmpty(visibleKosei)}"><td colspan="7" class="no-data-cell">機器構成データがありません。</td></tr></tbody>
+      </table></div></div>        <div class="equipment-details">
             <div class="section-title">&lt;&lt;機器明細&gt;&gt;</div>
-            <div class="grid-container grid-meisai" style="height:220px;">
+            <div class="grid-container grid-meisai">
                 <table class="data-grid">
                     <thead>
                         <tr>
                             <th class="col-select"></th>
-                            <th style="width:140px;">製造メーカー名</th>
-                            <th style="width:200px;">品名</th>
-                            <th style="width:140px;">型式</th>
-                            <th style="width:70px;" class="text-right">数量</th>
-                            <th style="width:70px;" class="text-right">総数</th>
-                            <th style="width:160px;">備考</th>
+                            <th style="width:120px;">製造メーカー名</th>
+                            <th style="width:120px;">品名</th>
+                            <th style="width:120px;">型式</th>
+                            <th style="width:55px;" class="text-right">数量</th>
+                            <th style="width:55px;" class="text-right">総数</th>
+                            <th style="width:150px;">備考</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="row,stat : ${visibleMeisai}">
+                        <tr th:each="row,stat : ${visibleMeisai}" th:attr="data-kosei-id=${row.umKikikoseiId}" th:hidden="${#lists.isEmpty(visibleKosei) or row.umKikikoseiId != visibleKosei[0].umKikikoseiId}">
                             <td class="col-select">
                                 <label class="row-select-label">
                                     <input type="radio" name="meisaiRowSelect" class="row-select-radio" th:checked="${stat.index == 0}"/>
@@ -511,39 +397,36 @@
                             <td th:text="${row.seizomakerNk}"></td>
                             <td th:text="${row.kikihinmeiNk}"></td>
                             <td th:text="${row.kikikatashiki}"></td>
-                            <td class="text-right" th:text="${row.suryoNm != null} ? ${#numbers.formatDecimal(row.suryoNm,1,0)} : ''"></td>
-                            <td class="text-right" th:text="${row.sosuNm != null} ? ${#numbers.formatDecimal(row.sosuNm,1,0)} : ''"></td>
+                            <td class="text-right" th:text="${row.suryoNm != null} ? ${row.suryoNm.stripTrailingZeros().toPlainString()} : ''"></td>
+                            <td class="text-right" th:text="${row.sosuNm != null} ? ${row.sosuNm.stripTrailingZeros().toPlainString()} : ''"></td>
                             <td th:text="${row.biko}"></td>
                         </tr>
-                        <tr th:if="${#lists.isEmpty(form.meisaiRows)}">
+                        <tr id="emptyMeisai" hidden>
                             <td colspan="7" class="no-data-cell">機器明細データがありません。</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="cost-side">
+<div class="brand-maintenance"><div class="kikan-side-header"><label>契約時間帯 <input type="text" th:value="${b != null ? b.keiyakujikantai : ''}" name="brand.keiyakujikantai" data-brand-calc="keiyakujikantai" th:disabled="${readOnly or b == null}" pattern="[0-9]{1,2}" maxlength="2" aria-label="ブランド契約時間帯"/></label><label class="chk-label"><input type="checkbox" th:checked="${b != null and b.dremosFlg}" name="brand.dremosFlg" value="true" th:disabled="${readOnly or b == null}"/>DREMOS契約</label><label class="chk-label"><input type="checkbox" th:checked="${b != null and b.remoteFlg}" name="brand.remoteFlg" value="true" th:disabled="${readOnly or b == null}"/>リモート保守</label><label class="chk-label"><input type="checkbox" th:checked="${b != null and b.softFlg}" name="brand.softFlg" value="true" th:disabled="${readOnly or b == null}"/>ソフト契約</label></div>
+      <input type="hidden" name="brandEditPresent" value="true" th:disabled="${readOnly or b == null}"/><div class="maintenance-method"><label for="brandSoftHosyuhoho">保守方法</label><input type="hidden" name="editedBrandId" th:value="${b != null ? b.umKihonBrandId : ''}"/><textarea id="brandSoftHosyuhoho" name="brandSoftHosyuhoho" th:text="${b != null ? b.softHosyuhoho : ''}" th:disabled="${readOnly or b == null}" maxlength="4000"></textarea></div></div>        <div class="cost-side">
             <div class="cost-top-row">
                 <div class="cost-box">
                     <div class="section-title">&lt;&lt;システムサポート費&gt;&gt;</div>
                     <div class="summary-box">
                         <div class="summary-row"><span>システム設計費</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.systemSekkeiKin != null} ? ${#numbers.formatDecimal(b.systemSekkeiKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-systemSekkeiKin" th:value="${b != null and b.systemSekkeiKin != null ? b.systemSekkeiKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                         <div class="summary-row"><span>基本設計費</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.kihonSekkeiKin != null} ? ${#numbers.formatDecimal(b.kihonSekkeiKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-kihonSekkeiKin" th:value="${b != null and b.kihonSekkeiKin != null ? b.kihonSekkeiKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                         <div class="summary-row"><span>プログラム作成費</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.programSakuseiKin != null} ? ${#numbers.formatDecimal(b.programSakuseiKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-programSakuseiKin" th:value="${b != null and b.programSakuseiKin != null ? b.programSakuseiKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                         <div class="summary-row summary-total"><span>小計</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.systemSupportSyokeiKin != null} ? ${#numbers.formatDecimal(b.systemSupportSyokeiKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-systemSupportSyokeiKin" th:value="${b != null and b.systemSupportSyokeiKin != null ? b.systemSupportSyokeiKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                     </div>
                 </div>
                 <div class="cost-box">
-                    <div class="meta-panel">
-                        <div class="meta-row"><label>登録日時</label><span th:text="${form.createdDt}"></span></div>
-                        <div class="meta-row"><label>登録者</label><span th:text="${form.createdBy}"></span></div>
-                        <div class="meta-row"><label>更新日時</label><span th:text="${form.lastupdateDt}"></span></div>
-                        <div class="meta-row"><label>更新者</label><span th:text="${form.lastupdateBy}"></span></div>
-                    </div>
+<div class="meta-panel brand-meta"><div class="meta-row"><label>登録日時</label><span th:text="${b != null ? b.createdDt : null}" th:title="${b != null ? b.createdDt : null}"></span></div><div class="meta-row"><label>登録者</label><span th:text="${b != null ? b.createdBy : null}" th:title="${b != null ? b.createdBy : null}"></span></div><div class="meta-row"><label>更新日時</label><span th:text="${b != null ? b.lastupdateDt : null}" th:title="${b != null ? b.lastupdateDt : null}"></span></div><div class="meta-row"><label>更新者</label><span th:text="${b != null ? b.lastupdateBy : null}" th:title="${b != null ? b.lastupdateBy : null}"></span></div></div>
+
                 </div>
             </div>
             <div class="cost-bottom-row">
@@ -551,42 +434,44 @@
                     <div class="section-title">&lt;&lt;ソフトウェア保守費&gt;&gt;</div>
                     <div class="summary-box">
                         <div class="summary-row"><span>システムサポート費</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.systemSupportKin != null} ? ${#numbers.formatDecimal(b.systemSupportKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-systemSupportKin" th:value="${b != null and b.systemSupportKin != null ? b.systemSupportKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                         <div class="summary-row"><span>DTSサポート費</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.dtsSupportKin != null} ? ${#numbers.formatDecimal(b.dtsSupportKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-dtsSupportKin" th:value="${b != null and b.dtsSupportKin != null ? b.dtsSupportKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                         <div class="summary-row"><span>ダイフク技術料</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.daifukuGijutsuKin != null} ? ${#numbers.formatDecimal(b.daifukuGijutsuKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-daifukuGijutsuKin" th:value="${b != null and b.daifukuGijutsuKin != null ? b.daifukuGijutsuKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                         <div class="summary-row summary-total"><span>小計</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.softHosyuKin != null} ? ${#numbers.formatDecimal(b.softHosyuKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-softHosyuKin" th:value="${b != null and b.softHosyuKin != null ? b.softHosyuKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                     </div>
                 </div>
                 <div class="cost-box">
                     <div class="section-title">&lt;&lt;補正&gt;&gt;</div>
                     <div class="summary-box">
                         <div class="summary-row"><span>システムサポート費</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.hoseiSystemSupportKin != null} ? ${#numbers.formatDecimal(b.hoseiSystemSupportKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-hoseiSystemSupportKin" th:value="${b != null and b.hoseiSystemSupportKin != null ? b.hoseiSystemSupportKin.stripTrailingZeros().toPlainString() : '0'}" name="brand.hoseiSystemSupportKin" data-brand-calc="hoseiSystemSupportKin" th:readonly="${readOnly or b == null}" inputmode="decimal" pattern="-?[0-9]{1,12}(\.[0-9]{1,6})?" aria-label="補正システムサポート費"/></div>
                         <div class="summary-row"><span>DTSサポート費</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.hoseiDtsSupportKin != null} ? ${#numbers.formatDecimal(b.hoseiDtsSupportKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-hoseiDtsSupportKin" th:value="${b != null and b.hoseiDtsSupportKin != null ? b.hoseiDtsSupportKin.stripTrailingZeros().toPlainString() : '0'}" readonly/></div>
                         <div class="summary-row"><span>ダイフク技術料</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.hoseiDaifukuGijutsuKin != null} ? ${#numbers.formatDecimal(b.hoseiDaifukuGijutsuKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-hoseiDaifukuGijutsuKin" th:value="${b != null and b.hoseiDaifukuGijutsuKin != null ? b.hoseiDaifukuGijutsuKin.stripTrailingZeros().toPlainString() : '0'}" name="brand.hoseiDaifukuGijutsuKin" data-brand-calc="hoseiDaifukuGijutsuKin" th:readonly="${readOnly or b == null}" inputmode="decimal" pattern="-?[0-9]{1,12}(\.[0-9]{1,6})?" aria-label="補正ダイフク技術料"/></div>
                         <div class="summary-row summary-total"><span>小計</span>
-                            <input type="text" class="summary-val" readonly th:value="${b != null and b.hoseiSoftHosyuKin != null} ? ${#numbers.formatDecimal(b.hoseiSoftHosyuKin,1,'COMMA',0,'DEFAULT')} : '¥0'"/></div>
+                            <input type="text" class="summary-val" id="cost-hoseiSoftHosyuKin" th:value="${b != null and b.hoseiSoftHosyuKin != null ? b.hoseiSoftHosyuKin.stripTrailingZeros().toPlainString() : '0'}" name="brand.hoseiSoftHosyuKin" data-brand-calc="hoseiSoftHosyuKin" th:readonly="${readOnly or b == null}" inputmode="decimal" pattern="-?[0-9]{1,12}(\.[0-9]{1,6})?" aria-label="補正小計"/></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+</div>
+    <div class="brand-detail-action"><span th:if="${pendingEstimate}">詳細設定は見積登録後に行えます。</span><a th:if="${!pendingEstimate and b != null}" class="btn btn-mini" th:href="@{/mcm2003u/detail(brandId=${b.umKihonBrandId})}">選択ブランドの詳細設定</a></div>
+    </section>
 
-    <!-- ===== フッターツールバー（VB版配置：店舗見積・契約検索画面へ/ロック解除 = 左, 申請/見積発行/見積登録 = 右） ===== -->
+    <!-- ===== フッターツールバー（VB版配置：検索画面へ = 左、ロック解除/申請/見積発行/見積登録 = 右） ===== -->
     <div class="toolbar">
-        <a th:href="@{/mcm2003u/back}" class="btn">店舗見積・契約検索画面へ</a>
+        <a th:href="@{/mcm2003u/back}" class="btn" th:text="${backLabel}">店舗見積・契約検索画面へ</a>
         <span class="spacer"></span>
-        <a th:href="@{/mcm2003u/lock-release}" class="btn">再読み込み</a>
+        <button th:if="${canUnlock}" th:disabled="${adminUnlocked}" type="submit" form="unlockForm" formnovalidate class="btn" id="lockReleaseButton">ロック解除</button>
         <button type="button" class="btn btn-success"
-                th:disabled="${readOnly or (form.syouninJotai != null and form.syouninJotai != '0' and form.syouninJotai != '4')}"
+                th:disabled="${readOnly or pendingEstimate or (form.syouninJotai != null and form.syouninJotai != '0' and form.syouninJotai != '4')}"
                 onclick="confirmSinsei()">申請</button>
         <button type="button" class="btn btn-warning"
-                th:disabled="${readOnly}"
+                th:disabled="${readOnly or pendingEstimate}"
                 onclick="doPublish()">見積発行</button>
         <button type="button" class="btn btn-primary"
                 th:disabled="${readOnly}"
@@ -594,6 +479,10 @@
     </div>
 </form>
 
+<form id="unlockForm" th:if="${canUnlock}" th:action="@{/mcm2003u/lock-release}" method="post" onsubmit="return confirm('未保存の入力を破棄して最新情報を読み込み、編集制限を解除します。よろしいですか？')">
+    <input type="hidden" name="workflowToken" th:value="${workflowToken}"/>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+</form>
 <!-- ===== 申請フォーム（ダイアログ確認後サブミット） ===== -->
 <form id="sinseiForm" th:action="@{/mcm2003u/sinsei}" method="post" style="display:none;">
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
@@ -625,13 +514,13 @@
     // ---- 見積登録 ----
     function doSave() {
         document.getElementById('mainForm').action = savePath;
-        document.getElementById('mainForm').submit();
+        document.getElementById('mainForm').requestSubmit();
     }
 
     // ---- 見積発行 ----
     function doPublish() {
         document.getElementById('mainForm').action = publishPath;
-        document.getElementById('mainForm').submit();
+        document.getElementById('mainForm').requestSubmit();
     }
 
     // ---- 申請確認ダイアログ表示 ----
@@ -642,12 +531,52 @@
         document.getElementById('sinseiDlg').classList.remove('active');
     }
     function submitSinsei() {
+        closeSinseiDlg();
         document.getElementById('mainForm').action = /*[[@{/mcm2003u/sinsei}]]*/ '/mcm2003u/sinsei';
-        document.getElementById('mainForm').submit();
+        document.getElementById('mainForm').requestSubmit();
     }
 /*]]>*/
 </script>
 <script th:inline="javascript">
+// 一行入力中のEnterで先頭の添付追加／選定戻りを暗黙実行しない。
+document.getElementById('mainForm').addEventListener('keydown',event=>{
+    if(event.key==='Enter' && event.target.matches('input:not([type=button]):not([type=submit]):not([type=file]),select'))event.preventDefault();
+});
+function chooseAttachment(){
+    const form=document.getElementById('mainForm');
+    if(!form.reportValidity())return;
+    const file=document.getElementById('attachmentFile');
+    file.value='';
+    file.click();
+}
+function uploadSelectedAttachment(){
+    const file=document.getElementById('attachmentFile');
+    if(!file.files.length)return;
+    const form=document.getElementById('mainForm');
+    form.action=/*[[@{/mcm2003u/attachment/add}]]*/ '/mcm2003u/attachment/add';
+    form.requestSubmit();
+}
+function removeAttachment(){
+    const selected=document.querySelector('input[name=attachmentId]:checked');
+    if(!selected)return;
+    if(!confirm('「'+selected.dataset.filename+'」を添付資料から削除します。よろしいですか？'))return;
+    const form=document.getElementById('mainForm');
+    form.action=/*[[@{/mcm2003u/attachment/remove}]]*/ '/mcm2003u/attachment/remove';
+    form.requestSubmit();
+}
+document.querySelectorAll('.grid-tenpu tbody tr').forEach(row=>row.addEventListener('click',event=>{
+    if(event.target.closest('a'))return;
+    const selected=row.querySelector('input[name=attachmentId]');if(selected)selected.checked=true;
+}));
+function selectKosei(id){
+    const key=value=>String(value).replace(/\.0+$/,'');
+    let count=0;
+    document.querySelectorAll('.grid-meisai tr[data-kosei-id]').forEach(row=>{row.hidden=key(row.dataset.koseiId)!==key(id);if(!row.hidden)count++;});
+    document.getElementById('emptyMeisai').hidden=count>0;
+    const first=document.querySelector('.grid-meisai tr[data-kosei-id]:not([hidden]) input[type=radio]');if(first)first.checked=true;
+}
+document.querySelectorAll('.grid-kosei tr[data-kosei-id]').forEach(row=>row.addEventListener('click',()=>{const radio=row.querySelector('input[type=radio]');radio.checked=true;selectKosei(radio.value);}));
+selectKosei(document.querySelector('[name=koseiRowSelect]:checked')?.value);
 function navigatePreserving(href,destination){
     const url=new URL(href,location.href),form=document.getElementById('mainForm');
     for(const key of ['brandId','mitsumoriId','destination'])form.querySelectorAll('input[name="'+key+'"]').forEach(el=>el.remove());
@@ -656,5 +585,10 @@ function navigatePreserving(href,destination){
     form.action=/*[[@{/mcm2003u/navigate}]]*/ '/mcm2003u/navigate';form.requestSubmit();
 }
 document.querySelectorAll('a[href*="/mcm2003u/detail?"]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();navigatePreserving(link.href,'detail');}));
-</script></body>
+</script><div class="section" th:if="${reportAvailable}"><a class="btn-default" th:href="@{/mcm2001p/download}">発行したExcel帳票をダウンロード</a></div>
+<div class="section" th:if="${mailSetupRequired}">申請メールを使用する前に、管理者によるメール設定が必要です。</div>
+<div class="section" th:if="${mailStatusMessage}"><p th:text="${mailStatusMessage}"></p><form th:if="${mailStatus == 'FAILED' or mailStatus == 'PENDING'}" th:action="@{/mcm2003u/mail/retry}" method="post"><input type="hidden" name="workflowToken" th:value="${workflowToken}"/><button class="btn-default" type="submit" onclick="return confirm('送信状況を確認しましたか？受信済みの場合は重複して届く可能性があります。')">申請メールを再送</button></form></div>
+<iframe title="Excel帳票ダウンロード" hidden th:if="${downloadReport}" th:src="@{/mcm2001p/download}"></iframe>
+<script th:src="@{/js/mcm2003u-edits.js(v=20260911-edit1)}"></script>
+</body>
 </html>

@@ -1,151 +1,17 @@
 <!DOCTYPE html>
-<!--
-  【変換元】Mcm2007uScreen1.Designer.vb / Mcm2007uScreen1.vb
-  MCM2007U Step1 — 店舗見積・ブランド選択
-  DB書き込みなし（SELECT専用）
--->
-<html xmlns:th="http://www.thymeleaf.org" lang="ja">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="_csrf"        th:content="${_csrf != null} ? ${_csrf.token}      : ''"/>
-    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
-    <title>MCM2007U - ユーザ契約内容変更 Step1</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        body { margin: 0; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px; background: #fff; }
-        button { cursor: pointer; -webkit-user-select: none; user-select: none; }
-
-        .header {
-            display: flex; align-items: center; justify-content: space-between;
-            background-color: #453f78; color: #fff;
-            height: 30px; padding: 0 10px;
-        }
-        .header .header-center { flex: 1; text-align: center; }
-        .header .header-center h1 { margin: 0; font-size: 16px; font-weight: bold; color: #fff; letter-spacing: 1px; line-height: 30px; }
-        .header .header-left, .header .header-right { display: flex; align-items: center; }
-        .btn-close {
-            display: inline-block; padding: 2px 12px; font-size: 12px; color: #000;
-            background-color: #f0f0f0; border: 1px solid #adadad;
-            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
-        }
-        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
-
-        .action-bar { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-bottom: 1px solid #ccc; background: #f0f0f0; }
-        .btn-primary { padding: 3px 14px; font-size: 12px; background: #0078d4; color: #fff; border: 1px solid #0067b8; border-radius: 2px; }
-        .btn-primary:hover:not(:disabled) { background: #0067b8; }
-        .btn-default { padding: 3px 14px; font-size: 12px; background: #e1e1e1; color: #000; border: 1px solid #adadad; border-radius: 2px; }
-        .btn-default:hover { background: #e5f1fb; border-color: #0078d4; }
-
-        .msg-area { padding: 4px 10px; }
-        .msg-error { background: #f8d7da; border: 1px solid #f5c2c7; color: #842029; padding: 4px 10px; border-radius: 3px; margin-bottom: 4px; }
-
-        .section { padding: 6px 10px; border-bottom: 1px solid #e0e0e0; }
-        .section-title { font-size: 12px; font-weight: bold; color: #fff; background: #453f78; padding: 2px 8px; margin-bottom: 6px; display: inline-block; border-radius: 2px; }
-        .form-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-        .form-row label { white-space: nowrap; min-width: 80px; color: #333; font-size: 12px; }
-        .form-row input[type="text"] { height: 22px; border: 1px solid #aaa; padding: 0 4px; font-size: 12px; border-radius: 2px; }
-
-        .data-grid { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
-        .data-grid th { background: #453f78; color: #fff; padding: 3px 6px; text-align: left; font-weight: bold; white-space: nowrap; border: 1px solid #6860a0; }
-        .data-grid td { padding: 2px 6px; border: 1px solid #ddd; }
-        .data-grid tr:nth-child(even) td { background: #f8f6ff; }
-        .data-grid tr:hover td { background: #e8e0f0; }
-        .data-grid input[type="checkbox"] { cursor: pointer; }
-
-        .step-indicator { padding: 6px 10px; background: #f5f0ff; border-bottom: 1px solid #d0c8e8; font-size: 12px; color: #453f78; }
-        .step-indicator strong { font-size: 13px; }
-    </style>
-    <script th:src="@{/js/common.js}"></script>
-    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
-    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
-</head>
-<body>
-
-<!-- ヘッダー -->
-<div class="header">
-    <div class="header-left">
-        <span th:text="${functionId}" style="font-size:11px; opacity:0.8;"></span>
-    </div>
-    <div class="header-center"><h1>ユーザ契約内容変更</h1></div>
-    <div class="header-right">
-        <a th:href="@{/mcm2007u/back}" class="btn-close">キャンセル</a>
-    </div>
-</div>
-
-<!-- ステップインジケータ -->
-<div class="step-indicator">
-    <strong>Step 1/2</strong> — 店舗見積・ブランド選択　→　Step 2: 機器構成・個体選択
-</div>
-
-<!-- メッセージ -->
-<div class="msg-area">
-    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
-</div>
-
-<!-- フォーム -->
-<form th:action="@{/mcm2007u/step2}" method="post">
-    <input type="hidden" name="workflowToken" th:value="${workflowToken}"/>
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
-
-    <!-- 期間入力 -->
-    <div class="section">
-        <span class="section-title">適用期間</span>
-        <div class="form-row">
-            <label>開始日</label>
-            <input type="text" name="kaisiDt" th:value="${form.kaisiDt}" th:readonly="${form.ukKeiyakuId != null}" placeholder="yyyy/MM/dd" style="width:100px;"/>
-            <label>終了日 <span style="color:red;">*</span></label>
-            <input type="text" name="syuryoDt" th:value="${form.syuryoDt}" placeholder="yyyy/MM/dd" style="width:100px;"/>
-        </div>
-    </div>
-
-    <!-- 店舗見積一覧 -->
-    <div class="section">
-        <span class="section-title">店舗見積選択</span>
-        <div th:if="${form.mitsumoriRows.isEmpty()}" style="color:#888; padding:4px;">
-            対象の店舗見積がありません（承認済み・廃棄でない見積が必要です）
-        </div>
-        <table class="data-grid" th:if="${!form.mitsumoriRows.isEmpty()}">
-            <thead>
-                <tr>
-                    <th style="width:40px;">選択</th>
-                    <th>見積NO</th>
-                    <th>開始日</th>
-                    <th>終了日</th>
-                    <th>ブランド名</th>
-                    <th>ブランド詳細名</th>
-                    <th>契約時間帯</th>
-                    <th>保守方法</th>
-                </tr>
-            </thead>
-            <tbody>
-                <th:block th:each="mitsumori, mStat : ${form.mitsumoriRows}">
-                    <tr th:each="brand, bStat : ${mitsumori.brandRows}">
-                        <td style="text-align:center;">
-                            <input type="checkbox"
-                                   name="brandSelection" th:value="${brands.indexOf(brand)}"
-                                   th:checked="${brand.checkFlg}"/>
-                        </td>
-                        <!-- 見積行（ブランドが複数の場合も個別に表示） -->
-                        <td th:text="${mitsumori.umMitsumoriNo}"></td>
-                        <td th:text="${mitsumori.kaisiDt}"></td>
-                        <td th:text="${mitsumori.syuryoDt}"></td>
-                        <td th:text="${brand.brandNk}"></td>
-                        <td th:text="${brand.brandsyosaiNk}"></td>
-                        <td th:text="${brand.keiyakujikantai}"></td>
-                        <td th:text="${brand.hosyuhoho}"></td>
-                    </tr>
-                </th:block>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- アクション -->
-    <div class="action-bar">
-        <button type="submit" class="btn-primary">次へ &gt;</button>
-        <a th:href="@{/mcm2007u/back}" class="btn-default" style="text-decoration:none; padding:3px 14px;">キャンセル</a>
-    </div>
-</form>
-
-</body>
-</html>
+<!-- Mcm2007uScreen.Designer.vb / Mcm2007uScreen.vb: Step1の見積選択と参照明細 -->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MCM2007U - ユーザ契約内容変更 Step1</title>
+<script th:src="@{/js/common.js}"></script><link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/><script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+<link rel="stylesheet" th:href="@{/css/mcm-customer-screens.css(v=20260911-title2)}"/><link rel="stylesheet" th:href="@{/css/mcm2007u-step1.css(v=20260912-step1)}"/><script defer th:src="@{/js/mcm2007u-step1.js(v=20260912-step1)}"></script></head>
+<body class="mcm-customer-screen mcm2007u-step1"><div class="header"><div class="header-left"></div><div class="header-center"><h1>ユーザ契約内容変更（MCM2007U）</h1></div><div class="header-right"><a th:href="@{/mcm2007u/back}" class="btn-close">閉じる</a></div></div>
+<div class="msg-area"><th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block></div>
+<form id="selectionForm" th:action="@{/mcm2007u/step2}" method="post"><input type="hidden" name="workflowToken" th:value="${workflowToken}"/><input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/><input type="hidden" id="selectedEstimateIndex" name="selectedEstimateIndex" th:value="${form.selectedEstimateIndex}"/>
+<noscript>見積の切替と選択にはJavaScriptを有効にしてください。</noscript><div class="selection-workspace"><main class="selection-canvas">
+<div class="context-grid">
+<label for="nonyusakiCd">納入先コード</label><input id="nonyusakiCd" readonly th:value="${form.nonyusakiCd}"/><label for="nonyusakiNk">納入先名</label><input id="nonyusakiNk" readonly th:value="${form.nonyusakiNk}"/>
+<label for="supportId">サポートID</label><input id="supportId" readonly th:value="${form.supportId}"/><label for="plantNk">プラント名</label><input id="plantNk" readonly th:value="${form.plantNk}"/>
+<label for="contractNo">契約NO</label><input id="contractNo" readonly th:value="${contractNo}"/><label for="kaisiDt">期間</label><div class="period-fields"><input id="kaisiDt" name="kaisiDt" th:value="${form.kaisiDt}" th:readonly="${form.ukKeiyakuId != null}" aria-label="期間の開始日" placeholder="yyyy/MM/dd"/><span>～</span><input id="syuryoDt" name="syuryoDt" th:value="${form.syuryoDt}" aria-label="期間の終了日" placeholder="yyyy/MM/dd"/></div>
+</div><div class="top-grids"><section><h2 class="grid-heading">≪店舗見積情報≫</h2><div class="grid-scroll" id="estimateScroll"><table class="data-grid" id="estimateTable" style="width:470px"><colgroup><col style="width:32px"/><col style="width:30px"/><col style="width:100px"/><col style="width:90px"/><col style="width:69px"/><col style="width:69px"/><col style="width:80px"/></colgroup><thead><tr><th aria-label="行番号"></th><th></th><th>見積NO</th><th>見積作成日</th><th>開始日</th><th>終了日</th><th>見積金額</th></tr></thead><tbody><tr th:each="row,stat : ${form.mitsumoriRows}" th:attr="data-estimate=${stat.index}" tabindex="0"><td class="row-number" th:text="${stat.count}"></td><td class="check-cell"><input type="checkbox" class="estimate-check" th:checked="${row.checkFlg}" th:attr="aria-label=|見積 ${row.umMitsumoriNo} ${row.kaisiDt} を選択|"/></td><td th:text="${row.display['UM_MITSUMORI_NO']}" th:title="${row.display['UM_MITSUMORI_NO']}"></td><td th:text="${row.display['MITSUMORI_DT']}" th:title="${row.display['MITSUMORI_DT']}"></td><td th:text="${row.display['KAISI_DT']}" th:title="${row.display['KAISI_DT']}"></td><td th:text="${row.display['SYURYO_DT']}" th:title="${row.display['SYURYO_DT']}"></td><td class="amount" th:text="${row.display['MITSUMORI_GKIN']}" th:title="${row.display['MITSUMORI_GKIN']}"></td></tr></tbody></table><p class="empty-grid" th:if="${form.mitsumoriRows.isEmpty()}">対象の店舗見積がありません（承認済み・廃棄でない見積が必要です）。</p></div></section><section><h2 class="grid-heading">≪ブランド≫</h2><div class="grid-scroll" id="brandScroll"><table class="data-grid" id="brandTable" style="width:1127px"><colgroup><col style="width:32px"/><col style="width:100px"/><col style="width:100px"/><col style="width:60px"/><col style="width:90px"/><col style="width:100px"/><col style="width:85px"/><col style="width:95px"/><col style="width:95px"/><col style="width:80px"/><col style="width:90px"/><col style="width:200px"/></colgroup><thead><tr><th aria-label="行番号"></th><th>ブランド名</th><th>ブランド詳細</th><th>時間</th><th>保守方法</th><th>DREMOS契約</th><th>リモート保守</th><th>ハード保守費</th><th>ソフト保守費</th><th>調整費</th><th>保守費</th><th>備考</th></tr></thead><tbody th:each="estimate,stat : ${form.mitsumoriRows}" th:attr="data-estimate-panel=${stat.index}"><tr th:each="row,bs : ${estimate.brandRows}"><td class="row-number"><span th:text="${bs.count}"></span><input hidden type="checkbox" name="brandSelection" th:value="${brands.indexOf(row)}" th:checked="${row.checkFlg}"/></td><td th:text="${row.display['BRAND_NK']}" th:title="${row.display['BRAND_NK']}"></td><td th:text="${row.display['BRANDSYOSAI_NK']}" th:title="${row.display['BRANDSYOSAI_NK']}"></td><td th:text="${row.display['KEIYAKUJIKANTAI']}" th:title="${row.display['KEIYAKUJIKANTAI']}"></td><td th:text="${({'F':'オンサイト','S':'センドバック','C':'コンテック製品','H':'持ち帰り','I':'スポット','T':'TEL対応'})[row.display['HOSYUHOHO']]}" th:title="${({'F':'オンサイト','S':'センドバック','C':'コンテック製品','H':'持ち帰り','I':'スポット','T':'TEL対応'})[row.display['HOSYUHOHO']]}"></td><td class="check-cell"><input type="checkbox" disabled th:checked="${row.display['DREMOS_FLG'] == '1'}" aria-label="契約フラグ"/></td><td class="check-cell"><input type="checkbox" disabled th:checked="${row.display['REMOTE_FLG'] == '1'}" aria-label="契約フラグ"/></td><td class="amount" th:text="${row.display['HARDHOSYU_KIN']}" th:title="${row.display['HARDHOSYU_KIN']}"></td><td class="amount" th:text="${row.display['HOSEISOFTHOSHU_KIN']}" th:title="${row.display['HOSEISOFTHOSHU_KIN']}"></td><td class="amount" th:text="${row.display['CHOSEI_KIN']}" th:title="${row.display['CHOSEI_KIN']}"></td><td class="amount" th:text="${row.display['HOSHU_KIN']}" th:title="${row.display['HOSHU_KIN']}"></td><td th:text="${row.display['BIKO']}" th:title="${row.display['BIKO']}"></td></tr></tbody></table><p class="empty-grid" id="brandEmpty" hidden>ブランド情報がありません。</p></div></section></div>
+<section class="preview-section"><h2 class="grid-heading">≪機器明細≫</h2><div class="grid-scroll" id="previewScroll"><table class="data-grid" id="previewTable" style="width:1697px"><colgroup><col style="width:32px"/><col style="width:100px"/><col style="width:110px"/><col style="width:100px"/><col style="width:100px"/><col style="width:110px"/><col style="width:100px"/><col style="width:55px"/><col style="width:100px"/><col style="width:70px"/><col style="width:100px"/><col style="width:100px"/><col style="width:150px"/><col style="width:90px"/><col style="width:90px"/><col style="width:90px"/><col style="width:100px"/><col style="width:100px"/></colgroup><thead><tr><th aria-label="行番号"></th><th>ブランド名</th><th>ブランド詳細名</th><th>手配製番</th><th>製造メーカー</th><th>品名</th><th>型式</th><th>数量</th><th>標準価格</th><th>パック契約</th><th>契約内容</th><th>契約番号</th><th>保守時間</th><th>点検回数</th><th>点検曜日</th><th>保守方法</th><th>サービス形態</th><th>備考</th></tr></thead><tbody th:each="estimate,stat : ${form.mitsumoriRows}" th:attr="data-estimate-panel=${stat.index}"><tr th:each="row,ds : ${estimate.previewRows}"><td class="row-number" th:text="${ds.count}"></td><td th:text="${row['BRAND_NK']}" th:title="${row['BRAND_NK']}"></td><td th:text="${row['BRANDSYOSAI_NK']}" th:title="${row['BRANDSYOSAI_NK']}"></td><td th:text="${row['TEHAISEIBAN']}" th:title="${row['TEHAISEIBAN']}"></td><td th:text="${row['SEIZOMAKER_NK']}" th:title="${row['SEIZOMAKER_NK']}"></td><td th:text="${row['KIKIHINMEI_NK']}" th:title="${row['KIKIHINMEI_NK']}"></td><td th:text="${row['KIKIKATASHIKI']}" th:title="${row['KIKIKATASHIKI']}"></td><td class="amount" th:text="${row['SURYO_NM']}" th:title="${row['SURYO_NM']}"></td><td class="amount" th:text="${row['HYOJUN_KIN']}" th:title="${row['HYOJUN_KIN']}"></td><td class="check-cell"><input type="checkbox" disabled th:checked="${row['PACK_FLG'] == '1'}" aria-label="契約フラグ"/></td><td th:text="${row['KEIYAKUNAIYO']}" th:title="${row['KEIYAKUNAIYO']}"></td><td th:text="${row['KEIYAKU_NO']}" th:title="${row['KEIYAKU_NO']}"></td><td th:text="${supportHours[row['DAIFUKUHOSYUJIKAN_ID']]}" th:title="${supportHours[row['DAIFUKUHOSYUJIKAN_ID']]}"></td><td class="amount" th:text="${row['TENKENKAISU']}" th:title="${row['TENKENKAISU']}"></td><td th:text="${({'1':'月～金','2':'月～土','3':'月～日','4':'土・日'})[row['TENKENYOBI']]}" th:title="${({'1':'月～金','2':'月～土','3':'月～日','4':'土・日'})[row['TENKENYOBI']]}"></td><td th:text="${({'F':'オンサイト','S':'センドバック','C':'コンテック製品','H':'持ち帰り','I':'スポット','T':'TEL対応'})[row['HOSYUHOHO']]}" th:title="${({'F':'オンサイト','S':'センドバック','C':'コンテック製品','H':'持ち帰り','I':'スポット','T':'TEL対応'})[row['HOSYUHOHO']]}"></td><td th:text="${row['SERVICEKEITAI']}" th:title="${row['SERVICEKEITAI']}"></td><td th:text="${row['BIKO']}" th:title="${row['BIKO']}"></td></tr></tbody></table><p class="empty-grid" id="previewEmpty" hidden>機器明細がありません。</p></div></section>
+</main></div><div class="footer-actions"><span class="step-caption">1 / 2　店舗見積選択</span><button type="submit" class="btn-primary" id="nextButton">次へ</button></div></form></body></html>

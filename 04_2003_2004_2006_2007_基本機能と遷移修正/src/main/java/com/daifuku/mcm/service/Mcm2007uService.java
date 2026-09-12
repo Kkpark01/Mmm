@@ -47,12 +47,15 @@ public class Mcm2007uService {
 
             List<KihonBrandRowForm> allBrands = repo.findKihonBrandList(allMitsumoriIds);
 
+            var previewRows = repo.findPreviewRows(allMitsumoriIds);
+
             // 見積IDでブランドをグルーピング
             for (MitsumoriRowForm m : mitsumoriList) {
                 List<KihonBrandRowForm> brands = allBrands.stream()
                     .filter(b -> same(m.getUmMitsumoriId(), b.getUmMitsumoriId()))
                     .collect(Collectors.toList());
                 m.setBrandRows(brands);
+                m.setPreviewRows(previewRows.stream().filter(row -> m.getUmMitsumoriId().stripTrailingZeros().toPlainString().equals(row.get("UM_MITSUMORI_ID"))).collect(Collectors.toList()));
             }
         }
         form.setMitsumoriRows(mitsumoriList);
@@ -126,6 +129,11 @@ public class Mcm2007uService {
         return errors;
     }
 
+    public boolean hasDuplicateCandidates(Mcm2007uForm form) {
+        return repo.hasDuplicateIndividuals(form.getMitsumoriRows().stream()
+            .filter(MitsumoriRowForm::isCheckFlg).map(MitsumoriRowForm::getUmMitsumoriId).distinct().toList());
+    }
+
     /** VBの既存ブランドのチェック状態を復元する。 */
     public void selectExisting(Mcm2007uForm form, Mcm2006uForm.KikanTabForm tab) {
         form.setUkKikanId(tab.getUkKikanId());
@@ -133,17 +141,20 @@ public class Mcm2007uService {
             tab.getBrandRows().stream().anyMatch(old -> same(old.getUmMitsumoriId(), b.getUmMitsumoriId())
                 && same(old.getBrandkoseiId(), b.getBrandkoseiId())));
     }
-    /** 変更開始時の選択個体を維持する。見積の初期値と既存契約を合成する。 */
+    /** VBの変更開始時は既存契約の選定状態だけを復元し、候補の値は選択見積・マスターから読み込む。 */
     public void selectExistingEquipment(Mcm2007uForm form, Mcm2006uForm.KikanTabForm tab) {
         if (tab == null) return;
+        form.getKoseiRows().forEach(r->r.setCheckFlg(false));
+        form.getMeisaiRows().forEach(r->r.setCheckFlg(false));
+        form.getKotaiRows().forEach(r->r.setCheckFlg(false));
         for (var k : form.getKoseiRows()) tab.getKoseiRows().stream().filter(old -> same(old.getBrandkoseiId(),k.getBrandkoseiId()) && same(old.getKikikoseiId(),k.getKikikoseiId())).findFirst().ifPresent(old -> {
-            org.springframework.beans.BeanUtils.copyProperties(old,k); k.setCheckFlg(true);
+            k.setCheckFlg(true);
         });
         for (var m : form.getMeisaiRows()) tab.getMeisaiRows().stream().filter(old -> same(old.getBrandkoseiId(),m.getBrandkoseiId()) && same(old.getKikimeisaiId(),m.getKikimeisaiId())).findFirst().ifPresent(old -> {
-            org.springframework.beans.BeanUtils.copyProperties(old,m); m.setCheckFlg(true);
+            m.setCheckFlg(true);
         });
         for (var t : form.getKotaiRows()) tab.getKotaiRows().stream().filter(old -> same(old.getBrandkoseiId(),t.getBrandkoseiId()) && same(old.getKikimeisaiId(),t.getKikimeisaiId()) && same(old.getKotaikanriId(),t.getKotaikanriId())).findFirst().ifPresent(old -> {
-            org.springframework.beans.BeanUtils.copyProperties(old,t); t.setCheckFlg(true);
+            t.setCheckFlg(true);
         });
     }
 
@@ -178,7 +189,41 @@ public class Mcm2007uService {
             .anyMatch(k -> same(k.getKikikoseiId(), m.getKikikoseiId()) && same(k.getBrandkoseiId(), m.getBrandkoseiId()))).collect(Collectors.toList()));
         form.setKotaiRows(form.getKotaiRows().stream().filter(t -> form.getMeisaiRows().stream()
             .anyMatch(m -> same(m.getKikimeisaiId(), t.getKikimeisaiId()) && same(m.getBrandkoseiId(), t.getBrandkoseiId()))).collect(Collectors.toList()));
+        var sources=repo.findSelectionSources(selectedMitsumoriIds);
+        form.setStep2Brands(repo.findPlantBrands(form.getPlantId()));
+        for(var row:form.getStep2Brands()){
+            var selected=brands.stream().filter(b->id(b.getBrandkoseiId()).equals(row.get("BRANDKOSEI_ID"))).toList();
+            if(!selected.isEmpty()){
+                row.putAll(selected.get(0).getDisplay());
+                row.put("UM_MITSUMORI_NO",numbers(sources,row.get("BRANDKOSEI_ID"),null,null,null));
+            }
+        }
+        for(var row:form.getKoseiRows()){String numbers=numbers(sources,id(row.getBrandkoseiId()),id(row.getKikikoseiId()),null,null);row.getDisplay().put("UM_MITSUMORI_NO",numbers);row.setQuoted(row.isQuoted()&&!numbers.isBlank());}
+        for(var row:form.getMeisaiRows()){String numbers=numbers(sources,id(row.getBrandkoseiId()),id(row.getKikikoseiId()),id(row.getKikimeisaiId()),null);row.getDisplay().put("UM_MITSUMORI_NO",numbers);row.setQuoted(row.isQuoted()&&!numbers.isBlank());}
+        for(var row:form.getKotaiRows()){String numbers=numbers(sources,id(row.getBrandkoseiId()),id(row.getKikikoseiId()),id(row.getKikimeisaiId()),id(row.getKotaikanriId()));row.getDisplay().put("UM_MITSUMORI_NO",numbers);row.setQuoted(row.isQuoted()&&!numbers.isBlank());}
+        form.setSelectedBrandIndex(-1);form.setSelectedKoseiIndex(-1);
+
     }
+
+    private static String id(BigDecimal value){return value==null?"":value.stripTrailingZeros().toPlainString();}
+    private String numbers(List<java.util.Map<String,String>> rows,String brand,String kosei,String detail,String individual){
+        return rows.stream().filter(r->brand.equals(r.get("BRANDKOSEI_ID"))&&(kosei==null||kosei.equals(r.get("KIKIKOSEI_ID")))&&(detail==null||detail.equals(r.get("KIKIMEISAI_ID")))&&(individual==null||individual.equals(r.get("KOTAIKANRI_ID"))))
+            .map(r->r.get("UM_MITSUMORI_NO")).filter(v->v!=null&&!v.isBlank()).distinct().collect(Collectors.joining(", "));
+    }
+    /** VBの個体選定数から適用時のセット数・数量を再計算する。 */
+    public void prepareDeliveryQuantities(Mcm2007uForm form){
+        for(var k:form.getKoseiRows())if(k.isCheckFlg()){
+            var counts=form.getMeisaiRows().stream().filter(m->m.isCheckFlg()&&same(k.getBrandkoseiId(),m.getBrandkoseiId())&&same(k.getKikikoseiId(),m.getKikikoseiId())&&"1".equals(m.getDisplay().get("KOTAIKANRI_FLG")))
+                .map(m->form.getKotaiRows().stream().filter(t->t.isCheckFlg()&&same(t.getBrandkoseiId(),m.getBrandkoseiId())&&same(t.getKikikoseiId(),m.getKikikoseiId())&&same(t.getKikimeisaiId(),m.getKikimeisaiId())).count()).toList();
+            k.setSetNm(counts.isEmpty()||counts.stream().distinct().count()!=1?"1":Long.toString(counts.get(0)));
+        }
+        for(var m:form.getMeisaiRows())if(m.isCheckFlg()){
+            var individuals=form.getKotaiRows().stream().filter(t->same(t.getBrandkoseiId(),m.getBrandkoseiId())&&same(t.getKikikoseiId(),m.getKikikoseiId())&&same(t.getKikimeisaiId(),m.getKikimeisaiId())).toList();
+            // 個体展開されない機器の数量は既存値を保持する。
+            if(!individuals.isEmpty())m.setSuryoNm(individuals.stream().filter(Mcm2007uForm.KotaiRowForm::isCheckFlg).map(t->number(t.getDisplay().get("SURYO_NM"))).reduce(BigDecimal.ZERO,BigDecimal::add).stripTrailingZeros().toPlainString());
+        }
+    }
+    private static BigDecimal number(String value){return value==null||value.isBlank()?BigDecimal.ZERO:new BigDecimal(value);}
 
     // ===================================================================
     // Step2→Apply: バリデーション（重複個体チェック）
@@ -188,6 +233,7 @@ public class Mcm2007uService {
     public List<String> validateStep2(Mcm2007uForm form) {
         List<String> errors = new ArrayList<>(validateStep1(form));
         var seen = new java.util.HashSet<String>();
+        if(form.getKoseiRows().stream().anyMatch(r->r.isCheckFlg()&&!r.isQuoted())||form.getMeisaiRows().stream().anyMatch(r->r.isCheckFlg()&&!r.isQuoted())||form.getKotaiRows().stream().anyMatch(r->r.isCheckFlg()&&!r.isQuoted()))errors.add("選択した見積に含まれる機器・個体を選択してください。");
         for (var row : form.getMeisaiRows()) if (row.isCheckFlg() && form.getKoseiRows().stream()
                 .noneMatch(k -> k.isCheckFlg() && same(k.getKikikoseiId(), row.getKikikoseiId()) && same(k.getBrandkoseiId(), row.getBrandkoseiId())))
             errors.add("機器明細に対応する機器構成を選択してください。");

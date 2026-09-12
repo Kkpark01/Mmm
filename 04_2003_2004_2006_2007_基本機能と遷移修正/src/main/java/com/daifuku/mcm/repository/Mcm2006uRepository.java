@@ -25,7 +25,7 @@ import com.daifuku.mcm.form.Mcm2006uForm.TenkenRowForm;
  * MCM2006U ユーザ契約内容リポジトリ
  *
  * SQL Server構文使用。全テーブル名にMCM.スキーマ付与。
- * SP_UKストアドプロシージャ・ロック解除はWeb版省略。
+ * 管理者権限は担当者マスター・画面別権限で照合する。
  */
 @Repository
 public class Mcm2006uRepository {
@@ -33,6 +33,31 @@ public class Mcm2006uRepository {
     @Autowired
     private JdbcTemplate jdbc;
 
+    public boolean canReleaseLock(String loginId) {
+        return jdbc.queryForObject("""
+            SELECT COUNT(*) FROM MCM.MCM_MO_TANTO A
+            WHERE A.LOGIN_ID=? AND A.MAINTENANCE_FLG=1 AND EXISTS (
+                SELECT 1 FROM MCM.MCM_MO_TANTOKENGEN B
+                JOIN MCM.MCM_MO_KENGENKOSEI C ON C.KENGENBUNRUI_ID=B.KENGENBUNRUI_ID AND C.RIYOKENGEN_KBN=B.RIYOKENGEN_KBN
+                JOIN MCM.MCM_MO_KENGENBUNRUI D ON D.KENGENBUNRUI_ID=C.KENGENBUNRUI_ID
+                JOIN MCM.MCM_MO_KINO E ON E.KINO_ID=C.KINO_ID
+                WHERE B.TANTO_ID=A.TANTO_ID AND E.KINO_ID='MCM2006U' AND C.RIYOKENGEN_KBN='2')
+            """,Integer.class,loginId)==1;
+    }
+    public void loadDisplay(Mcm2006uForm f){com.daifuku.mcm.common.Mcm2006uFields.load(jdbc,f);}
+    public void quoteFields(KikanTabForm tab){com.daifuku.mcm.common.Mcm2006uFields.quoteFields(jdbc,tab);}
+    public void saveDisplay(Mcm2006uForm f,String user){com.daifuku.mcm.common.Mcm2006uFields.save(jdbc,f,user);}
+    public java.util.List<java.util.Map<String,Object>> tenpoChoices(){var rows=jdbc.queryForList("SELECT TENPO_ID,MEISHO1_NK,MEISHO2_NK,MEISHO3_NK,MEISHO4_NK FROM MCM.MCM_MA_TENPO ORDER BY TENPO_ID");for(var r:rows)r.put("label",java.util.List.of("MEISHO1_NK","MEISHO2_NK","MEISHO3_NK","MEISHO4_NK").stream().map(k->r.get(k)==null?"":r.get(k).toString()).filter(v->!v.isBlank()).collect(java.util.stream.Collectors.joining(" ")));return rows;}
+    public java.util.List<java.util.Map<String,Object>> hours(){var rows=jdbc.queryForList("SELECT H.* FROM MCM.MCM_MA_TORIHOSYUJIKAN H JOIN MCM.MCM_MA_TORIHIKISAKI R ON R.TORIHIKISAKI_ID=H.TORIHIKISAKI_ID WHERE R.DAIFUKU_FLG=1 ORDER BY H.HYOJIJUN,H.TORIHOSYUJIKAN_ID");for(var r:rows)r.put("label",hourLabel(r));return rows;}
+    private static String hourLabel(java.util.Map<String,Object> r){String label=numberText(r.get("HOSYUJIKAN_DT"))+"H "+day(r.get("KAISIYOBI"))+"～"+day(r.get("SYURYOYOBI"));if(r.get("KAISIJIKAN_DT")!=null)label+=" "+numberText(r.get("KAISIJIKAN_DT"))+"～"+numberText(r.get("SYURYOJIKAN_DT"));if(r.get("REIGAIYOBI")!=null&&!numberText(r.get("REIGAIYOBI")).equals("0"))label+=" ("+day(r.get("REIGAIYOBI"))+" "+numberText(r.get("REIGAIKAISIJIKAN_DT"))+"～"+numberText(r.get("REIGAISYURYOJIKAN_DT"))+")";return label;}
+    private static String numberText(Object v){return v==null?"":v instanceof BigDecimal n?n.stripTrailingZeros().toPlainString():v.toString();}
+    private static String day(Object v){return java.util.Map.of("1","月","2","火","3","水","4","木","5","金","6","土","7","日").getOrDefault(numberText(v),"");}
+    public void prepareAddress(KikanTabForm tab){
+        String original=tab.getExtra().get("IRAITENPO_ID");String current=tab.getIraitenpoId()==null?"":tab.getIraitenpoId().stripTrailingZeros().toPlainString();
+        if(original==null||original.equals(current))return;
+        var names=java.util.Map.<String,Object>of();if(!current.isEmpty()){var rows=jdbc.queryForList("SELECT * FROM MCM.MCM_MA_TENPO WHERE TENPO_ID=?",tab.getIraitenpoId());if(rows.size()!=1)throw new IllegalStateException("管理店舗・事業所を選択し直してください。");names=rows.get(0);}
+        var props=new org.springframework.beans.BeanWrapperImpl(tab);for(String key:java.util.List.of("MEISHO1_NK","MEISHO2_NK","MEISHO3_NK","MEISHO4_NK","TENPORYAKU_NK"))props.setPropertyValue("irai"+(key.startsWith("MEISHO")?"meisho"+key.charAt(6)+"Nk":"tenporyakuNk"),names.getOrDefault(key,""));
+    }
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     private String fmtDt(java.sql.Date d) {

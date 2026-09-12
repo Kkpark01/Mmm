@@ -126,7 +126,7 @@ public class Mcm2004uController {
     }}
     @GetMapping("/new") public String newRow(HttpSession session,RedirectAttributes ra){
         if(!authority(session,"MCM2003U").equals("UPDATE")){ra.addFlashAttribute("errors",List.of(DENIED));return "redirect:/mcm2004u";}
-        clear(session,"mcm2001u.");return "redirect:/mcm2001u";
+        clear(session,"mcm2003u.");session.removeAttribute("MCM2003U_FORM");clear(session,"mcm2001u.");return "redirect:/mcm2001u";
     }
     @GetMapping("/link/{destination}") public String link(@PathVariable String destination,@RequestParam BigDecimal umKihonMitsumoriId,
         @RequestParam(required=false) BigDecimal ukKeiyakuId,@RequestParam(required=false) String searchToken,HttpSession session,RedirectAttributes ra){synchronized(session){
@@ -146,9 +146,9 @@ public class Mcm2004uController {
                     session.removeAttribute("MCM2006U_DELIVERY"); session.removeAttribute("MCM2007U_FORM");
                     clear(session,"mcm2006u.");session.setAttribute("mcm2006u.from2004",true);session.removeAttribute("MCM2006U_FORM");return "redirect:/mcm2006u?ukKeiyakuId="+row.getUkKeiyakuId().toPlainString()+"&seniMotoKbn=0";
                 case "mcm2002u-upd":
-                    var d=new Mcm2002uDeliveryDto();org.springframework.beans.BeanUtils.copyProperties(row,d);d.setSeniMotoKbn(1);clear(session,"mcm2002u.");session.setAttribute("mcm2002u.delivery",d);return "redirect:/mcm2002u";
+                    clear(session,"mcm2003u.");session.removeAttribute("MCM2003U_FORM");var d=new Mcm2002uDeliveryDto();org.springframework.beans.BeanUtils.copyProperties(row,d);d.setSeniMotoKbn(1);clear(session,"mcm2002u.");session.setAttribute("mcm2002u.delivery",d);return "redirect:/mcm2002u";
                 case "mcm2002u-copy":
-                    var copy=new Mcm2001uDeliveryDto();copy.setUmKihonMitsumoriId(row.getUmKihonMitsumoriId().intValueExact());copy.setPlantId(row.getPlantId().intValueExact());copy.setNonyusakiId(row.getNonyusakiId().intValueExact());copy.setNonyusakiCd(row.getNonyusakiCd());copy.setNonyusakiNk(row.getNonyusakiNk());copy.setSupportId(row.getSupportId());copy.setPlantNk(row.getPlantNk());copy.setSeniMotoKbn(2);clear(session,"mcm2001u.");session.setAttribute("mcm2001u.delivery",copy);return "redirect:/mcm2001u";
+                    clear(session,"mcm2003u.");session.removeAttribute("MCM2003U_FORM");var copy=new Mcm2001uDeliveryDto();copy.setUmKihonMitsumoriId(row.getUmKihonMitsumoriId().intValueExact());copy.setPlantId(row.getPlantId().intValueExact());copy.setNonyusakiId(row.getNonyusakiId().intValueExact());copy.setNonyusakiCd(row.getNonyusakiCd());copy.setNonyusakiNk(row.getNonyusakiNk());copy.setSupportId(row.getSupportId());copy.setPlantNk(row.getPlantNk());copy.setSeniMotoKbn(2);clear(session,"mcm2001u.");session.setAttribute("mcm2001u.delivery",copy);return "redirect:/mcm2001u";
                 case "mcm2007u":
                     session.removeAttribute("MCM2006U_DELIVERY");
                     var parent=new Mcm2006uForm();org.springframework.beans.BeanUtils.copyProperties(row,parent,"ukKeiyakuId");parent.setSeniMotoKbn(1);clear(session,"mcm2006u.");clear(session,"mcm2007u.");session.setAttribute("MCM2006U_FORM",parent);session.removeAttribute("MCM2007U_FORM");session.removeAttribute("MCM2007U_STEP1_FORM");session.setAttribute("mcm2007u.from2004",row.getUmKihonMitsumoriId());session.setAttribute("mcm2007u.from2004Cancel",true);session.setAttribute("mcm2006u.from2004",true);return "redirect:/mcm2007u?seniMotoKbn=1";

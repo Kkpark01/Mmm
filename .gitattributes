@@ -1,0 +1,2 @@
+# Preserve source bytes so SHA256 values in the patch manifest survive checkout.
+**/src/** -text

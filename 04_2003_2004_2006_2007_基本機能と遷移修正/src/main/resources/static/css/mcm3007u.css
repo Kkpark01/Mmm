@@ -1,0 +1,33 @@
+.mcm3007u-screen * { box-sizing:border-box; }
+.mcm3007u-screen .header { align-items:center; }
+.mcm3007u-screen .header-right { display:flex; }
+.mcm3007u-screen .msg-area:empty { display:none; }
+.mcm3007u-screen .search-workspace { overflow-x:auto; }
+.mcm3007u-screen .search-canvas { min-width:1246px; background:white; padding:0 3px; }
+.mcm3007u-screen #searchForm { position:relative; min-height:100px; border-bottom:1px solid #bbb; padding:5px 8px 3px; }
+.mcm3007u-screen .search-fields { display:grid; grid-template-columns:78px 173px 129px 251px; gap:2px 6px; align-items:center; }
+.mcm3007u-screen .search-fields label { white-space:nowrap; }
+.mcm3007u-screen .search-fields input { width:100%; height:21px; font:inherit; border:1px solid #aaa; border-radius:0; padding:1px 3px; }
+.mcm3007u-screen #nonyusakiCd { width:110px; }
+.mcm3007u-screen #supportId { width:67px; }
+.mcm3007u-screen .state-row { display:flex; align-items:center; height:24px; }
+.mcm3007u-screen .state-label { width:84px; }
+.mcm3007u-screen .state-checks { display:flex; gap:18px; }
+.mcm3007u-screen .state-checks label { display:flex; align-items:center; gap:4px; min-width:50px; }
+.mcm3007u-screen input[type=checkbox] { width:13px; height:13px; margin:0; }
+.mcm3007u-screen #searchButton { position:absolute; right:0; bottom:5px; width:75px; cursor:pointer; }
+.mcm3007u-screen .grid-heading { height:24px; line-height:24px; background:transparent; border:0; padding:0; font-size:12px; font-weight:normal; }
+.mcm3007u-screen .count { color:#666; margin-left:6px; }
+.mcm3007u-screen .grid-scroll { overflow:auto; border:1px solid var(--mcm-border); background:white; }
+.mcm3007u-screen #masterScroll { height:124px; }
+.mcm3007u-screen #umScroll { height:248px; }
+.mcm3007u-screen #tkScroll { height:374px; }
+.mcm3007u-screen .data-grid { border-collapse:collapse; table-layout:fixed; font:inherit; }
+.mcm3007u-screen .data-grid :is(th,td) { height:24px; border:1px solid var(--mcm-border); padding:1px 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+.mcm3007u-screen .data-grid th { background:var(--mcm-grid-head); position:sticky; top:0; z-index:1; font-weight:normal; }
+.mcm3007u-screen .data-grid .row-number { text-align:center; }
+.mcm3007u-screen .data-grid tr.selected td { background:#cce5ff; }
+.mcm3007u-screen .data-grid tbody tr { cursor:pointer; }
+.mcm3007u-screen .data-grid :is(a,button) { font:inherit; color:#0066cc; background:transparent; border:0; padding:0; text-decoration:underline; cursor:pointer; }
+.mcm3007u-screen .empty-grid { margin:0; padding:8px; color:#666; }
+.mcm3007u-screen [hidden] { display:none!important; }

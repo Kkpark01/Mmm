@@ -1,0 +1,31 @@
+/* Step1だけに適用。配色・タイトル・基本書体はWeb共通設定を継承する。 */
+.mcm2007u-step1 * { box-sizing: border-box; }
+.mcm2007u-step1 .header { align-items: center; }
+.mcm2007u-step1 .header-right { display: flex; }
+.mcm2007u-step1 .msg-area:empty { display: none; }
+.mcm2007u-step1 .selection-workspace { overflow-x: auto; }
+.mcm2007u-step1 .selection-canvas { min-width: 1246px; padding: 6px 7px 0; background: #fff; }
+.mcm2007u-step1 .context-grid { display: grid; grid-template-columns: 72px 100px 60px 279px; column-gap: 6px; row-gap: 2px; align-items: center; padding-left: 6px; margin-bottom: 8px; }
+.mcm2007u-step1 .context-grid > label { white-space: nowrap; }
+.mcm2007u-step1 .context-grid input { width: 100%; height: 21px; min-width: 0; border: 1px solid #aaa; border-radius: 0; padding: 1px 3px; color: inherit; font: inherit; }
+.mcm2007u-step1 .context-grid input:read-only { background: #f0f0f0; }
+.mcm2007u-step1 .period-fields { display: flex; gap: 5px; align-items: center; }
+.mcm2007u-step1 .period-fields input { width: 90px; }
+.mcm2007u-step1 .top-grids { display: grid; grid-template-columns: 498px minmax(0,1fr); gap: 6px; }
+.mcm2007u-step1 .grid-heading { height: 24px; line-height: 24px; margin: 0; padding: 0; font-size: 12px; font-weight: normal; background: transparent; border: 0; }
+.mcm2007u-step1 .grid-scroll { height: 269px; overflow: auto; border: 1px solid var(--mcm-border); background: #fff; }
+.mcm2007u-step1 .preview-section { margin-top: 8px; }
+.mcm2007u-step1 #previewScroll { height: 481px; }
+.mcm2007u-step1 .data-grid { table-layout: fixed; border-collapse: collapse; margin: 0; font: inherit; }
+.mcm2007u-step1 .data-grid :is(th,td) { height: 24px; padding: 1px 3px; border: 1px solid var(--mcm-border); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: left; }
+.mcm2007u-step1 .data-grid th { position: sticky; top: 0; z-index: 1; }
+.mcm2007u-step1 .data-grid .amount { text-align: right; }
+.mcm2007u-step1 .data-grid :is(.row-number,.check-cell) { text-align: center; }
+.mcm2007u-step1 .data-grid input[type=checkbox] { width: 13px; height: 13px; margin: 0; vertical-align: middle; }
+.mcm2007u-step1 #estimateTable tbody tr { cursor: pointer; }
+.mcm2007u-step1 #estimateTable tbody tr.selected td { background: #cce5ff; }
+.mcm2007u-step1 .empty-grid { padding: 8px; margin: 0; color: #666; }
+.mcm2007u-step1 .footer-actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; padding: 4px 7px; background: #f0f0f0; }
+.mcm2007u-step1 .step-caption { margin-right: auto; color: #555; }
+.mcm2007u-step1 #nextButton { min-width: 75px; cursor: pointer; }
+.mcm2007u-step1 [hidden] { display: none !important; }

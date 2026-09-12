@@ -109,7 +109,7 @@ public class Mcm2003uRepository {
             "       (SELECT SUM(B.HARDHOSYU_KIN) FROM MCM.MCM_UM_BRAND B WHERE B.UM_MITSUMORI_ID=MCM_UM_MITSUMORI.UM_MITSUMORI_ID) AS HARDHOSYU_KIN, MITSUMORI_GKIN, 0 AS CHECK_FLG " +
             "FROM MCM.MCM_UM_MITSUMORI " +
             "WHERE UM_KIHON_MITSUMORI_ID = ? " +
-            "ORDER BY KAISI_DT DESC",
+            "ORDER BY KAISI_DT,UM_MITSUMORI_ID",
             new Object[]{umKihonMitsumoriId},
             (rs, rowNum) -> {
                 Mcm2003uForm.MitsumoriRowForm row = new Mcm2003uForm.MitsumoriRowForm();
@@ -189,9 +189,9 @@ public class Mcm2003uRepository {
                 row.setHoseiDaifukuGijutsuKin(rs.getBigDecimal("HOSEIDAIFUKUGIJUTSU_KIN"));
                 row.setHoseiSoftHosyuKin(rs.getBigDecimal("HOSEISOFTHOSHU_KIN"));
                 row.setSoftHosyuhoho(rs.getString("SOFTHOSYUHOHO"));
-                row.setSoftFlg("1".equals(rs.getString("SOFT_FLG")));
-                row.setDremosFlg("1".equals(rs.getString("DREMOS_FLG")));
-                row.setRemoteFlg("1".equals(rs.getString("REMOTE_FLG")));
+                row.setSoftFlg(rs.getBigDecimal("SOFT_FLG") != null && rs.getBigDecimal("SOFT_FLG").signum() != 0);
+                row.setDremosFlg(rs.getBigDecimal("DREMOS_FLG") != null && rs.getBigDecimal("DREMOS_FLG").signum() != 0);
+                row.setRemoteFlg(rs.getBigDecimal("REMOTE_FLG") != null && rs.getBigDecimal("REMOTE_FLG").signum() != 0);
                 row.setSystemSupportSyokeiKin(rs.getBigDecimal("SYSTEMSUPPORTSYOKEI_KIN"));
                 LocalDateTime bCreatedDt = rs.getObject("CREATED_DT", LocalDateTime.class);
                 row.setCreatedDt(bCreatedDt != null ? DT_FMT_DATETIME.format(bCreatedDt) : "");
@@ -269,10 +269,31 @@ public class Mcm2003uRepository {
     // 【変換元】SenteiNashiUpdate() / SenteiAriUpdate() → MCM_UM_KIHON_MITSUMORI UPDATE
     // ===================================================================
 
+    /** 管理者が変更した宛先はマスタから補完し、未変更の宛先表記は保持する。 */
+    public void prepareHeaderChanges(Mcm2003uForm form,Mcm2003uForm current){
+        if(!java.util.Objects.equals(form.getUmMitsumoriNo(),current.getUmMitsumoriNo())){
+            String no=form.getUmMitsumoriNo();if(no==null||no.isBlank()||no.length()>20)throw new IllegalStateException("見積NOは1～20文字で入力してください。");
+            no=no.trim();if(jdbc.queryForObject("SELECT COUNT(*) FROM MCM.MCM_UM_KIHON_MITSUMORI WITH (UPDLOCK,HOLDLOCK) WHERE UM_MITSUMORI_NO=? AND UM_KIHON_MITSUMORI_ID<>?",Integer.class,no,form.getUmKihonMitsumoriId())>0)throw new IllegalStateException("同じ見積NOが登録されています。");
+            form.setUmMitsumoriNo(no);
+        }
+        if(!sameAddress(form.getIraitenpoId(),current.getIraitenpoId()))fillAddress(form,"Irai",form.getIraitenpoId());
+        if(!sameAddress(form.getSofutenpoId(),current.getSofutenpoId()))fillAddress(form,"Sofu",form.getSofutenpoId());
+    }
+    private boolean sameAddress(BigDecimal a,BigDecimal b){return a==null?b==null:b!=null&&a.compareTo(b)==0;}
+    private void fillAddress(Mcm2003uForm form,String prefix,BigDecimal id){
+        java.util.Map<String,Object> row=java.util.Map.of();
+        if(id!=null&&id.signum()!=0){var rows=jdbc.queryForList("SELECT * FROM MCM.MCM_MA_TENPO WHERE TENPO_ID=?",id);if(rows.size()!=1)throw new IllegalStateException("宛先の店舗・事業所を選択し直してください。");row=rows.get(0);}
+        var properties=new org.springframework.beans.BeanWrapperImpl(form);
+        for(String column:java.util.List.of("MEISHO1_NK","MEISHO2_NK","MEISHO3_NK","MEISHO4_NK","TENPORYAKU_NK")){
+            String field=prefix.toLowerCase()+(column.startsWith("MEISHO")?"meisho"+column.charAt(6)+"Nk":"tenporyakuNk");
+            properties.setPropertyValue(field,row.getOrDefault(column,""));
+        }
+    }
+
     public void updateKihonMitsumori(Mcm2003uForm form, String loginUser) {
         jdbc.update(
             "UPDATE MCM.MCM_UM_KIHON_MITSUMORI " +
-            "SET MITSUMORI_DT=?, " +
+            "SET UM_MITSUMORI_NO=?, MITSUMORI_DT=?, " +
             "    MITSUMORISAKUSEISYA_NK=?, MITSUMORIKIGEN=?, " +
             "    IRAITENPO_ID=?, IRAIMEISHO1_NK=?, IRAIMEISHO2_NK=?, IRAIMEISHO3_NK=?, IRAIMEISHO4_NK=?, " +
             "    IRAITENPORYAKU_NK=?, IRAITANTO_NK=?, " +
@@ -281,6 +302,7 @@ public class Mcm2003uRepository {
             "    KEIYAKUJIKANTAI=?, HOSYUHOHO=?, BIKO=?, MITSUMORI_JOUKEN=?, MITSUMORILEVEL=?, " +
             "    LASTUPDATE_DT=GETDATE(), LASTUPDATE_BY=? " +
             "WHERE UM_KIHON_MITSUMORI_ID=?",
+            form.getUmMitsumoriNo(),
             form.getMitsumoriDt()==null || form.getMitsumoriDt().isBlank()?null:java.sql.Date.valueOf(com.daifuku.mcm.common.CustomerScreenSupport.date(form.getMitsumoriDt())),
             form.getMitsumorisakuseisyaNk(), form.getMitsumorigiken(),
             form.getIraitenpoId(),
@@ -334,6 +356,19 @@ public class Mcm2003uRepository {
             Integer.class, umKihonMitsumoriId);
         return count != null ? count : 0;
     }
+    /** 管理者解除は担当者マスターと画面別更新権限を毎回照合する。 */
+    public boolean canReleaseLock(String loginId) {
+        return jdbc.queryForObject("""
+            SELECT COUNT(*) FROM MCM.MCM_MO_TANTO A
+            WHERE A.LOGIN_ID=? AND A.MAINTENANCE_FLG=1 AND EXISTS (
+                SELECT 1 FROM MCM.MCM_MO_TANTOKENGEN B
+                JOIN MCM.MCM_MO_KENGENKOSEI C ON C.KENGENBUNRUI_ID=B.KENGENBUNRUI_ID AND C.RIYOKENGEN_KBN=B.RIYOKENGEN_KBN
+                JOIN MCM.MCM_MO_KENGENBUNRUI D ON D.KENGENBUNRUI_ID=C.KENGENBUNRUI_ID
+                JOIN MCM.MCM_MO_KINO E ON E.KINO_ID=C.KINO_ID
+                WHERE B.TANTO_ID=A.TANTO_ID AND E.KINO_ID='MCM2003U' AND C.RIYOKENGEN_KBN='2')
+            """,Integer.class,loginId)==1;
+    }
+
     public void lock(BigDecimal id) {
         jdbc.queryForObject("SELECT UM_KIHON_MITSUMORI_ID FROM MCM.MCM_UM_KIHON_MITSUMORI WITH (UPDLOCK,HOLDLOCK) WHERE UM_KIHON_MITSUMORI_ID=?",BigDecimal.class,id);
     }
@@ -344,5 +379,39 @@ public class Mcm2003uRepository {
     public void deleteAttachment(BigDecimal estimate,BigDecimal id) {
         if(jdbc.update("DELETE FROM MCM.MCM_UM_TENPU WHERE UM_KIHON_MITSUMORI_ID=? AND UM_TENPU_ID=?",estimate,id)!=1)
             throw new IllegalStateException("添付資料が変更されています。再読み込みしてください。");
+    }
+    /** ヘッダーのロック下で、編集したブランドの保守方法のみを更新する。 */
+    public void updateBrandMethods(Mcm2003uForm form,String user) {
+        for(var brand:form.getBrandRows())if(brand.isSoftHosyuhohoEdited()) {
+            if(brand.getSoftHosyuhoho()!=null && brand.getSoftHosyuhoho().length()>4000)throw new IllegalStateException("保守方法は4000文字以内で入力してください。");
+            var current=findBrandRows(form.getUmKihonMitsumoriId()).stream().filter(b->b.getUmKihonBrandId().compareTo(brand.getUmKihonBrandId())==0).findFirst().orElseThrow(()->new IllegalStateException("ブランド情報が変更されています。再読み込みしてください。"));
+            if(!java.util.Objects.equals(current.getLastupdateDt(),brand.getLastupdateDt()) || !java.util.Objects.equals(current.getSoftHosyuhoho(),brand.getOriginalSoftHosyuhoho()))throw new IllegalStateException("ブランド情報が更新されています。再読み込みしてください。");
+            if(jdbc.update("UPDATE MCM.MCM_UM_KIHON_BRAND SET SOFTHOSYUHOHO=?,LASTUPDATE_DT=GETDATE(),LASTUPDATE_BY=? WHERE UM_KIHON_MITSUMORI_ID=? AND UM_KIHON_BRAND_ID=? AND ((SOFTHOSYUHOHO IS NULL AND ? IS NULL) OR SOFTHOSYUHOHO=?)",brand.getSoftHosyuhoho(),user,form.getUmKihonMitsumoriId(),brand.getUmKihonBrandId(),brand.getOriginalSoftHosyuhoho(),brand.getOriginalSoftHosyuhoho())!=1)throw new IllegalStateException("ブランド情報を保存できませんでした。");
+        }
+        updateEditedRows(form,user);
+    }
+    private void updateEditedRows(Mcm2003uForm form,String user) {
+        var brands=findBrandRows(form.getUmKihonMitsumoriId());var configs=findKoseiRows(form.getUmKihonMitsumoriId());
+        for(var b:form.getBrandRows())if(!b.getEditedOriginals().isEmpty()) {
+            var current=brands.stream().filter(r->r.getUmKihonBrandId().compareTo(b.getUmKihonBrandId())==0).findFirst().orElseThrow(()->new IllegalStateException("ブランドが変更されています。"));
+            updateEditedRow("MCM_UM_KIHON_BRAND","UM_KIHON_BRAND_ID",b.getUmKihonBrandId(),b,current,com.daifuku.mcm.common.Mcm2003uEdits.BRAND,user);
+        }
+        for(var k:form.getKoseiRows())if(!k.getEditedOriginals().isEmpty()) {
+            var current=configs.stream().filter(r->r.getUmKikikoseiId().compareTo(k.getUmKikikoseiId())==0).findFirst().orElseThrow(()->new IllegalStateException("機器構成が変更されています。"));
+            updateEditedRow("MCM_UM_KIKIKOSEI","UM_KIKIKOSEI_ID",k.getUmKikikoseiId(),k,current,com.daifuku.mcm.common.Mcm2003uEdits.KOSEI,user);
+        }
+    }
+    private void updateEditedRow(String table,String pk,BigDecimal id,Object edited,Object current,java.util.Map<String,String> columns,String user) {
+        var setters=new java.util.ArrayList<String>();var filters=new java.util.ArrayList<String>();var values=new java.util.ArrayList<Object>();var originals=new java.util.ArrayList<Object>();
+        for(var e:com.daifuku.mcm.common.Mcm2003uEdits.originals(edited).entrySet()) {
+            String column=columns.get(e.getKey());if(column==null)throw new IllegalStateException("編集項目が不正です。");
+            if(!com.daifuku.mcm.common.Mcm2003uEdits.equal(com.daifuku.mcm.common.Mcm2003uEdits.get(current,e.getKey()),e.getValue()))throw new IllegalStateException("編集中の項目が更新されています。再読み込みして確認してください。");
+            setters.add(column+"=?");values.add(com.daifuku.mcm.common.Mcm2003uEdits.databaseValue(com.daifuku.mcm.common.Mcm2003uEdits.get(edited,e.getKey())));
+            if(e.getValue()==null)filters.add(column+" IS NULL");
+            else if(Boolean.FALSE.equals(e.getValue()))filters.add("("+column+" IS NULL OR "+column+"=0)");
+            else{filters.add(column+"=?");originals.add(com.daifuku.mcm.common.Mcm2003uEdits.databaseValue(e.getValue()));}
+        }
+        values.add(user);values.add(id);values.addAll(originals);
+        if(jdbc.update("UPDATE MCM."+table+" SET "+String.join(",",setters)+",LASTUPDATE_DT=GETDATE(),LASTUPDATE_BY=? WHERE "+pk+"=? AND "+String.join(" AND ",filters),values.toArray())!=1)throw new IllegalStateException("編集中の項目が更新されています。再読み込みして確認してください。");
     }
 }

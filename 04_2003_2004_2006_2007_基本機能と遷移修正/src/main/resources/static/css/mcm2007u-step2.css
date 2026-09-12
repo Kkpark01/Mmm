@@ -1,0 +1,37 @@
+/* VBの4表構成。Step2のみに適用し、色とタイトルは共通設定を継承する。 */
+.mcm2007u-step2 * { box-sizing: border-box; }
+.mcm2007u-step2 .header { align-items: center; }
+.mcm2007u-step2 .header-right { display: flex; }
+.mcm2007u-step2 .msg-area:empty { display: none; }
+.mcm2007u-step2 .equipment-workspace { overflow-x: auto; }
+.mcm2007u-step2 .equipment-canvas { min-width: 1246px; padding: 6px 4px 0; background: white; }
+.mcm2007u-step2 .context-grid { display: grid; grid-template-columns: 72px 100px 60px 279px; gap: 2px 6px; align-items: center; padding-left: 9px; margin-bottom: 3px; }
+.mcm2007u-step2 .context-grid label { white-space: nowrap; }
+.mcm2007u-step2 .context-grid input { width: 100%; height: 21px; min-width: 0; border: 1px solid #aaa; border-radius: 0; padding: 1px 3px; color: inherit; font: inherit; background: #f0f0f0; }
+.mcm2007u-step2 .period-fields { display: flex; gap: 5px; align-items: center; }
+.mcm2007u-step2 .period-fields input { width: 90px; }
+.mcm2007u-step2 .grid-heading { height: 24px; line-height: 24px; margin: 0; font-size: 12px; font-weight: normal; background: transparent; border: 0; }
+.mcm2007u-step2 .grid-scroll { height: 249px; overflow: auto; border: 1px solid var(--mcm-border); background: white; }
+.mcm2007u-step2 .brand-section { width: 685px; }
+.mcm2007u-step2 #brandScroll { height: 152px; }
+.mcm2007u-step2 .middle-grids { display: grid; grid-template-columns: 578px minmax(0,1fr); gap: 7px; margin-top: 8px; }
+.mcm2007u-step2 .kotai-section { margin-top: 14px; }
+.mcm2007u-step2 #kotaiScroll { height: 329px; }
+.mcm2007u-step2 .data-grid { border-collapse: collapse; table-layout: fixed; margin: 0; font: inherit; }
+.mcm2007u-step2 .data-grid :is(th,td) { height: 24px; padding: 1px 3px; border: 1px solid var(--mcm-border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+.mcm2007u-step2 .data-grid th { position: sticky; top: 0; z-index: 1; }
+.mcm2007u-step2 .data-grid .amount { text-align: right; }
+.mcm2007u-step2 .data-grid :is(.row-number,.check-cell) { text-align: center; }
+.mcm2007u-step2 .data-grid input[type=checkbox] { width: 13px; height: 13px; margin: 0; vertical-align: middle; }
+.mcm2007u-step2 .data-grid tr.selected td { background: #cce5ff; }
+.mcm2007u-step2 :is(#brandTable,#koseiTable) tbody tr { cursor: pointer; }
+.mcm2007u-step2 .data-grid tr.unquoted td { color: #777; }
+.mcm2007u-step2 .empty-grid { padding: 8px; margin: 0; color: #666; }
+.mcm2007u-step2 .footer-actions { display: flex; gap: 6px; justify-content: flex-end; align-items: center; padding: 4px; background: #f0f0f0; }
+.mcm2007u-step2 .step-caption { margin-right: auto; color: #555; }
+.mcm2007u-step2 .footer-actions button { min-width: 75px; cursor: pointer; }
+.mcm2007u-step2 [hidden] { display: none !important; }
+
+/* VB共通親画面の戻るは左上。フォーム外から選定内容をPOSTする。 */
+.mcm2007u-step2 .header-left { display: flex; align-items: center; }
+.mcm2007u-step2 #previousButton { min-width: 75px; cursor: pointer; }

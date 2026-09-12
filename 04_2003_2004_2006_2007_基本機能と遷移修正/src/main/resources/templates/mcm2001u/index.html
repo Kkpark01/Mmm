@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm2001uScreen.vb / Mcm2001uScreen.Designer.vb
+  MCM2001U — 保守見積作成検索
+  【機能構成・ボタン配置】VB版準拠（戻る/閉じる、検索、3グリッド、選定）
+  【デザイン】Web版他画面（MCM0011U/MCM2003U等）準拠：紫帯ヘッダー + data-grid スタイル
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf" th:content="${_csrf != null} ? ${_csrf.token} : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM2001U - 保守見積作成検索</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../../css/common.css"/>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Meiryo', 'メイリオ', sans-serif; font-size: 13px; }
+        button, .btn, .btn-close { cursor: pointer; user-select: none; }
+
+        /* ヘッダー（MCM2004U 準拠：紫帯・中央タイトル・右上に閉じる/戻る） */
+        .header {
+            position: relative; display: flex; align-items: center; justify-content: center;
+            background-color: #453f78; color: #fff;
+            height: 40px; padding: 0 85px; box-sizing: border-box;
+        }
+        .header h1 { margin: 0; font-size: 18px; font-weight: bold; color: #fff; letter-spacing: 2px; line-height: 30px; }
+        .btn-close {
+            position: absolute; top: 8px; height: 24px; box-sizing: border-box;
+            display: inline-flex; align-items: center; padding: 2px 12px; font-size: 12px; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; text-decoration: none;
+        }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .header-left.btn-close { left: 10px; }
+        .header-right.btn-close { right: 10px; }
+
+        /* 検索条件エリア */
+        .search-area {
+            padding: 8px 10px; border-bottom: 1px solid #ccc; background: #fafafa;
+        }
+        .search-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px;
+        }
+        .search-cell { display: flex; align-items: center; gap: 8px; }
+        .search-cell label { min-width: 150px; font-size: 12px; white-space: nowrap; color: #333; }
+        .search-cell input[type="text"] {
+            height: 22px; border: 1px solid #aaa; padding: 0 4px; font-size: 12px;
+            border-radius: 2px; background: #fff;
+        }
+        .search-cell input[readonly] { background: #f0f0f0; }
+        .search-cell-button { justify-content: flex-end; }
+        .input-cd { width: 110px; }
+        .input-support { width: 65px; }
+        .input-wide { width: 360px; }
+        .btn-primary {
+            padding: 3px 16px; font-size: 12px;
+            background: #453f78; color: #fff; border: 1px solid #453f78; border-radius: 2px;
+        }
+        .btn-primary:hover:not(:disabled) { background: #5a5499; }
+        button:disabled { opacity: 0.5; cursor: default; }
+
+        /* セクションラベル */
+        .section-title {
+            font-size: 12px; font-weight: bold; color: #000;
+            padding: 2px 8px; margin: 8px 10px 4px;
+            display: inline-block;
+        }
+
+        /* グリッド（VB版 DataGridView 準拠：全マス格子線 + 濃いグレー外枠）
+           データ0件でも画像同様に大きな枠を保つため、max-heightではなく
+           固定heightを指定する（max-heightは内容量に応じて縮んでしまうため）。 */
+        .grid-container { margin: 0 10px 8px; overflow: auto; border: 1px solid #808080; width: auto; }
+        .grid-nonyusaki { height: 190px; }
+        .grid-plant { height: 190px; }
+        .grid-mitsumori { height: 220px; }
+        .data-grid { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+        .data-grid thead th {
+            position: sticky; top: 0; z-index: 5;
+            background-color: #e0e0e0; color: #000;
+            border: 1px solid #999;
+            padding: 4px 6px; text-align: left; font-weight: normal; white-space: nowrap;
+        }
+        .data-grid tbody td {
+            border: 1px solid #ccc;
+            padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .data-grid tbody tr:hover { background-color: #f0f0f0; }
+        .data-grid tbody tr.selected { background-color: #a9a9a9; color: #000; }
+        .data-grid td.col-chk { text-align: center; width: 30px; padding: 0; }
+
+        /* 行選択列（MCM0013U 準拠：ラジオ + ▶マーカー） */
+        .data-grid th.col-select, .data-grid td.col-select { width: 28px; text-align: center; padding: 0; }
+        .row-select-label {
+            position: relative; display: inline-flex; align-items: center; justify-content: center;
+            width: 100%; height: 100%; min-height: 20px; cursor: pointer;
+        }
+        .row-select-radio { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; }
+        .row-marker { display: inline-block; width: 14px; text-align: center; }
+        .row-select-radio:checked + .row-marker::before { content: "▶"; color: #000; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .no-data { text-align: center; color: #999; padding: 12px !important; }
+
+        .grid-link { color: #0066cc; text-decoration: underline; cursor: pointer; }
+        .grid-link:visited { color: #551a8b; }
+        .grid-link:hover { color: #003399; }
+        .clickable-row { cursor: pointer; }
+
+        /* 選定ボタン */
+        .button-area { display: flex; justify-content: flex-end; padding: 8px 10px; }
+        .btn-sentei {
+            padding: 4px 20px; font-size: 12px;
+            background: #453f78; color: #fff; border: 1px solid #453f78; border-radius: 2px;
+        }
+        .btn-sentei:hover:not(:disabled) { background: #5a5499; }
+    </style>
+    <script th:src="@{/js/common.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+<link rel="stylesheet" th:href="@{/css/mcm-customer-screens.css(v=20260911-search1)}"/></head>
+<body class="mcm-customer-screen mcm-estimate-search">
+
+<!-- ===== ヘッダー（MCM2004U 準拠：中央タイトル + 左=戻る/右=閉じる） ===== -->
+<div class="header">
+    <a class="btn-close header-left" th:href="@{/mcm2004u}">戻る</a>
+    <h1>保守見積作成検索（MCM2001U）</h1>
+    <a class="btn-close header-right" th:href="@{/menu}">閉じる</a>
+</div>
+
+<!-- ========== メッセージ表示 ========== -->
+<th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+
+<!-- ========== 検索条件エリア ========== -->
+<!--
+    【変換元】Mcm2001uScreen.Designer.vb - 検索条件コントロール
+      NONYUSAKI_CDTextBox / SUPPORT_IDTextBox / NONYUSAKI_NKTextBox
+      PLANT_NKTextBox / ETCTextBox / SEARCHButton
+-->
+<form th:action="@{/mcm2001u/search}" method="post" class="search-area">
+    <div class="search-grid">
+        <div class="search-cell">
+            <label for="nonyusakiCd">納入先コード</label>
+            <input type="text" id="nonyusakiCd" name="nonyusakiCd"
+                   th:value="${form.nonyusakiCd}"
+                   th:readonly="${readOnly}" maxlength="12" class="input-cd" />
+        </div>
+        <div class="search-cell">
+            <label for="supportId">サポートID</label>
+            <input type="text" id="supportId" name="supportId"
+                   th:value="${form.supportId}"
+                   th:readonly="${readOnly}" maxlength="7" class="input-support" />
+        </div>
+        <div class="search-cell">
+            <label for="nonyusakiNk">納入先名(旧名・カナなど)</label>
+            <input type="text" id="nonyusakiNk" name="nonyusakiNk"
+                   th:value="${form.nonyusakiNk}"
+                   th:readonly="${readOnly}" class="input-wide" />
+        </div>
+        <div class="search-cell">
+            <label for="plantNk">プラント名</label>
+            <input type="text" id="plantNk" name="plantNk"
+                   th:value="${form.plantNk}"
+                   th:readonly="${readOnly}" class="input-wide" />
+        </div>
+        <div class="search-cell">
+            <label for="etc">その他(住所など)</label>
+            <input type="text" id="etc" name="etc"
+                   th:value="${form.etc}"
+                   th:readonly="${readOnly}" class="input-wide" />
+        </div>
+        <div class="search-cell search-cell-button">
+            <button type="submit" th:disabled="${readOnly}" class="btn-primary">検索</button>
+        </div>
+    </div>
+</form>
+
+<!-- ========== 納入先情報グリッド ========== -->
+<!--
+    【変換元】MCM_MA_NONYUSAKIDataGridView
+      7列(6表示+NONYUSAKI_ID hidden) / ReadOnly / Selection=FullRowSelect
+-->
+<div class="section-title">&lt;&lt;納入先情報&gt;&gt;</div>
+<div class="grid-container grid-nonyusaki">
+    <table class="data-grid">
+        <thead>
+            <tr>
+                <th class="col-select"></th>
+                <th style="width:100px">納入先コード</th>
+                <th style="width:160px">納入先名</th>
+                <th style="width:180px">納入先カナ名</th>
+                <th style="width:180px">納入先英名</th>
+                <th style="width:160px">納入先工場名</th>
+                <th style="width:140px">旧納入先名</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row, stat : ${nonyusakiList}"
+                th:classappend="${stat.index == 0} ? 'selected' : ''"
+                th:data-nonyusaki-id="${row['NONYUSAKI_ID']}"
+                class="clickable-row">
+                <td class="col-select">
+                    <label class="row-select-label">
+                        <input type="radio" name="nonyusakiRowSelect" class="row-select-radio" th:checked="${stat.index == 0}" />
+                        <span class="row-marker"></span>
+                    </label>
+                </td>
+                <td th:text="${row['NONYUSAKI_CD']}"></td>
+                <td th:text="${row['NONYUSAKI_NK']}"></td>
+                <td th:text="${row['NONYUSAKIKANA_KN']}"></td>
+                <td th:text="${row['NONYUSAKIEIMEI_EN']}"></td>
+                <td th:text="${row['NONYUSAKIKOJO_NK']}"></td>
+                <td th:text="${row['KYUNONYUSAKI_NK']}"></td>
+            </tr>
+            <tr th:if="${nonyusakiList == null or #lists.isEmpty(nonyusakiList)}">
+                <td colspan="7" class="no-data">データなし</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ========== プラント情報グリッド ========== -->
+<!--
+    【変換元】MCM_MA_PLANTDataGridView
+      9列(7表示+PLANT_ID,NONYUSAKI_ID hidden) / ReadOnly / Selection=FullRowSelect
+-->
+<div class="section-title">&lt;&lt;プラント情報&gt;&gt;</div>
+<div class="grid-container grid-plant">
+    <table class="data-grid">
+        <thead>
+            <tr>
+                <th class="col-select"></th>
+                <th style="width:120px">サポートID</th>
+                <th style="width:230px">プラント名</th>
+                <th style="width:117px">納入日</th>
+                <th style="width:90px">保守終息日</th>
+                <th style="width:80px">稼働開始</th>
+                <th style="width:80px" class="text-right">稼働日数</th>
+                <th style="width:80px" class="text-right">稼働時間</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="row, stat : ${plantList}"
+                th:classappend="${stat.index == 0} ? 'selected' : ''"
+                th:data-plant-id="${row['PLANT_ID']}"
+                th:data-nonyusaki-id="${row['NONYUSAKI_ID']}"
+                class="clickable-row">
+                <td class="col-select">
+                    <label class="row-select-label">
+                        <input type="radio" name="plantRowSelect" class="row-select-radio" th:checked="${stat.index == 0}" />
+                        <span class="row-marker"></span>
+                    </label>
+                </td>
+                <td th:text="${row['SUPPORT_ID']}"></td>
+                <td th:text="${row['PLANT_NK']}"></td>
+                <td th:text="${row['NONYU_DT']}"></td>
+                <td th:text="${row['HOSYUSYUSOKU_DT']}"></td>
+                <td th:text="${row['SYSTEMKADOYOUBI']}"></td>
+                <td class="text-right" th:text="${row['SYSTEMKADONISSU']}"></td>
+                <td class="text-right" th:text="${row['SYSTEMKADOJIKAN']}"></td>
+            </tr>
+            <tr th:if="${plantList == null or #lists.isEmpty(plantList)}">
+                <td colspan="8" class="no-data">データなし</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ========== 取引先見積情報グリッド + 選定ボタン ========== -->
+<!--
+    【変換元】MCM_TM_MITSUMORIDataGridView + SENTEIButton
+      20列(10表示+10hidden) / チェックボックス + リンク2種
+-->
+<div class="section-title">&lt;&lt;取引先見積情報&gt;&gt;</div>
+<form th:action="@{/mcm2001u/sentei}" method="post" id="senteiForm">
+<input type="hidden" name="workflowToken" th:value="${workflowToken}"/>
+    <input type="hidden" name="selectedNonyusakiId" id="selectedNonyusakiId" value="" />
+    <input type="hidden" name="selectedPlantId" id="selectedPlantId" value="" />
+
+    <div class="grid-container grid-mitsumori">
+        <table class="data-grid">
+            <thead>
+                <tr>
+                    <th class="col-select"></th>
+                    <th style="width:30px"></th>
+                    <th style="width:130px">取引先</th>
+                    <th style="width:80px">見積日付</th>
+                    <th style="width:100px">見積依頼NO</th>
+                    <th style="width:130px">契約NO</th>
+                    <th style="width:60px" class="text-right">時間帯</th>
+                    <th style="width:78px">保守方法</th>
+                    <th style="width:78px">点検有無</th>
+                    <th style="width:102px">点検可能曜日</th>
+                    <th style="width:130px">夜間対応有無</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="row, stat : ${mitsumoriList}" th:data-plant-id="${row.plantId}">
+                    <!-- 行選択（MCM0013U 準拠：ラジオ + ▶マーカー） -->
+                    <td class="col-select">
+                        <label class="row-select-label">
+                            <input type="radio" name="mitsumoriRowSelect" class="row-select-radio" th:checked="${stat.index == 0}" />
+                            <span class="row-marker"></span>
+                        </label>
+                    </td>
+                    <!-- チェックボックス（SENTAKU_MITSUMORI_CheckBox） -->
+                    <td class="col-chk">
+                        <input type="checkbox"
+                               name="selectedTmKeiyakujikanId"
+                               th:checked="${row.checkbox == 1}" th:value="${row.tmKeiyakujikanId}" />
+                    </td>
+                    <!-- 取引先名（TORIHIKISAKI_NK / ReadOnly / Width=130） -->
+                    <td th:text="${row.torihikisakiNk}"></td>
+                    <!-- 見積日付（MITSUMORI_DT / ReadOnly / Width=80） -->
+                    <td th:text="${row.mitsumoriDt}"></td>
+                    <!-- 見積依頼NO（TM_IRAI_NO / Link → MCM1004U） -->
+                    <td>
+                        <a th:if="${row.tmIraiNo != null}"
+                           th:href="@{/mcm2001u/link/mcm1004u(tmKeiyakujikanId=${row.tmKeiyakujikanId})}"
+                           th:text="${row.tmIraiNo}" class="grid-link"></a>
+                    </td>
+                    <!-- 契約NO（TKA_KEIYAKU_NO / Link → MCM1005U） -->
+                    <td>
+                        <a th:if="${row.tkaKeiyakuNo != null}"
+                           th:href="@{/mcm2001u/link/mcm1005u(keiyakuId=${row.tkaTkKeiyakuId})}"
+                           th:text="${row.tkaKeiyakuNo}" class="grid-link"></a>
+                    </td>
+                    <!-- 契約時間帯（KEIYAKUJIKANTAI / Width=60 / 右寄せ） -->
+                    <td class="text-right" th:text="${row.keiyakujikantai}"></td>
+                    <!-- 保守方法（HOSYUHOHO / Width=78） -->
+                    <td th:text="${row.hosyuhoho}"></td>
+                    <!-- 点検有無（TENKENUMU / Width=78） -->
+                    <td th:text="${row.tenkenumu}"></td>
+                    <!-- 点検可能曜日（TENKENKANOYOBI / Width=102） -->
+                    <td th:text="${row.tenkenkanoyobi}"></td>
+                    <!-- 夜間対応有無（YAKANTAIOUMU / Width=130） -->
+                    <td th:text="${row.yakantaioumu}"></td>
+                </tr>
+                <tr th:if="${mitsumoriList == null or #lists.isEmpty(mitsumoriList)}">
+                    <td colspan="11" class="no-data">データなし</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="button-area">
+        <button type="submit" class="btn-sentei">選定</button>
+    </div>
+</form>
+
+<!-- ========== JavaScript（親子孫連動） ========== -->
+<!--
+    【変換元】VB.NETのDataSetリレーション
+      MCM_MA_NONYUSAKI_MCM_MA_PLANT / MCM_MA_PLANT_MCM_TM_MITSUMORI
+      Java版: 行クリック時にselectedId更新 + ハイライト
+      納入先→プラント→見積を絞り込み、表示対象のチェックだけを送信する。
+-->
+<script th:inline="javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    const customers=[...document.querySelectorAll('.grid-nonyusaki .clickable-row')];
+    const plants=[...document.querySelectorAll('.grid-plant .clickable-row')];
+    const estimates=[...document.querySelectorAll('.grid-mitsumori tbody tr[data-plant-id]')];
+    function choosePlant(row) {
+        plants.forEach(r=>{r.classList.toggle('selected',r===row);const radio=r.querySelector('.row-select-radio');if(radio)radio.checked=r===row;});
+        document.getElementById('selectedPlantId').value=row?row.dataset.plantId:'';
+        estimates.forEach(r=>{
+            r.hidden=!row||r.dataset.plantId!==row.dataset.plantId;
+            const check=r.querySelector('input[type=checkbox]');if(check)check.disabled=r.hidden;
+        });
+    }
+    function chooseCustomer(row) {
+        customers.forEach(r=>{r.classList.toggle('selected',r===row);const radio=r.querySelector('.row-select-radio');if(radio)radio.checked=r===row;});
+        document.getElementById('selectedNonyusakiId').value=row?row.dataset.nonyusakiId:'';
+        plants.forEach(r=>r.hidden=!row||r.dataset.nonyusakiId!==row.dataset.nonyusakiId);
+        choosePlant(plants.find(r=>!r.hidden));
+    }
+    customers.forEach(r=>r.addEventListener('click',()=>chooseCustomer(r)));
+    plants.forEach(r=>r.addEventListener('click',()=>choosePlant(r)));
+    const equal=(a,b)=>String(a??'').replace(/\.0+$/,'')===String(b??'').replace(/\.0+$/,'');
+    const savedCustomer=/*[[${selectedNonyusakiId}]]*/ null;
+    const savedPlant=/*[[${selectedPlantId}]]*/ null;
+    const savedIds=/*[[${selectedTmIds}]]*/ [];
+    chooseCustomer(customers.find(r=>equal(r.dataset.nonyusakiId,savedCustomer))||customers[0]);
+    const restoredPlant=plants.find(r=>!r.hidden&&equal(r.dataset.plantId,savedPlant));if(restoredPlant)choosePlant(restoredPlant);
+    if(savedIds!==null)document.querySelectorAll('input[name=selectedTmKeiyakujikanId]').forEach(c=>c.checked=savedIds.some(id=>equal(id,c.value)));
+});
+</script>
+
+</body>
+</html>

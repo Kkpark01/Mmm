@@ -15,6 +15,15 @@ import java.util.List;
  *   タブ内容  : MCM_UK_BRAND + MCM_UK_KIKIKOSEI + MCM_UK_KIKIMEISAI + MCM_UK_KOTAIMEISAI + MCM_UK_TENKEN
  */
 public class Mcm2006uForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
 
     private static final long serialVersionUID = 1L;
     private String version;
@@ -148,6 +157,15 @@ public class Mcm2006uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class SeibanRowForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal ukSeibanId;
@@ -173,6 +191,15 @@ public class Mcm2006uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class KikanTabForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
         private boolean replaceEquipment;
         public boolean isReplaceEquipment() { return replaceEquipment; }
         public void setReplaceEquipment(boolean value) { replaceEquipment = value; }
@@ -298,6 +325,15 @@ public class Mcm2006uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class BrandRowForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal ukBrandId;       // null = 新規
@@ -335,6 +371,15 @@ public class Mcm2006uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class KoseiRowForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal ukKikoseiId;     // null = 新規
@@ -378,6 +423,15 @@ public class Mcm2006uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class MeisaiRowForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal ukKikimeisaiId;  // null = 新規
@@ -448,6 +502,15 @@ public class Mcm2006uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class KotaiRowForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal ukKotaimeisaiId; // null = 新規
@@ -497,6 +560,15 @@ public class Mcm2006uForm implements Serializable {
     // ═══════════════════════════════════════════════════════════════════════
 
     public static class TenkenRowForm implements Serializable {
+    private java.util.Map<String,String> extra=new java.util.LinkedHashMap<>();
+    private boolean extraEdited,removed;
+    public java.util.Map<String,String> getExtra(){return extra;}
+    public void setExtra(java.util.Map<String,String> v){extra=v;}
+    public boolean isExtraEdited(){return extraEdited;}
+    public void setExtraEdited(boolean v){extraEdited=v;}
+    public boolean isRemoved(){return removed;}
+    public void setRemoved(boolean v){removed=v;}
+
         private static final long serialVersionUID = 1L;
 
         private BigDecimal ukTenkenId;      // null = 新規

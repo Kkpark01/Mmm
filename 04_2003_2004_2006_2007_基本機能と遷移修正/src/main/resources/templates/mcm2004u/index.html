@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>保守見積・ユーザー契約検索（MCM2004U）</title><link rel="stylesheet" th:href="@{/css/common.css}"><link rel="stylesheet" th:href="@{/css/mcm2004u.css}"><script th:src="@{/js/common.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/mcm-customer-screens.css(v=20260912-2004)}"/>
+</head>
+<body class="mcm2004u-screen">
+<header class="screen-header"><h1>保守見積・ユーザー契約検索（MCM2004U）</h1><a class="header-close" th:href="@{/menu}">閉じる</a></header>
+<form id="searchForm" th:action="@{/mcm2004u/search}" th:object="${form}" method="post" data-mcm-no-progress novalidate>
+ <div class="search-fields">
+  <div class="field-row"><div class="field"><label for="umMitsumoriNo">見積NO</label><input id="umMitsumoriNo" th:field="*{umMitsumoriNo}" ></div><div class="field"><label for="keiyakuNo">契約NO</label><input id="keiyakuNo" th:field="*{keiyakuNo}" ></div></div>
+  <div class="field-row"><div class="field"><label for="mitsumoriDtStart">見積作成日</label><div class="date-range"><input th:field="*{mitsumoriDtStart}" placeholder="yyyy/MM/dd" aria-label="見積作成日 開始"><span>～</span><input th:field="*{mitsumoriDtEnd}" placeholder="yyyy/MM/dd" aria-label="見積作成日 終了"></div></div><div class="field"><label for="sofutenpoId">送付先事業所</label><select th:field="*{sofutenpoId}"><option value=""></option><option th:each="item : ${sofutenpoList}" th:value="${item['SOFUTENPO_ID']}" th:text="${item['MEISHO4_NK']}"></option></select></div></div>
+  <div class="field-row"><div class="field"><label for="nonyusakiCd">納入先コード</label><input id="nonyusakiCd" th:field="*{nonyusakiCd}" ></div><div class="field"><label for="nonyusakiNk">納入先名(旧名・カナなど)</label><input id="nonyusakiNk" th:field="*{nonyusakiNk}" ></div></div>
+  <div class="field-row"><div class="field"><label for="supportId">サポートID</label><input id="supportId" th:field="*{supportId}" ></div><div class="field"><label for="plantNk">プラント名</label><input id="plantNk" th:field="*{plantNk}" ></div></div>
+  <div class="check-row"><span>状態</span><div><label><input type="checkbox" th:field="*{jotaiMitsumori}"> 見積</label><label><input type="checkbox" th:field="*{jotaiKeiyaku}"> 契約</label><label><input type="checkbox" th:field="*{jotaiKaiyaku}"> 解約</label><label><input type="checkbox" th:field="*{jotaiHaki}"> 破棄</label></div></div>
+  <div class="check-row"><span>承認状態</span><div><label><input type="checkbox" th:field="*{syouninJotaiSakuseichu}"> 作成中</label><label><input type="checkbox" th:field="*{syouninJotaiSinsachu}"> 審査中</label><label><input type="checkbox" th:field="*{syouninJotaiShoninchu}"> 承認中</label><label><input type="checkbox" th:field="*{syouninJotaiShoninzumi}"> 承認済</label><label><input type="checkbox" th:field="*{syouninJotaiSashimodoshichu}"> 差戻中</label></div></div>
+ </div><button id="searchButton" type="submit" class="btn btn-primary">検索</button>
+</form>
+<div class="row-actions"><button id="deleteButton" class="btn" th:if="${sr.deleteButtonVisible}" type="button">行削除</button><a th:if="${sr.newButtonEnabled}" id="newButton" class="btn" th:href="@{/mcm2004u/new}">新規</a><button th:unless="${sr.newButtonEnabled}" id="newButton" class="btn" disabled>新規</button></div>
+<div class="grid-container" tabindex="0" aria-label="見積・契約一覧 横スクロール可能">
+<table id="resultTable" th:style="${'width:' + (1793 + (sr.showMitsumoriCopy ? 40 : 0) + (sr.showMitsumoriDel ? 40 : 0) + (sr.showKeiyakuKeiyaku ? 40 : 0) + (sr.showKeiyakuDel ? 40 : 0)) + 'px'}">
+<colgroup><col style="width:28px"><col style="width:54px"><col style="width:90px"><col style="width:55px"><col style="width:140px"><col style="width:93px"><col style="width:120px"><col style="width:120px"><col style="width:180px"><col style="width:180px"><col style="width:150px"><col style="width:79px"><col style="width:160px"><col style="width:54px"><col style="width:90px"><col style="width:90px"><col style="width:70px"><col style="width:40px"><col style="width:40px" th:if="${sr.showMitsumoriCopy}"><col style="width:40px" th:if="${sr.showMitsumoriDel}"><col style="width:40px" th:if="${sr.showKeiyakuKeiyaku}"><col style="width:40px" th:if="${sr.showKeiyakuDel}"></colgroup>
+<thead><tr><th class="row-head" aria-label="行選択"></th><th class="frozen-0">状態</th><th class="frozen-1">見積NO</th><th class="">承認</th><th class="">契約NO</th><th class="">納入先コード</th><th class="">送付先事業所</th><th class="">管理店舗・事業所</th><th class="">納入先名</th><th class="">旧納入先名</th><th class="">納入先工場名</th><th class="">サポートID</th><th class="">プラント名</th><th class="">時間</th><th class="">見積作成日</th><th class="">見積作成者</th><th class="">契約日</th><th class="">見積</th><th class="" th:if="${sr.showMitsumoriCopy}">見積</th><th class="" th:if="${sr.showMitsumoriDel}">見積</th><th class="" th:if="${sr.showKeiyakuKeiyaku}">契約</th><th class="" th:if="${sr.showKeiyakuDel}">契約</th></tr></thead>
+<tbody><tr th:each="row, stat : ${form.rows}" class="result-row" tabindex="0" th:classappend="${stat.first} ? 'selected' : ''" th:attr="data-estimate=${row.umKihonMitsumoriId},data-contract=${row.ukKeiyakuId}" th:aria-selected="${stat.first}">
+<td class="row-head"><span class="row-pointer" aria-hidden="true">▶</span></td>
+<td class="frozen-0 " th:title="${row.jotai}"><span th:text="${row.jotai}"></span></td>
+<td class="frozen-1 " th:title="${row.umMitsumoriNo}"><a class="grid-link" th:if="${row.umMitsumoriNo != null and !#strings.isEmpty(#strings.trim(row.umMitsumoriNo))}" th:href="@{/mcm2004u/link/mcm2003u(umKihonMitsumoriId=${row.umKihonMitsumoriId},ukKeiyakuId=${row.ukKeiyakuId},searchToken=${searchToken})}" th:text="${row.umMitsumoriNo}"></a></td>
+<td class=" " th:title="${row.syouninJotai}"><span th:text="${row.syouninJotai}"></span></td>
+<td class=" " th:title="${row.keiyakuNo}"><a class="grid-link" th:if="${row.keiyakuNo != null and !#strings.isEmpty(#strings.trim(row.keiyakuNo))}" th:href="@{/mcm2004u/link/mcm2006u(umKihonMitsumoriId=${row.umKihonMitsumoriId},ukKeiyakuId=${row.ukKeiyakuId},searchToken=${searchToken})}" th:text="${row.keiyakuNo}"></a></td>
+<td class=" " th:title="${row.nonyusakiCd}"><span th:text="${row.nonyusakiCd}"></span></td>
+<td class=" " th:title="${row.sofumeisho4Nk}"><span th:text="${row.sofumeisho4Nk}"></span></td>
+<td class=" " th:title="${row.iraimeisho4Nk}"><span th:text="${row.iraimeisho4Nk}"></span></td>
+<td class=" " th:title="${row.nonyusakiNk}"><span th:text="${row.nonyusakiNk}"></span></td>
+<td class=" " th:title="${row.kyunonyusakiNk}"><span th:text="${row.kyunonyusakiNk}"></span></td>
+<td class=" " th:title="${row.nonyusakikojoNk}"><span th:text="${row.nonyusakikojoNk}"></span></td>
+<td class=" " th:title="${row.supportId}"><span th:text="${row.supportId}"></span></td>
+<td class=" " th:title="${row.plantNk}"><span th:text="${row.plantNk}"></span></td>
+<td class=" number" th:title="${row.keiyakujikantai}"><span th:text="${row.keiyakujikantai}"></span></td>
+<td class=" " th:title="${row.mitsumoriDt}"><span th:text="${row.mitsumoriDt == null ? '' : #temporals.format(row.mitsumoriDt, 'yyyy/MM/dd')}"></span></td>
+<td class=" " th:title="${row.mitsumorisakuseisyaNk}"><span th:text="${row.mitsumorisakuseisyaNk}"></span></td>
+<td class=" " th:title="${row.keiyakuDt}"><span th:text="${row.keiyakuDt == null ? '' : #temporals.format(row.keiyakuDt, 'yyyy/MM/dd')}"></span></td>
+<td class=" " th:title="${row.mitsumoriUpd}"><a class="grid-link" th:if="${row.mitsumoriUpd != null and !#strings.isEmpty(#strings.trim(row.mitsumoriUpd))}" th:href="@{/mcm2004u/link/mcm2002u-upd(umKihonMitsumoriId=${row.umKihonMitsumoriId},ukKeiyakuId=${row.ukKeiyakuId},searchToken=${searchToken})}">修正</a></td>
+<td class=" " th:if="${sr.showMitsumoriCopy}" th:title="${row.mitsumoriCopy}"><a class="grid-link" th:if="${row.mitsumoriCopy != null and !#strings.isEmpty(#strings.trim(row.mitsumoriCopy))}" th:href="@{/mcm2004u/link/mcm2002u-copy(umKihonMitsumoriId=${row.umKihonMitsumoriId},ukKeiyakuId=${row.ukKeiyakuId},searchToken=${searchToken})}">複製</a></td>
+<td class=" " th:if="${sr.showMitsumoriDel}" th:title="${row.mitsumoriDel}"><button class="grid-link" type="button" data-operation="discard-mitsumori" th:if="${row.mitsumoriDel != null and !#strings.isEmpty(#strings.trim(row.mitsumoriDel))}">破棄</button></td>
+<td class=" " th:if="${sr.showKeiyakuKeiyaku}" th:title="${row.keiyakuKeiyaku}"><a class="grid-link" th:if="${row.keiyakuKeiyaku != null and !#strings.isEmpty(#strings.trim(row.keiyakuKeiyaku))}" th:href="@{/mcm2004u/link/mcm2007u(umKihonMitsumoriId=${row.umKihonMitsumoriId},ukKeiyakuId=${row.ukKeiyakuId},searchToken=${searchToken})}">作成</a></td>
+<td class=" " th:if="${sr.showKeiyakuDel}" th:title="${row.keiyakuDel}"><button class="grid-link" type="button" data-operation="discard-keiyaku" th:if="${row.keiyakuDel != null and !#strings.isEmpty(#strings.trim(row.keiyakuDel))}">破棄</button></td>
+</tr></tbody></table></div>
+<form id="actionForm" th:action="@{/mcm2004u/delete-row}" method="post" data-mcm-no-progress hidden><input type="hidden" name="searchToken" th:value="${searchToken}"></form>
+<div id="serverErrors" hidden th:if="${errors}" th:data-title="${errorTitle}"><span th:each="e : ${errors}" th:text="${e}"></span></div>
+<dialog id="messageDialog" aria-labelledby="dialogTitle" aria-describedby="dialogMessage"><div class="dialog-head"><span id="dialogTitle"></span><button id="dialogClose" type="button" aria-label="閉じる">×</button></div><div class="dialog-body"><span id="dialogIcon" aria-hidden="true">!</span><span id="dialogMessage"></span></div><div class="dialog-foot"><button id="dialogOk" class="btn" type="button">OK</button><button id="dialogCancel" class="btn" type="button" hidden>キャンセル</button></div></dialog>
+<script th:src="@{/js/mcm2004u.js}"></script></body></html>

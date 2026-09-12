@@ -41,6 +41,7 @@ public class Mcm2006uController extends BaseController {
                 }
                 var form = (Mcm2006uForm) session.getAttribute(FORM);
                 if (ukKeiyakuId != null) {
+                    service.clearUnlock(session);
                     form = service.load(ukKeiyakuId);
                     form.setSeniMotoKbn(seniMotoKbn == null ? 0 : seniMotoKbn);
                     session.setAttribute("mcm2006u.ukKeiyakuId", ukKeiyakuId);
@@ -66,7 +67,14 @@ public class Mcm2006uController extends BaseController {
                     form.setNonyubusyoNk(tab.getNonyubusyoNk());form.setNonyutantosyaNk(tab.getNonyutantosyaNk());
                     form.setNonyutelNo(tab.getNonyutelNo());form.setNonyufaxNo(tab.getNonyufaxNo());
                 }
+                com.daifuku.mcm.common.Mcm2006uFields.initialize(form);
                 session.setAttribute(FORM, form);
+                boolean unlocked=service.isUnlocked(form,session);
+                model.addAttribute("adminUnlocked",unlocked);
+                model.addAttribute("canUnlock",form.getUkKeiyakuId()!=null&&form.getSeniMotoKbn()==0&&service.canReleaseLock(session));
+                model.addAttribute("periodReadOnly",form.getSelectedTab()==null||readOnly(form,session)||(!unlocked&&service.isTabReadOnly(form.getSelectedTab())));
+                model.addAttribute("canChange",form.getSelectedTab()!=null&&!readOnly(form,session)&&(unlocked||form.getSelectedTab().getTabFlg()!=2));
+                model.addAttribute("tenpoChoices",service.tenpoChoices());model.addAttribute("hours",service.hours());
                 setCommonAttributes(model, session);
                 model.addAttribute("form", form);
                 model.addAttribute("readOnly", readOnly(form, session));
@@ -83,6 +91,29 @@ public class Mcm2006uController extends BaseController {
         }
     }
 
+
+    @PostMapping("/lock-release")
+    public String releaseLock(HttpServletRequest request,HttpSession session,RedirectAttributes ra){synchronized(session){
+        try{check(session,SCREEN,request);var current=(Mcm2006uForm)session.getAttribute(FORM);
+            var latest=service.releaseLock(current,session);session.setAttribute(FORM,latest);
+            session.removeAttribute("MCM2007U_FORM");session.removeAttribute("MCM2007U_STEP1_FORM");session.removeAttribute("mcm2007u.parentToken");
+            rotate(session,SCREEN);ra.addFlashAttribute("message","契約を読み直し、管理者用の編集制限を解除しました。");
+        }catch(IllegalStateException ex){ra.addFlashAttribute("error",ex.getMessage());}
+        catch(Exception ex){service.clearUnlock(session);logger.error("MCM2006U 編集制限解除失敗",ex);ra.addFlashAttribute("error","編集制限を解除できませんでした。再検索してください。");}
+        return "redirect:/mcm2006u";
+    }}
+    @PostMapping("/period") @org.springframework.web.bind.annotation.ResponseBody
+    public Map<String,Object> period(HttpServletRequest request,HttpSession session){synchronized(session){
+        // 古い画面へ新しいトークンや編集中の期間を返さない。
+        try{check(session,SCREEN,request);}catch(IllegalStateException ex){return Map.of("error",ex.getMessage(),"periods",java.util.List.of());}
+        try{var form=input(request,session);session.setAttribute(FORM,form);rotate(session,SCREEN);return periodResponse(form,session,"");}
+        catch(IllegalStateException ex){return periodResponse((Mcm2006uForm)session.getAttribute(FORM),session,ex.getMessage());}
+    }}
+    private Map<String,Object> periodResponse(Mcm2006uForm form,HttpSession session,String error){
+        var result=new java.util.LinkedHashMap<String,Object>();result.put("error",error);result.put("workflowToken",token(session,SCREEN));
+        result.put("periods",form==null?java.util.List.of():form.getKikanTabs().stream().map(t->Map.of("start",t.getKaisiDt(),"end",t.getSyuryoDt(),"label",t.getTabLabel())).toList());
+        result.put("nextRenewal",form==null?"":java.util.Objects.toString(form.getJikaikosinDt(),""));return result;
+    }
     @PostMapping("/save")
     public String save(HttpServletRequest request, HttpSession session, RedirectAttributes ra) {
         synchronized (session) {
@@ -128,7 +159,7 @@ public class Mcm2006uController extends BaseController {
             try {
                 var form = input(request, session);
                 var tab = form.getSelectedTab();
-                if (tab == null || service.isTabReadOnly(tab)) throw new IllegalStateException(DENIED);
+                if (tab == null || (tab.getTabFlg()==2&&!service.isUnlocked(form,session))) throw new IllegalStateException(DENIED);
                 var start = date(request.getParameter("changeStart"));
                 if (start.isBefore(date(tab.getKaisiDt())) || start.isAfter(date(tab.getSyuryoDt()).plusDays(1)))
                     throw new IllegalStateException("変更摘要開始日は選択期間の開始日から終了日の翌日までで指定してください。");
@@ -147,22 +178,39 @@ public class Mcm2006uController extends BaseController {
         var form = copy(saved);
         bind(request, form, "nonyubusyoNk", "nonyutantosyaNk", "nonyutelNo", "nonyufaxNo");
         var tab = form.getSelectedTab();
-        if (tab != null && !service.isTabReadOnly(tab)) {
+        boolean unlocked=service.isUnlocked(form,session);
+        if (tab != null && (unlocked||!service.isTabReadOnly(tab))) {
             String index = request.getParameter("selectedIndex");
             if (index == null || !index.equals(String.valueOf(form.getKikanTabs().indexOf(tab)))) throw new IllegalStateException(EXPIRED);
-            bind(request, tab, "biko", "hosyuhoho", "hosyuGkin", "syuryoDt");
+            bind(request, tab, "biko", "hosyuhoho", "hosyuGkin", "keiyakujikantai", "iraitenpoId", "iraitantoNk");
             tab.setNonyubusyoNk(form.getNonyubusyoNk());tab.setNonyutantosyaNk(form.getNonyutantosyaNk());
             tab.setNonyutelNo(form.getNonyutelNo());tab.setNonyufaxNo(form.getNonyufaxNo());
         }
+        service.adjustPeriodDates(form,request.getParameter("kaisiDt"),request.getParameter("syuryoDt"),unlocked);
+        com.daifuku.mcm.common.Mcm2006uFields.bind(request,form,tab!=null&&(unlocked||!service.isTabReadOnly(tab)));
         return form;
     }
+    @PostMapping("/rows") public String rows(@RequestParam String table,@RequestParam String operation,@RequestParam(required=false) Integer rowIndex,HttpServletRequest request,HttpSession session,RedirectAttributes ra){synchronized(session){try{
+        var form=input(request,session);var tab=form.getSelectedTab();
+        if(!java.util.Set.of("seiban","inspection").contains(table)||!java.util.Set.of("add","remove").contains(operation))throw new IllegalStateException(EXPIRED);
+        if(table.equals("inspection")&&(tab==null||(!service.isUnlocked(form,session)&&service.isTabReadOnly(tab))))throw new IllegalStateException(DENIED);
+        if(operation.equals("add")){
+            if(table.equals("seiban")){var row=new Mcm2006uForm.SeibanRowForm();row.setKaisiDt(tab==null?form.getKeiyakuDt():tab.getKaisiDt());row.setSyuryoDt(tab==null?form.getJikaikosinDt():tab.getSyuryoDt());row.getExtra().put("KAISI_DT",row.getKaisiDt());row.getExtra().put("SYURYO_DT",row.getSyuryoDt());row.setExtraEdited(true);form.getSeibanRows().add(row);}
+            else{var row=new Mcm2006uForm.TenkenRowForm();row.setExtraEdited(true);row.getExtra().put("NAIYO","");row.getExtra().put("BIKO","");for(int i=1;i<=12;i++)row.getExtra().put(String.format("M%02d",i),"0");tab.getTenkenRows().add(row);}
+        }else{
+            if(rowIndex==null||rowIndex<0)throw new IllegalStateException("削除する行を選択してください。");
+            if(table.equals("seiban")){if(rowIndex>=form.getSeibanRows().size())throw new IllegalStateException(EXPIRED);form.getSeibanRows().get(rowIndex).setRemoved(true);}
+            else{if(rowIndex>=tab.getTenkenRows().size())throw new IllegalStateException(EXPIRED);tab.getTenkenRows().get(rowIndex).setRemoved(true);}
+        }
+        session.setAttribute(FORM,form);rotate(session,SCREEN);
+    }catch(IllegalStateException ex){ra.addFlashAttribute("error",ex.getMessage());}return "redirect:/mcm2006u";}}
     private boolean readOnly(Mcm2006uForm f, HttpSession s) {
-        return !update(s,"MCM2006U",hasUpdateAuthority(),()->permissions.getAuthority(getLoginUserId(),"MCM2006U")) || service.isReadOnly(f.getJotai(), f.getSeniMotoKbn());
+        return !update(s,"MCM2006U",hasUpdateAuthority(),()->permissions.getAuthority(getLoginUserId(),"MCM2006U")) || (!service.isUnlocked(f,s)&&service.isReadOnly(f.getJotai(), f.getSeniMotoKbn()));
     }
     @GetMapping("/back")
     public String back(HttpSession session) {
         String destination = "/mcm3007u".equals(session.getAttribute("mcm2006u.returnTo")) ? "/mcm3007u" : "/mcm2004u";
-        session.removeAttribute(FORM);
+        service.clearUnlock(session);session.removeAttribute(FORM);
         session.removeAttribute("mcm2006u.ukKeiyakuId"); session.removeAttribute("mcm2006u.pendingKikan");
         rotate(session, SCREEN);
         return "redirect:" + destination;

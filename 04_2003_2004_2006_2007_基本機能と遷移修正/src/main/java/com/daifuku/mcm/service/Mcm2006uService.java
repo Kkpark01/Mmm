@@ -26,16 +26,81 @@ import com.daifuku.mcm.repository.Mcm2006uRepository;
  * 【変換元】Mcm2006uTabControl.vb — SearchRead / UpdateButtonTabNaiyo / View
  * MCM2006U ユーザ契約内容サービス
  *
- * Web版省略事項:
- *   - SP_UKストアドプロシージャ
- *   - ロック解除ボタン
- *   - タブ間日付自動連携（隣接タブの開始日/終了日を自動補完する機能）
+ * 親子削除・SP相当整合チェックを保存トランザクション内で行う。
  */
 @Service
 public class Mcm2006uService {
 
     @Autowired
     private Mcm2006uRepository repo;
+    @Autowired private McmCustomerIntegrityService integrity;
+
+
+    private static final String UNLOCK="mcm2006u.adminUnlock";
+    private record Unlock(BigDecimal id,String user) implements java.io.Serializable {}
+    public void clearUnlock(jakarta.servlet.http.HttpSession session){session.removeAttribute(UNLOCK);}
+    public boolean canReleaseLock(jakarta.servlet.http.HttpSession session){
+        var auth=org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if(auth==null||!auth.isAuthenticated()||auth.getAuthorities().stream().noneMatch(a->a.getAuthority().equals(com.daifuku.mcm.common.AppConstants.ROLE_UPDATE)))return false;
+        Object division=session.getAttribute(com.daifuku.mcm.common.AppConstants.SESSION_AUTHORITY_DIVISION);
+        if("0".equals(division)||"1".equals(division))return false;
+        try{return repo.canReleaseLock(auth.getName());}catch(org.springframework.dao.DataAccessException ex){return false;}
+    }
+    public boolean isUnlocked(Mcm2006uForm f,jakarta.servlet.http.HttpSession session){
+        if(!(session.getAttribute(UNLOCK) instanceof Unlock grant))return false;
+        var auth=org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean sameContext=f!=null&&f.getSeniMotoKbn()==0&&same(f.getUkKeiyakuId(),grant.id())
+            &&session.getAttribute("mcm2006u.ukKeiyakuId") instanceof BigDecimal current&&same(current,grant.id())
+            &&Integer.valueOf(0).equals(session.getAttribute("mcm2006u.seniMotoKbn"));
+        if(!sameContext){clearUnlock(session);return false;}
+        if(auth==null||!grant.user().equals(auth.getName())||!canReleaseLock(session)){
+            clearUnlock(session);session.removeAttribute("MCM2006U_FORM");rotate(session,"mcm2006u");
+            throw new IllegalStateException("管理者用編集権限が変更されました。契約を読み直してください。");
+        }
+        return true;
+    }
+    public Mcm2006uForm releaseLock(Mcm2006uForm current,jakarta.servlet.http.HttpSession session){
+        clearUnlock(session);
+        if(current==null||current.getUkKeiyakuId()==null||current.getSeniMotoKbn()!=0||!canReleaseLock(session))throw new IllegalStateException("管理者用ロック解除の権限がありません。");
+        if(!(session.getAttribute("mcm2006u.ukKeiyakuId") instanceof BigDecimal id)||!same(id,current.getUkKeiyakuId())
+            ||!Integer.valueOf(0).equals(session.getAttribute("mcm2006u.seniMotoKbn")))throw new IllegalStateException(EXPIRED);
+        var latest=load(current.getUkKeiyakuId());latest.setSeniMotoKbn(0);
+        if(current.getSelectedTab()!=null&&latest.getKikanTabs().stream().anyMatch(t->same(t.getUkKikanId(),current.getSelectedKikanId())))latest.setSelectedKikanId(current.getSelectedKikanId());
+        var tab=latest.getSelectedTab();if(tab!=null){latest.setNonyubusyoNk(tab.getNonyubusyoNk());latest.setNonyutantosyaNk(tab.getNonyutantosyaNk());latest.setNonyutelNo(tab.getNonyutelNo());latest.setNonyufaxNo(tab.getNonyufaxNo());}
+        session.setAttribute(UNLOCK,new Unlock(latest.getUkKeiyakuId(),org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName()));
+        return latest;
+    }
+    private boolean unlockedForSave(Mcm2006uForm form){
+        var attributes=org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+        if(!(attributes instanceof org.springframework.web.context.request.ServletRequestAttributes web))return false;
+        var request=web.getRequest();var session=request.getSession(false);
+        return session!=null&&"POST".equals(request.getMethod())&&"/mcm2006u/save".equals(request.getRequestURI().substring(request.getContextPath().length()))&&isUnlocked(form,session);
+    }
+    /** 日付変更はコピー上で検査してから適用し、失敗時には前後の期間も変更しない。 */
+    public void adjustPeriodDates(Mcm2006uForm form,String startInput,String endInput,boolean unlocked){
+        var selected=form.getSelectedTab();if(selected==null)return;
+        String start=startInput==null?selected.getKaisiDt():format(date(startInput));
+        String finish=endInput==null?selected.getSyuryoDt():format(date(endInput));
+        boolean startChanged=!start.equals(selected.getKaisiDt()),endChanged=!finish.equals(selected.getSyuryoDt());
+        if(!startChanged&&!endChanged)return;
+        if((startChanged&&!unlocked)||(!unlocked&&isTabReadOnly(selected)))throw new IllegalStateException(DENIED);
+        var candidate=copy(form);int index=form.getKikanTabs().indexOf(selected);var tabs=candidate.getKikanTabs();
+        var target=tabs.get(index);target.setKaisiDt(start);target.setSyuryoDt(finish);
+        if(startChanged&&index>0){var previous=tabs.get(index-1);if(!unlocked&&isTabReadOnly(previous))throw new IllegalStateException("前の期間は編集できないため、開始日を変更できません。");previous.setSyuryoDt(format(date(start).minusDays(1)));}
+        if(endChanged&&index+1<tabs.size()){var next=tabs.get(index+1);if(!unlocked&&isTabReadOnly(next))throw new IllegalStateException("次の期間は編集できないため、終了日を変更できません。");next.setKaisiDt(format(date(finish).plusDays(1)));}
+        validatePeriods(candidate);
+        for(int i=0;i<tabs.size();i++){form.getKikanTabs().get(i).setKaisiDt(tabs.get(i).getKaisiDt());form.getKikanTabs().get(i).setSyuryoDt(tabs.get(i).getSyuryoDt());}
+        form.setJikaikosinDt(format(date(tabs.get(tabs.size()-1).getSyuryoDt()).plusDays(1)));
+    }
+    public void validatePeriods(Mcm2006uForm form){
+        LocalDate previousEnd=null;
+        for(var tab:form.getKikanTabs()){
+            var start=date(tab.getKaisiDt());var finish=date(tab.getSyuryoDt());
+            if(!finish.isAfter(start)||finish.isAfter(start.plusYears(1).minusDays(1)))throw new IllegalStateException("期間は開始日より後、1年以内の終了日を指定してください。");
+            if(previousEnd!=null&&!start.equals(previousEnd.plusDays(1)))throw new IllegalStateException("契約期間が連続するように設定してください。");
+            if(tab.getHosyuGkin()!=null&&tab.getHosyuGkin().signum()<0)throw new IllegalStateException("保守額には0以上の値を入力してください。");previousEnd=finish;
+        }
+    }
 
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
@@ -59,6 +124,7 @@ public class Mcm2006uService {
             tab.setTabFlg(calcTabFlg(tab, tabs));
         }
         form.setKikanTabs(tabs);
+        repo.loadDisplay(form);
         if (!tabs.isEmpty()) {
             form.setSelectedKikanId(tabs.get(tabs.size()-1).getUkKikanId());
         }
@@ -129,23 +195,16 @@ public class Mcm2006uService {
 
         if (form.getPlantId() == null || form.getNonyusakiId() == null || form.getKikanTabs().isEmpty())
             throw new IllegalStateException("契約の対象と期間を選択してください。");
-        if (isReadOnly(form.getJotai(), form.getSeniMotoKbn())) throw new IllegalStateException(DENIED);
+        boolean unlocked=unlockedForSave(form);
+        if (!unlocked && isReadOnly(form.getJotai(), form.getSeniMotoKbn())) throw new IllegalStateException(DENIED);
         if (form.getUkKeiyakuId() != null) {
             repo.lock(form.getUkKeiyakuId());
             var current = repo.findKeiyaku(form.getUkKeiyakuId());
             if(!java.util.Objects.equals(current.getVersion(),form.getVersion()))throw new IllegalStateException("他のユーザによって更新されています。再検索してください。");
-            if (current.getUkKeiyakuId() == null || isReadOnly(current.getJotai(), form.getSeniMotoKbn())) throw new IllegalStateException(EXPIRED);
+            if (current.getUkKeiyakuId() == null || (!unlocked && isReadOnly(current.getJotai(), form.getSeniMotoKbn()))) throw new IllegalStateException(EXPIRED);
         }
         form.getKikanTabs().sort(java.util.Comparator.comparing(t -> date(t.getKaisiDt())));
-        LocalDate end = null;
-        for (var tab : form.getKikanTabs()) {
-            var start = date(tab.getKaisiDt()); var finish = date(tab.getSyuryoDt());
-            if (!finish.isAfter(start) || finish.isAfter(start.plusYears(1).minusDays(1)))
-                throw new IllegalStateException("期間は開始日より後、1年以内の終了日を指定してください。");
-            if (end != null && !start.equals(end.plusDays(1))) throw new IllegalStateException("契約期間が連続するように設定してください。");
-            if (tab.getHosyuGkin() != null && tab.getHosyuGkin().signum() < 0) throw new IllegalStateException("保守額には0以上の値を入力してください。");
-            end = finish;
-        }
+        validatePeriods(form);
         for(var period:form.getKikanTabs()) for(var brand:period.getBrandRows())
             if(brand.getUkBrandId()==null && !repo.validSource(brand,form.getPlantId()))
                 throw new IllegalStateException("選択した見積の状態が変更されています。選択し直してください。");
@@ -168,6 +227,7 @@ public class Mcm2006uService {
 
         // 2. MCM_UK_SEIBAN
         for (SeibanRowForm seiban : form.getSeibanRows()) {
+            if(seiban.isRemoved())continue;
             seiban.setUkKeiyakuId(form.getUkKeiyakuId());
             if (seiban.getUkSeibanId() == null) {
                 seiban.setUkSeibanId(repo.nextSeibanId());
@@ -186,6 +246,8 @@ public class Mcm2006uService {
             lastSyuryoDt = tab.getSyuryoDt();
         }
 
+        repo.saveDisplay(form,loginUser);
+        integrity.contract(form.getUkKeiyakuId());
         // 4. 次回更新日 = 最終タブSYURYO_DT + 1日
         if (lastSyuryoDt != null && !lastSyuryoDt.isBlank()) {
             repo.updateJikaikosinDt(form.getUkKeiyakuId(), lastSyuryoDt, loginUser);
@@ -197,6 +259,8 @@ public class Mcm2006uService {
     // ===================================================================
 
     private void saveKikan(KikanTabForm tab, String loginUser) {
+        repo.prepareAddress(tab);
+        if(tab.getKeiyakujikantai()!=null&&!tab.getKeiyakujikantai().isBlank()&&!tab.getKeiyakujikantai().matches("[0-9]{1,2}"))throw new IllegalStateException("契約時間帯は2桁以内の数値で入力してください。");
         boolean isNewKikan = !repo.existsKikan(tab.getUkKikanId());
         if (isNewKikan) {
             if (tab.getUkKikanId() == null || tab.getUkKikanId().signum() <= 0) {
@@ -284,7 +348,7 @@ public class Mcm2006uService {
 
     /** タブが編集可かどうか (TAB_FLG_NON/OLD のタブはReadOnly) */
     public boolean isTabReadOnly(KikanTabForm tab) {
-        return tab.getTabFlg() == Mcm2006uConstants.TAB_FLG_NON;
+        return tab.getTabFlg() == Mcm2006uConstants.TAB_FLG_NON || tab.getTabFlg() == Mcm2006uConstants.TAB_FLG_OLD;
     }
 
     // ===================================================================
@@ -387,7 +451,7 @@ public class Mcm2006uService {
             kotaiRows.add(kt);
         }
         tab.setKotaiRows(kotaiRows);
-
+        repo.quoteFields(tab);
         return tab;
     }
 
@@ -432,6 +496,8 @@ public class Mcm2006uService {
         }
     }
 
+    public java.util.List<java.util.Map<String,Object>> tenpoChoices(){return repo.tenpoChoices();}
+    public java.util.List<java.util.Map<String,Object>> hours(){return repo.hours();}
     private LocalDate parseDate(String dt) {
         if (dt == null || dt.isBlank()) return LocalDate.MIN;
         try { return LocalDate.parse(dt, DT_FMT); }

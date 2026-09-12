@@ -1,0 +1,333 @@
+/* 2001～2007: 1001/1003のタイトル、2004の表配色を共通化。
+ * 各画面CSSの後に読み込む。状態バッジ・警告・申請ボタンの意味別の色は維持する。 */
+:is(.mcm-customer-screen, .mcm2004u-screen) {
+    --mcm-title: #453f78;
+    --mcm-surface: #f4f6f7;
+    --mcm-grid-head: #eef2f5;
+    --mcm-border: #d5dbdb;
+    font-family: "Yu Gothic UI", "Meiryo UI", Meiryo, sans-serif;
+    font-size: 12px;
+    color: #333;
+    background: var(--mcm-surface);
+}
+body.mcm-customer-screen { margin: 0; padding: 8px; min-height: 100vh; }
+.mcm-customer-screen > :is(form, .section, .tab-content, .msg-area) { background: #fff; }
+.mcm2004u-screen #searchForm { background: #fff; }
+:is(.mcm-customer-screen, .mcm2004u-screen) :is(.header, .screen-header) {
+    height: 40px;
+    min-height: 40px;
+    padding: 0 10px;
+    background: var(--mcm-title);
+    color: #fff;
+}
+.mcm-customer-screen .header {
+    display: grid;
+    grid-template-columns: minmax(90px, 1fr) auto minmax(90px, 1fr);
+    padding: 0 10px;
+}
+.mcm-customer-screen .header-right { justify-content: flex-end; }
+:is(.mcm-customer-screen, .mcm2004u-screen) :is(.header, .screen-header) h1 {
+    margin: 0;
+    font-family: "Yu Gothic UI", "Meiryo UI", Meiryo, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 30px;
+    letter-spacing: 2px;
+    color: #fff;
+    text-align: center;
+}
+:is(.mcm-customer-screen, .mcm2004u-screen) :is(.btn-close, .header-close) {
+    box-sizing: border-box;
+    display: inline-block;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    padding: 2px 12px;
+    font-family: initial;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #000;
+    background: #f0f0f0;
+    border: 1px solid #adadad;
+    border-radius: 2px;
+    box-shadow: inset 0 1px 0 #fff;
+    text-decoration: none;
+}
+/* 1001/1003と同じ文字・余白による自然なボタン高。絶対配置の画面も帯の中央へ。 */
+.mcm-estimate-search .header .btn-close,
+.mcm2004u-screen .screen-header .header-close {
+    top: 50%;
+    transform: translateY(-50%);
+}
+:is(.mcm-customer-screen, .mcm2004u-screen) :is(.btn-close, .header-close):hover {
+    background: #e5f1fb;
+    border-color: #7eb4ea;
+}
+.mcm-customer-screen :is(.btn, .btn-default, .btn-primary) {
+    min-height: 26px;
+    padding: 2px 12px;
+    font-family: inherit;
+    font-size: 12px;
+    border-radius: 2px;
+}
+.mcm-customer-screen .btn-mini { min-height: 22px; padding: 0 8px; font-size: 11px; }
+:is(.mcm-customer-screen, .mcm2004u-screen) .btn-primary {
+    background: var(--mcm-title);
+    border-color: var(--mcm-title);
+    color: #fff;
+}
+:is(.mcm-customer-screen, .mcm2004u-screen) .btn-primary:hover:not(:disabled) { background: #5a5499; border-color: #5a5499; }
+.mcm-customer-screen :is(.section-title, .step-indicator, .period-info) {
+    color: #333;
+    background: var(--mcm-grid-head);
+    border-color: var(--mcm-border);
+}
+.mcm-customer-screen .section-title { padding: 2px 8px; border-radius: 2px; }
+.mcm-customer-screen :is(.action-bar, .toolbar) { background: #f0f0f0; border-color: var(--mcm-border); }
+.mcm-customer-screen .tabs { background: var(--mcm-grid-head); }
+.mcm-customer-screen .tab-btn:not(.active) { background: #f0f0f0; border-color: #adadad; }
+.mcm-customer-screen .tab-btn:hover:not(.active) { background: #e5f1fb; }
+.mcm-customer-screen .grid-container { border-color: var(--mcm-border); }
+.mcm-customer-screen .data-grid th {
+    background: var(--mcm-grid-head);
+    color: #333;
+    border-color: var(--mcm-border);
+    font-weight: normal;
+}
+.mcm-customer-screen .data-grid td { background: #fff; border-color: var(--mcm-border); }
+.mcm-customer-screen .data-grid tr:nth-child(even) td { background: #f0f8ff; }
+.mcm-customer-screen .data-grid tbody tr:hover td { background: #e8f2fc; }
+.mcm-customer-screen .data-grid tbody tr:has(.row-select-radio:checked) td { background: #cce5ff; }
+.mcm-customer-screen :focus-visible { outline: 2px solid #1a56db; outline-offset: 1px; }
+.mcm-customer-screen .grid-row-cost .grid-col-main { flex: 1; min-width: 0; }
+.mcm-estimate-search .header { display: flex; justify-content: center; }
+/* 2001U: VBの検索欄幅を上限にし、画面幅に合わせた過剰な引き伸ばしを防ぐ。 */
+.mcm-estimate-search .search-grid { grid-template-columns: minmax(0, 525px) minmax(0, 1fr); gap: 3px 24px; }
+.mcm-estimate-search .search-cell { min-width: 0; gap: 6px; }
+.mcm-estimate-search .search-cell label { min-width: 0; flex: 0 0 129px; }
+.mcm-estimate-search .search-cell:nth-child(even) label { flex-basis: 54px; }
+.mcm-estimate-search .input-wide { flex: 0 1 390px; min-width: 0; width: 390px; }
+.mcm-estimate-search #plantNk { flex-basis: 393px; width: 393px; }
+.mcm-selection-screen main { background: #fff; }
+.mcm-selection-screen .header { align-items: center; }
+.mcm-selection-screen .header-right { display: flex; justify-content: flex-end; }
+.mcm-selection-screen .mcm-grid-title {
+    box-sizing: border-box; min-height: 24px; padding: 2px 8px; line-height: 18px;
+    background: transparent; border: 0; color: #333;
+}
+.mcm-selection-screen .mcm-grid-panel { border: 0; border-radius: 0; background: transparent; }
+.mcm-selection-screen .mcm-grid-scroll { border: 1px solid var(--mcm-border); }
+.mcm-selection-screen .mcm-header-row { gap: 6px; }
+.mcm-selection-screen .mcm-header-row > .mcm-label { min-width: 0; flex: 0 0 60px; }
+.mcm-selection-screen .mcm-header-row > .mcm-label:first-child { flex-basis: 72px; }
+.mcm-selection-screen .mcm-value {
+    box-sizing: border-box; flex: 0 1 120px; width: 120px; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mcm-selection-screen .mcm-value-wide { flex-basis: 280px; width: 280px; }
+.mcm-selection-screen .mcm-header-extra { margin-left: 12px; gap: 6px; }
+.mcm-selection-screen .mcm-header-extra .mcm-label { min-width: 0; width: 72px; }
+.mcm-selection-screen .mcm-btn-primary { background: var(--mcm-title); border-color: var(--mcm-title); }
+.mcm-selection-screen .mcm-btn-primary:hover { background: #5a5499; }
+.mcm-selection-screen .mcm-header-row { flex-wrap: wrap; }
+.mcm-selection-screen .mcm-table th { background: var(--mcm-grid-head); color: #333; }
+.mcm-selection-screen .mcm-table :is(th,td) { border-color: var(--mcm-border); }
+.mcm-selection-screen .mcm-table tr:nth-child(even) td { background: #f0f8ff; }
+.mcm-customer-screen .draft-actions { padding: 8px 10px; background: #eef2f5; border-bottom: 1px solid var(--mcm-border); }
+@media (max-width: 1200px) {
+    .mcm-customer-screen .info-panel { grid-template-columns: 1fr; }
+    .mcm-customer-screen .grid-section > .form-row { flex-wrap: wrap; }
+    .mcm-customer-screen .toolbar { flex-wrap: wrap; }
+}
+
+/* 表の密度を1001/1003の12px・約24px行に合わせる。2004の操作行は26px。 */
+.mcm-customer-screen :is(.data-grid,.mcm-table) :is(th,td) {
+    box-sizing: border-box;
+    font-family: inherit; font-size: 12px; line-height: 18px;
+    height: 24px; padding: 2px 6px; vertical-align: middle;
+}
+.mcm-customer-screen :is(.data-grid,.mcm-table) th { font-weight: normal; }
+.mcm-customer-screen :is(.data-grid,.mcm-table) :is(.col-select,.col-chk) { padding: 0; text-align: center; }
+.mcm-customer-screen :is(.data-grid,.mcm-table) input[type="checkbox"] {
+    width: 13px; height: 13px; margin: 0; transform: none; vertical-align: middle;
+}
+.mcm-selection-screen .mcm-table { table-layout: fixed; width: 100%; }
+.mcm-selection-screen .mcm-table :is(th,td) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mcm-selection-screen #koseiTable { min-width: 620px; }
+.mcm-selection-screen #meisaiTable { min-width: 690px; }
+.mcm-selection-screen #kotaiTable { min-width: 1680px; }
+.mcm-selection-screen .mcm-table td { background: #fff; }
+.mcm-selection-screen .mcm-table tr.selected td { background: #cce5ff; }
+.mcm-selection-screen .selection-help { margin: 0 0 8px; padding: 6px 10px; color: #555; background: #eef2f5; }
+
+/* 2003U: VBの項目順・ブランド別配置。色・文字・表の行高はWeb共通を継承。 */
+.mcm2003u-screen .info-panel { display:grid; grid-template-columns:225px minmax(0,461px) 226px minmax(200px,1fr); grid-template-rows:repeat(5,22px) 40px; gap:0 12px; padding:4px 6px; background:#fff; border:0; }
+.mcm2003u-screen .info-item { gap:6px; min-width:0; }
+.mcm2003u-screen .info-item label { min-width:0; flex:0 0 103px; color:#333; }
+.mcm2003u-screen .info-item :is(input,select,textarea) { min-width:0; width:100%; font:inherit; padding:1px 4px; border:1px solid #aaa; border-radius:0; }
+.mcm2003u-screen .info-item :is(input,select) { height:21px; }
+.mcm2003u-screen .info-item input { text-overflow:ellipsis; }
+.mcm2003u-screen .delivery-code { grid-area:1/1; }.mcm2003u-screen .support-id { grid-area:2/1; }.mcm2003u-screen .estimate-no { grid-area:3/1; }
+.mcm2003u-screen .delivery-name { grid-area:1/2/2/4; max-width:563px; }.mcm2003u-screen .plant-name { grid-area:2/2/3/4; max-width:563px; }
+.mcm2003u-screen :is(.delivery-name,.plant-name) label { flex-basis:76px; }
+.mcm2003u-screen .estimate-terms { grid-area:3/2/4/4; display:flex; gap:20px; align-items:center; }
+.mcm2003u-screen .estimate-terms .info-item { flex:0 1 auto; }
+.mcm2003u-screen .estimate-terms label { flex-basis:auto; }.mcm2003u-screen .validity label { flex-basis:76px; }
+.mcm2003u-screen .validity input { width:90px; }.mcm2003u-screen .hours input { width:40px; }.mcm2003u-screen .level input { width:94px; }
+.mcm2003u-screen .status { grid-area:1/4; }.mcm2003u-screen .approval { grid-area:2/4; }
+.mcm2003u-screen :is(.status,.approval) label { flex-basis:58px; }.mcm2003u-screen :is(.status,.approval) span { width:100px; border:1px solid #aaa; background:#f0f0f0; padding:1px 4px; }
+.mcm2003u-screen .irai { grid-area:4/1/5/3; }.mcm2003u-screen .sofu { grid-area:5/1/6/3; }
+.mcm2003u-screen .request-person { grid-area:4/3; }.mcm2003u-screen .delivery-person { grid-area:5/3; }
+.mcm2003u-screen :is(.request-person,.delivery-person) label { flex-basis:76px; }
+.mcm2003u-screen .conditions { grid-area:6/1/7/4; align-items:flex-start; padding-top:2px; }.mcm2003u-screen .conditions textarea { height:38px; resize:vertical; }
+.mcm2003u-screen .header-meta { grid-area:4/4/7/5; }
+.mcm2003u-screen .meta-panel { border:0; background:transparent; padding:0; gap:1px; font-size:11px; }
+.mcm2003u-screen .meta-row { height:20px; align-items:center; min-width:0; }
+.mcm2003u-screen .meta-row label { min-width:52px; }.mcm2003u-screen .meta-row span { display:block; border:1px solid #aaa; background:#f0f0f0; padding:1px 3px; width:115px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mcm2003u-screen .section-title { display:block; margin:0; padding:2px 0; line-height:18px; height:22px; background:transparent; border:0; border-radius:0; }
+.mcm2003u-screen .grid-row-top { display:grid; grid-template-columns:minmax(0,413px) minmax(0,1fr); gap:40px; margin:0 6px 4px; }
+.mcm2003u-screen .section-with-action { height:22px; margin:0; gap:4px; }.mcm2003u-screen .section-with-action > span:last-child { white-space:nowrap; }
+.mcm2003u-screen :is(.grid-mitsumori,.grid-tenpu) { height:135px; }
+.mcm2003u-screen .brand-section { margin:0 6px 4px; min-width:0; }
+.mcm2003u-screen .brand-tabs { display:flex; gap:2px; overflow-x:auto; border-bottom:1px solid var(--mcm-border); min-height:27px; }
+.mcm2003u-screen .brand-tab { flex:0 0 auto; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:3px 12px; font:inherit; border:1px solid var(--mcm-border); background:#f0f0f0; border-radius:2px 2px 0 0; }
+.mcm2003u-screen .brand-tab.active { background:#fff; color:var(--mcm-title); border-top:2px solid var(--mcm-title); font-weight:bold; }
+.mcm2003u-screen .brand-content { display:grid; grid-template-columns:minmax(0,746px) minmax(0,1fr); grid-template-rows:250px 74px 229px; gap:0 8px; padding:4px; border:1px solid var(--mcm-border); border-top:0; }
+.mcm2003u-screen .equipment-config { grid-area:1/1; min-width:0; }.mcm2003u-screen .grid-kosei { height:228px; }
+.mcm2003u-screen .equipment-details { grid-area:2/1/4/2; min-width:0; }.mcm2003u-screen .grid-meisai { height:279px; }
+.mcm2003u-screen .brand-maintenance { grid-area:1/2/3/3; min-width:0; }
+.mcm2003u-screen .kikan-side-header { display:flex; flex-wrap:nowrap; gap:6px; margin:0 0 18px; min-height:22px; font-size:11px; }
+.mcm2003u-screen .kikan-side-header input[type=text] { width:32px; font:inherit; background:#f0f0f0; border:1px solid #aaa; }
+.mcm2003u-screen .kikan-side-header input[type=checkbox] { margin:0; width:13px; height:13px; }
+.mcm2003u-screen .maintenance-method { display:flex; gap:6px; align-items:flex-start; }
+.mcm2003u-screen .maintenance-method label { flex:0 0 54px; padding-top:2px; white-space:nowrap; }
+.mcm2003u-screen .maintenance-method textarea { height:280px; min-width:0; flex:1; resize:vertical; border:1px solid #aaa; font:inherit; padding:3px 4px; }
+.mcm2003u-screen .cost-side { grid-area:3/2; min-width:0; padding-top:4px; }
+.mcm2003u-screen :is(.cost-top-row,.cost-bottom-row) { gap:10px; }.mcm2003u-screen .cost-bottom-row { margin-top:4px; }
+.mcm2003u-screen .summary-box { padding:0; border:0; font-size:12px; }
+.mcm2003u-screen .summary-row { padding:0; height:21px; gap:4px; align-items:center; white-space:nowrap; }
+.mcm2003u-screen .summary-row input.summary-val { min-width:0; width:95px; height:20px; font:inherit; }
+.mcm2003u-screen .summary-total { margin-top:2px; padding-top:0; }.mcm2003u-screen .brand-meta { padding-top:22px; }
+.mcm2003u-screen .brand-detail-action { min-height:26px; display:flex; justify-content:flex-end; align-items:center; font-size:11px; color:#555; }
+.mcm2003u-screen .data-grid td { white-space:nowrap; }
+.mcm2003u-screen .grid-kosei .data-grid { min-width:710px; }.mcm2003u-screen .grid-meisai .data-grid { min-width:640px; }
+@media(max-width:1150px) {
+ .mcm2003u-screen .info-panel { grid-template-columns:190px minmax(0,1fr) 185px 180px; gap:0 8px; }
+ .mcm2003u-screen .info-item label { flex-basis:96px; }.mcm2003u-screen :is(.delivery-name,.plant-name) label { flex-basis:76px; }
+ .mcm2003u-screen .estimate-terms { gap:10px; }.mcm2003u-screen .estimate-terms label { flex-basis:auto; }.mcm2003u-screen .level input { width:40px; }
+ .mcm2003u-screen :is(.request-person,.delivery-person) label { flex-basis:76px; }.mcm2003u-screen :is(.status,.approval) label { flex-basis:58px; }
+ .mcm2003u-screen .grid-row-top { grid-template-columns:minmax(0,36fr) minmax(0,64fr); gap:20px; }
+ .mcm2003u-screen .brand-content { grid-template-columns:minmax(0,1fr) 456px; }
+}
+@media(max-width:850px) {
+ .mcm2003u-screen .info-panel { display:flex; flex-wrap:wrap; gap:4px 12px; }.mcm2003u-screen .info-panel > * { flex:1 1 300px; max-width:none; }.mcm2003u-screen .estimate-terms { flex-wrap:wrap; }
+ .mcm2003u-screen .grid-row-top { grid-template-columns:1fr; gap:4px; }.mcm2003u-screen .brand-content { display:flex; flex-direction:column; gap:6px; }.mcm2003u-screen .brand-maintenance { margin-top:4px; }
+}
+
+.mcm2003u-screen .meta-row span { min-height:20px; }
+
+/* VBと同様の固定領域とし、手動リサイズによる隣接欄への重なりを防ぐ。 */
+.mcm2003u-screen :is(.maintenance-method,.conditions) textarea { resize:none; }
+
+/* 2003U: VBと同じ位置に期間詳細と添付追加／削除を配置。 */
+.mcm2003u-screen .toolbar > :is(button,a:not(:first-child)) { min-width:75px; justify-content:center; }
+.mcm2003u-screen .attachment-actions { display:flex; gap:4px; align-items:center; }
+.mcm2003u-screen .attachment-actions .btn { min-width:75px; justify-content:center; }
+
+.mcm2003u-screen .grid-mitsumori .data-grid { min-width:375px; }
+
+.mcm2003u-screen .reload-help { padding:4px 6px; text-align:right; font-size:12px; }
+
+/* 2003U: VB と同じ編集列。行高・タイトル・見出しは既存の共通スタイルを維持。 */
+.mcm2003u-screen .grid-kosei td:has(select), .mcm2003u-screen .grid-kosei td:has(input[type=text]) { padding: 0; }
+.mcm2003u-screen .grid-kosei select, .mcm2003u-screen .grid-kosei input[type=text] { box-sizing: border-box; width: 100%; min-width: 0; height: 22px; padding: 1px 3px; border: 1px solid #aaa; border-radius: 0; font: inherit; color: inherit; background: #fff; }
+.mcm2003u-screen .summary-row input.summary-val:not([readonly]), .mcm2003u-screen .kikan-side-header input[type=text]:not(:disabled) { background: #fff; }
+
+/* 2005U: VB本文の見積情報 → ブランド条件/構成 → 全幅明細の順。 */
+.mcm2005u-screen { margin:0; }
+.mcm2005u-screen .header { align-items:center; }
+.mcm2005u-screen .header-left,.mcm2005u-screen .header-right { display:flex; align-items:center; }
+.mcm2005u-screen * { box-sizing:border-box; }
+.mcm2005u-screen input,.mcm2005u-screen textarea,.mcm2005u-screen select { min-width:0; border:1px solid #aaa; border-radius:0; padding:1px 4px; font:inherit; }
+.mcm2005u-screen input { height:22px; }
+.mcm2005u-screen input[readonly],.mcm2005u-screen textarea[readonly],.mcm2005u-screen .amount { background:#f0f0f0; }
+.mcm2005u-screen label { display:flex; align-items:center; gap:6px; min-width:0; }
+.mcm2005u-screen label>span { white-space:nowrap; }
+.mcm2005u-screen .msg-area:empty { display:none; }
+.mcm2005u-screen .detail-header { display:grid; grid-template-columns:minmax(480px,1.8fr) minmax(280px,1fr) 182px; gap:10px; padding:5px 6px 3px; }
+.mcm2005u-screen .header-pair { display:grid; grid-template-columns:179px minmax(0,1fr); gap:12px; }
+.mcm2005u-screen .header-main label,.mcm2005u-screen .header-terms>label { margin-bottom:2px; }
+.mcm2005u-screen .header-main label>span { flex:0 0 68px; }
+.mcm2005u-screen .header-main input { width:100%; }
+.mcm2005u-screen .header-main .company>span { flex-basis:107px; }
+.mcm2005u-screen .date-approval { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.mcm2005u-screen .date-approval label>span { flex-basis:53px; }
+.mcm2005u-screen .header-terms label>span:first-child { flex:0 0 77px; }
+.mcm2005u-screen .header-terms input { width:122px; }
+.mcm2005u-screen .header-terms .hours input { width:40px; }
+.mcm2005u-screen .contract-period input { width:78px; }
+.mcm2005u-screen .period-remark { align-items:flex-start; }
+.mcm2005u-screen .period-remark textarea { width:100%; height:71px; resize:vertical; }
+.mcm2005u-screen .detail-audit label { gap:6px; margin-bottom:2px; font-size:11px; }
+.mcm2005u-screen .detail-audit label>span { flex:0 0 53px; }
+.mcm2005u-screen .detail-audit input { width:100%; }
+.mcm2005u-screen .detail-tabs { display:flex; gap:2px; overflow:auto; padding:0 6px; }
+.mcm2005u-screen .brand-tab { white-space:nowrap; padding:4px 12px; background:#f0f0f0; border:1px solid #d5dbdb; border-radius:0; font:inherit; cursor:pointer; }
+.mcm2005u-screen .brand-tab.active { border-top:2px solid #453f78; background:white; }
+.mcm2005u-screen .detail-workspace { display:grid; grid-template-columns:minmax(0,781fr) minmax(0,437fr); grid-template-areas:"notes method" "config costs" "lines lines"; column-gap:8px; padding:4px; margin:0 6px; border:1px solid #d5dbdb; }
+.mcm2005u-screen .detail-notes { grid-area:notes; min-width:0; }
+.mcm2005u-screen .brand-conditions { display:flex; flex-wrap:wrap; align-items:center; gap:16px; height:24px; }
+.mcm2005u-screen .brand-conditions input[readonly] { width:40px; }
+.mcm2005u-screen input[type=checkbox],.mcm2005u-screen input[type=radio] { width:13px; height:13px; margin:0; }
+.mcm2005u-screen .note-field { align-items:flex-start; margin-bottom:2px; }
+.mcm2005u-screen .note-field>span { flex:0 0 65px; }
+.mcm2005u-screen .note-field textarea { width:100%; height:79px; resize:vertical; }
+.mcm2005u-screen .brand-remark textarea { height:50px; }
+.mcm2005u-screen .detail-method { grid-area:method; }
+.mcm2005u-screen .detail-method label { align-items:flex-start; }
+.mcm2005u-screen .detail-method textarea { width:100%; height:166px; resize:vertical; }
+.mcm2005u-screen .config-section { grid-area:config; min-width:0; }
+.mcm2005u-screen .section-title { display:block; height:22px; line-height:18px; padding:2px 0; margin:0; background:transparent; border:0; border-radius:0; font-weight:normal; }
+.mcm2005u-screen .config-grid { height:220px; overflow:auto; border:1px solid #d5dbdb; }
+.mcm2005u-screen .data-grid { border-collapse:separate; border-spacing:0; table-layout:fixed; width:100%; font-size:11px; }
+.mcm2005u-screen .data-grid th,.mcm2005u-screen .data-grid td { height:24px; padding:2px 5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; border-right:1px solid #d5dbdb; border-bottom:1px solid #d5dbdb; font-weight:normal; }
+.mcm2005u-screen .data-grid th { position:sticky; top:0; z-index:1; background:#edf1f4; text-align:left; }
+.mcm2005u-screen .data-grid tr.selected td { background:#cce5ff; }
+.mcm2005u-screen .data-grid tr[hidden] { display:none; }
+.mcm2005u-screen .detail-costs { grid-area:costs; display:grid; grid-template-columns:1fr 1fr; gap:6px; align-content:start; }
+.mcm2005u-screen .cost-row { display:flex; align-items:center; justify-content:space-between; gap:3px; font-size:11px; height:22px; }
+.mcm2005u-screen .cost-row>span:first-child { white-space:nowrap; }
+.mcm2005u-screen .cost-row input,.mcm2005u-screen .amount { width:94px; min-width:0; height:21px; text-align:right; }
+.mcm2005u-screen .amount { display:inline-block; padding:2px 3px; border:1px solid #aaa; }
+.mcm2005u-screen .cost-total { border-top:1px solid #aaa; margin-top:3px; }
+.mcm2005u-screen .brand-audit { padding-top:22px; }
+.mcm2005u-screen .detail-lines { grid-area:lines; min-width:0; }
+.mcm2005u-screen .grid-wrap { height:261px; overflow:auto; border:1px solid #d5dbdb; }
+.mcm2005u-screen .detail-lines table { width:2660px; }
+.mcm2005u-screen .detail-lines input,.mcm2005u-screen .detail-lines select { width:100%; height:20px; padding:0 2px; font:inherit; }
+.mcm2005u-screen .detail-lines input[type=checkbox] { width:13px; }
+.mcm2005u-screen .text-right { text-align:right; }
+.mcm2005u-screen .detail-footer { display:flex; justify-content:space-between; align-items:center; padding:8px; margin-top:6px; background:#efefef; }
+.mcm2005u-screen .detail-footer a,.mcm2005u-screen .detail-footer button { display:inline-block; padding:4px 12px; border:1px solid #aaa; font:inherit; text-decoration:none; cursor:pointer; }
+.mcm2005u-screen .detail-footer a { background:white; color:#222; }
+.mcm2005u-screen .detail-footer button { background:#453f78; color:white; }
+.mcm2005u-screen button:disabled { opacity:.5; cursor:default; }
+@media(max-width:1150px){.mcm2005u-screen .detail-header{grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)}.mcm2005u-screen .detail-header>.detail-audit{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.mcm2005u-screen .detail-workspace{grid-template-columns:minmax(0,1fr) 425px}.mcm2005u-screen .config-grid table{min-width:690px}.mcm2005u-screen .header-pair{grid-template-columns:179px minmax(0,1fr)}}
+@media(max-width:800px){.mcm2005u-screen .detail-header{grid-template-columns:1fr}.mcm2005u-screen .detail-header>.detail-audit{grid-template-columns:1fr 1fr}.mcm2005u-screen .detail-workspace{grid-template-columns:1fr;grid-template-areas:"notes" "method" "config" "costs" "lines"}.mcm2005u-screen .detail-method{margin-bottom:6px}.mcm2005u-screen .detail-costs{padding:6px 0}}
+
+.mcm2005u-screen .company select { width:100%; height:22px; }
+.mcm2005u-screen .config-grid td:first-child { padding:0; text-align:center; text-overflow:clip; }
+
+/* 2004U: VBの検索欄幅に寄せ、日付の10文字を表示できる幅を確保する。 */
+.mcm2004u-screen .search-fields { width: 682px; }
+.mcm2004u-screen .field-row { grid-template-columns: 284px 386px; gap: 12px; margin-bottom: 3px; }
+.mcm2004u-screen .field > label, .mcm2004u-screen .check-row > span { width: 78px; }
+.mcm2004u-screen .field:nth-child(2) > label { width: 129px; }
+.mcm2004u-screen #umMitsumoriNo { width: 141px; }
+.mcm2004u-screen #keiyakuNo, .mcm2004u-screen #sofutenpoId { width: 172px; }
+.mcm2004u-screen #nonyusakiCd { width: 110px; }
+.mcm2004u-screen #supportId { width: 67px; }
+.mcm2004u-screen #nonyusakiNk, .mcm2004u-screen #plantNk { width: 251px; }
+.mcm2004u-screen .date-range input { width: 88px; }
+.mcm2004u-screen .check-row { min-height: 24px; }
+.mcm2004u-screen th, .mcm2004u-screen td { height: 24px; line-height: 18px; padding-top: 2px; padding-bottom: 2px; }
