@@ -1,0 +1,22 @@
+{
+  "created": "2026-09-14",
+  "base": "2026-09-14 src (1).zip / DB5B9B4150C0BA67C0CB861BD0E8A45283976CE14CB72B0F14EB087D4EB60A92",
+  "sourceFiles": 1,
+  "modified": 1,
+  "added": 0,
+  "applyOrder": [
+    "2026-09-14受領src",
+    "07"
+  ],
+  "doNotApplyTogether": [
+    "06"
+  ],
+  "files": [
+    {
+      "path": "main/java/com/daifuku/mcm/controller/MenuController.java",
+      "kind": "modified",
+      "originalSha256": "DF1B21689B187DBC76EA23D0FD250B1D5441EC35984F8917436AF2DB4B0CB5AA",
+      "sha256": "B1BDF09212DED5318BE1D5DAC5A34334177198CE36A9E71BF538C8BA71EE8C00"
+    }
+  ]
+}
