@@ -1,0 +1,27 @@
+.mcm1007u-screen{margin:8px;height:calc(100vh - 16px);min-height:400px;display:flex;flex-direction:column;font:12px "Meiryo","Yu Gothic UI",sans-serif;color:#222;background:white}
+.mcm1007u-screen *{box-sizing:border-box}
+.mcm1007u-screen .header{height:40px;flex-shrink:0;display:grid;grid-template-columns:80px 1fr 80px;align-items:center;padding:0 10px;background:#453f78;color:white}
+.mcm1007u-screen h1{font-size:18px;letter-spacing:2px;text-align:center;margin:0;white-space:nowrap}
+.mcm1007u-screen .btn-close{justify-self:end;padding:2px 10px;border:1px solid #aaa;background:#f0f0f0;color:#222;text-decoration:none;border-radius:2px;line-height:20px}
+.mcm1007u-screen main{display:flex;flex-direction:column;flex:1;min-height:0;margin-top:4px}
+.mcm1007u-screen .header-scroll{overflow-x:auto;flex-shrink:0}
+.mcm1007u-screen .header-area{position:relative;min-width:1068px;height:96px}
+.mcm1007u-screen .header-area label,.mcm1007u-screen .header-area input{position:absolute;font:12px "Meiryo",sans-serif;line-height:20px}
+.mcm1007u-screen .header-area label{white-space:nowrap}
+.mcm1007u-screen input{height:20px;padding:0 3px;border:1px solid #aaa;background:#eee;border-radius:0}
+.mcm1007u-screen .grid-heading{display:flex;justify-content:space-between;height:24px;line-height:24px;flex-shrink:0;padding:0 3px;background:transparent}
+.mcm1007u-screen .result-count{color:#555}
+.mcm1007u-screen .table-container{flex:1;min-height:120px;overflow:auto;border:1px solid #aaa;isolation:isolate}
+.mcm1007u-screen table{border-collapse:separate;border-spacing:0;table-layout:fixed;width:100%;min-width:1075px;font-size:12px}
+.mcm1007u-screen th,.mcm1007u-screen td{height:24px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-right:1px solid #ccd1d8;border-bottom:1px solid #ccd1d8;background:white}
+.mcm1007u-screen th{position:sticky;top:0;z-index:3;background:#edf0f3;text-align:left;font-weight:normal}
+.mcm1007u-screen td:nth-child(-n+4){position:sticky;z-index:2}
+.mcm1007u-screen th:nth-child(-n+4){z-index:4}
+.mcm1007u-screen tr:nth-child(even) td{background:#f1f7fc}
+.mcm1007u-screen tbody tr:hover td{background:#dcecff}
+.mcm1007u-screen th button{font:11px "Meiryo",sans-serif;color:inherit;background:transparent;border:0;padding:0;cursor:pointer;white-space:nowrap;width:100%;text-align:left}
+.mcm1007u-screen th[aria-sort=ascending] button::after{content:' ▲'}
+.mcm1007u-screen th[aria-sort=descending] button::after{content:' ▼'}
+.mcm1007u-screen .cell-right{text-align:right}
+.mcm1007u-screen .cell-center{text-align:center}
+.mcm1007u-screen :focus-visible{outline:2px solid #4a70ba;outline-offset:1px}

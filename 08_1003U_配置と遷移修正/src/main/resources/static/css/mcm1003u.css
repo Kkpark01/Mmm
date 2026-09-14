@@ -1,0 +1,503 @@
+/*
+ * 【変換元】Mcm1003uScreen.Designer.vb - MCM1003U 取引先見積・契約一覧
+ *
+ * MCM0001U（メニュー画面）と統一されたデザインスタイル。
+ * コントロール配置は Designer.vb の Location/Size 値に基づく。
+ */
+
+/* ================================================================ */
+/* 全体レイアウト                                                     */
+/* MCM0010U: .page-shell { padding: 8px } に相当                    */
+/* ================================================================ */
+.mcm1003u-screen {
+    background-color: #f4f6f7;
+    min-height: 100vh;
+    height: 100vh;
+    padding: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+    /* [MCM0010U統一] 縦フレックス化：グリッドが余白を埋め、依頼一覧出力ボタンは常に画面下部に表示 */
+    display: flex;
+    flex-direction: column;
+    font-family: "Yu Gothic UI", "Meiryo UI", Meiryo, sans-serif;
+    font-size: 12px;
+    color: #202124;
+}
+
+/* ================================================================ */
+/* ヘッダー（MCM0001U / MCM0010U と完全統一）                         */
+/* [参照] mcm0010u.css: .header / .header-center h1 / .btn-close     */
+/* ================================================================ */
+.header, button, .btn-close {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+    min-height: 40px;
+    padding: 0 10px;
+    background: #453f78;
+    color: #fff;
+    box-sizing: border-box;
+}
+.header-left,
+.header-right {
+    display: flex;
+    align-items: center;
+}
+.header-right {
+    justify-content: flex-end;
+}
+.header-center {
+    flex: 1;
+    text-align: center;
+}
+.header-center h1 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    line-height: 30px;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+/* 閉じるボタン（MCM0001U / MCM0010U と完全統一） */
+.btn-close {
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 2px 12px;
+    font-size: 12px;
+    font-family: initial;
+    color: #000;
+    text-decoration: none;
+    background-color: #f0f0f0;
+    border: 1px solid #adadad;
+    border-radius: 2px;
+    box-shadow: inset 0 1px 0 #fff;
+    cursor: pointer;
+    line-height: 1.6;
+}
+.btn-close:hover  { background-color: #e5f1fb; border-color: #7eb4ea; }
+.btn-close:active { background-color: #cce4f7; border-color: #569de5; }
+
+/* ================================================================ */
+/* メインコンテンツ                                                    */
+/* ================================================================ */
+.main-content {
+    margin: 8px;
+    /* [MCM0010U統一] 残り高さを占有し、内部（グリッド）を伸縮させる */
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ================================================================ */
+/* アラートメッセージ                                                  */
+/* ================================================================ */
+.alert {
+    padding: 10px 15px;
+    margin: 8px 0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+.alert-error ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* ================================================================ */
+/* 検索エリア（カード化）                                              */
+/* ================================================================ */
+/* [MCM0010U統一] 白枠（背景・境界線・影）を撤去し、ページ背景に溶け込ませる */
+.search-area {
+    padding: 4px 2px 0;
+    margin-bottom: 8px;
+}
+
+/* 検索条件行: VBの座標に基づく2列レイアウト */
+.search-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    gap: 8px;
+}
+
+/* 左ブロックを固定幅で包み、右列（契約NO/依頼者/取引先名/納入先名/プラント名）の
+   開始位置を「依頼者」行に揃える */
+.col-left {
+    flex: 0 0 340px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.col-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-row label {
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 100px;
+    text-align: right;
+    color: #333;
+}
+
+/* ================================================================ */
+/* 入力フィールド（VB Designer.vb の Size 値ベース）                    */
+/* ================================================================ */
+input[type="text"] {
+    font-size: 14px;
+    padding: 4px 8px;
+    border: 1px solid #9ca3af;
+    border-radius: 3px;
+    height: 28px;
+    font-family: inherit;
+}
+input[type="text"]:focus {
+    outline: none;
+    border-color: #453f78;
+    box-shadow: 0 0 0 2px rgba(69,63,120,0.15);
+}
+
+/* VB座標ベースの入力幅 */
+.input-xs   { width: 56px; }      /* サポートID: W56 */
+.input-sm   { width: 100px; }     /* 見積依頼NO: W84, 取引先コード: W84 */
+.input-md   { width: 240px; }     /* 契約NO: W240 */
+.input-lg   { width: 400px; }     /* 取引先名/納入先名/プラント名: W448 */
+.input-date { width: 90px; }      /* 依頼日: W74 */
+.input-nonyusaki-cd { width: 120px; } /* 納入先コード: W110 */
+
+.date-separator {
+    font-size: 14px;
+    margin: 0 4px;
+}
+
+/* ================================================================ */
+/* チェックボックスグループ                                             */
+/* ================================================================ */
+.checkbox-group {
+    flex-wrap: wrap;
+}
+.group-label {
+    min-width: 100px !important;
+}
+.cb-label {
+    font-size: 14px;
+    font-weight: normal !important;
+    min-width: auto !important;
+    margin-right: 12px;
+    cursor: pointer;
+}
+.cb-label input[type="checkbox"] {
+    margin-right: 3px;
+    vertical-align: middle;
+}
+
+/* ================================================================ */
+/* 区切り線（VB: CpLabel17 Y:159 H:1）                               */
+/* ================================================================ */
+.separator-line {
+    border: none;
+    border-top: 1px solid #d1d5db;
+    margin: 8px 0;
+}
+
+/* ================================================================ */
+/* ボタンエリア                                                       */
+/* ================================================================ */
+.button-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+/* MCM0001U統一ボタンスタイル */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 75px;
+    height: 28px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid #9ca3af;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    background-color: #f3f4f6;
+    color: #000;
+    transition: background-color 0.15s;
+}
+.btn:hover {
+    background-color: #dbeafe;
+    border-color: #000;
+}
+
+/* [MCM0010U統一] 検索ボタン: 0010U の .btn + .btn-search に忠実準拠 */
+.btn-search {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 23px;
+    min-width: 70px;
+    padding: 0 12px;
+    border: 1px solid #2471a3;
+    border-radius: 3px;
+    background: #3498db;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+.btn-search:hover {
+    background: #2980b9;
+}
+.btn:active {
+    background-color: #bfdbfe;
+}
+
+/* 依頼一覧出力ボタン（VB: W89） */
+.btn-wide {
+    min-width: 89px;
+}
+
+/* ================================================================ */
+/* 検索件数                                                           */
+/* ================================================================ */
+.result-count {
+    font-size: 14px;
+    margin: 8px 0;
+    color: #555;
+}
+
+/* ================================================================ */
+/* データ一覧テーブル（カード化）                                       */
+/* ================================================================ */
+.table-card {
+    background-color: #fff;
+    border: 1px solid #aab2bd;
+    overflow: hidden;
+    margin-bottom: 8px;
+    /* [MCM0010U統一] 残り高さを占有（0件でもグレーの空グリッドが縦いっぱいに広がる） */
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-container {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    /* [VB準拠] 0件でもグレーの空グリッド領域を表示（VB DataGridView の見た目） */
+    background-color: #c0c0c0;
+}
+
+.data-grid {
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12px;
+    white-space: nowrap;
+    width: max-content;
+    min-width: 100%;
+}
+
+.data-grid thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+/* [MCM3006U/0010U完全準拠] ヘッダーはグレー帯（紫を廃止） */
+.data-grid th {
+    position: relative;
+    background-color: #eef2f5;
+    color: #202124;
+    font-weight: 600;
+    text-align: left;
+    padding: 4px 6px;
+    height: 22px;
+    border-right: 1px solid #d5dbdb;
+    border-bottom: 1px solid #d5dbdb;
+    font-size: 12px;
+}
+
+.data-grid td {
+    padding: 2px 6px;
+    height: 22px;
+    border-right: 1px solid #d5dbdb;
+    border-bottom: 1px solid #d5dbdb;
+    vertical-align: middle;
+    font-size: 12px;
+    background: #fff;
+}
+
+.data-grid tbody tr:nth-child(even) td {
+    background-color: #f7f9f9;
+}
+/* [要望対応] 行ホバーの薄ブルーは不要のため無し（0010U準拠） */
+
+/* [MCM3006U/0010U完全準拠] 左端▶マーカー列（46px）: 非選択=行番号(右寄せ) / 選択=▶ */
+.data-grid thead tr::before,
+.data-grid tbody tr::before {
+    content: "";
+    display: table-cell;
+    width: 46px;
+    min-width: 46px;
+    max-width: 46px;
+    height: 22px;
+    padding: 0 8px 0 2px;
+    border-right: 1px solid #d5dbdb;
+    border-bottom: 1px solid #d5dbdb;
+    text-align: right;
+    vertical-align: middle;
+}
+.data-grid thead tr::before {
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 4;
+    background: #eef2f5;
+}
+.data-grid tbody tr::before {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: inherit;
+    color: #333;
+    font-size: 11px;
+    line-height: 22px;
+    cursor: pointer;
+    content: attr(data-rowno);
+    background-repeat: no-repeat;
+    background-position: 4px center;
+    background-size: 9px 11px;
+}
+.data-grid tbody tr:nth-child(even)::before { background-color: #f7f9f9; }
+
+/* [MCM3006U完全準拠] 行選択＝全セルグレー(#bdbdbd) + ▶表示 */
+.data-grid tbody tr.selected td { background-color: #bdbdbd !important; }
+.data-grid tbody tr.selected::before {
+    background-color: #bdbdbd;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='8'%20height='10'%20viewBox='0%200%208%2010'%3E%3Cpath%20d='M0%200%20L8%205%20L0%2010%20Z'%20fill='%23000'/%3E%3C/svg%3E");
+}
+/* [MCM3006U完全準拠] クリックしたセルのみグレー(#e0e0e0) */
+.data-grid tbody td.cell-active { background-color: #e0e0e0 !important; }
+
+/* [MCM0017U/0010U統一] 列間の境界を掴んで列幅を変更する掴みしろ */
+.data-grid th .col-resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    user-select: none;
+    z-index: 6;
+}
+.data-grid th .col-resizer:hover { background: rgba(69,63,120,.25); }
+body.col-resizing { cursor: col-resize !important; }
+
+/* ================================================================ */
+/* カラム幅（VB Designer.vb の Width 値）                             */
+/* ================================================================ */
+.col-select          { width: 30px; }
+.col-jotai           { width: 55px; }
+.col-irai-no         { width: 100px; }
+.col-irai-dt         { width: 80px; }
+.col-jikantai        { width: 55px; }
+.col-shonin          { width: 55px; }
+.col-keiyaku-no      { width: 100px; }
+.col-fusei           { width: 55px; }
+.col-torihikisaki    { width: 150px; }
+.col-nonyusaki-cd    { width: 100px; }
+.col-nonyusaki       { width: 150px; }
+.col-kyu-nonyusaki   { width: 150px; }
+.col-nonyusaki-kojo  { width: 150px; }
+.col-support-id      { width: 100px; }
+.col-plant           { width: 150px; }
+.col-link            { width: 40px; }
+
+/* ================================================================ */
+/* セル配置                                                           */
+/* ================================================================ */
+.cell-center { text-align: center; }
+.cell-right  { text-align: right; }
+.cell-link   { text-align: center; }
+
+/* ================================================================ */
+/* リンクスタイル                                                      */
+/* ================================================================ */
+.grid-link {
+    color: #0066cc;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 13px;
+}
+.grid-link:hover {
+    color: #004499;
+}
+.link-danger {
+    color: #dc3545;
+}
+.link-danger:hover {
+    color: #a71d2a;
+}
+
+/* 1003U：VBの検索欄の並びを保ち、一覧の表示領域を確保する。
+   一覧自体の幅は縮めず、従来の全幅・横スクロールを維持する。 */
+.mcm1003u-screen .header { display: grid; grid-template-columns: 80px minmax(0, 1fr) 80px; }
+.mcm1003u-screen .main-content { margin: 4px 0 0; position: relative; }
+.mcm1003u-screen .search-area { position: relative; padding: 4px 12px 0; margin: 0; flex: 0 0 auto; }
+.mcm1003u-screen .search-row { min-height: 22px; margin: 0; gap: 0; }
+.mcm1003u-screen .col-left { flex: 0 0 297px; gap: 6px; }
+.mcm1003u-screen .col-right { flex: 1; min-width: 0; gap: 6px; }
+.mcm1003u-screen .search-row label { font-size: 12px; font-weight: normal; text-align: left; min-width: 0; white-space: nowrap; }
+.mcm1003u-screen .col-left > label { flex: 0 0 78px; }
+.mcm1003u-screen .col-right > label { flex: 0 0 153px; }
+.mcm1003u-screen .search-area input[type="text"],
+.mcm1003u-screen .search-area select { font: inherit; height: 21px; padding: 1px 3px; border-radius: 0; min-width: 0; }
+.mcm1003u-screen .col-left .input-sm { width: 84px; }
+.mcm1003u-screen .input-date { width: 74px; }
+.mcm1003u-screen .input-nonyusaki-cd { width: 110px; }
+.mcm1003u-screen .input-xs { width: 56px; }
+.mcm1003u-screen .input-md { width: 240px; max-width: calc(100% - 159px); }
+.mcm1003u-screen .input-lg { width: 448px; max-width: calc(100% - 159px); }
+.mcm1003u-screen #iraisya { width: 121px; }
+.mcm1003u-screen .date-separator { font-size: 12px; margin: 0; width: 17px; text-align: center; flex: 0 0 17px; }
+.mcm1003u-screen .group-label { min-width: 78px !important; margin-right: 6px; }
+.mcm1003u-screen .cb-label { display: inline-flex; align-items: center; width: 66px; margin: 0; white-space: nowrap; }
+.mcm1003u-screen .checkbox-group { padding-right: 84px; }
+.mcm1003u-screen .search-button-row { position: absolute; right: 0; bottom: 0; margin: 0; }
+.mcm1003u-screen .separator-line { margin: 5px 0; }
+.mcm1003u-screen .button-row { margin: 3px 0; }
+.mcm1003u-screen .btn { height: 24px; font: inherit; padding: 0 10px; border-radius: 2px; }
+.mcm1003u-screen .btn-search { height: 24px; min-width: 75px; }
+.mcm1003u-screen .btn-close { font-family: inherit; }
+.mcm1003u-screen .result-count { position: absolute; top: 174px; left: 4px; margin: 0; font-size: 12px; pointer-events: none; }
+.mcm1003u-screen .table-card { margin-bottom: 3px; }
+.mcm1003u-screen .data-grid th,
+.mcm1003u-screen .data-grid td { height: 24px; padding: 2px 5px; font-size: 12px; }
+.mcm1003u-screen .grid-link { font-size: 12px; }
+.mcm1003u-screen .data-grid thead tr::before,
+.mcm1003u-screen .data-grid tbody tr::before { box-sizing: border-box; height: 24px; line-height: 22px; }
