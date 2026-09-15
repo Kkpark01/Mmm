@@ -1,0 +1,15 @@
+{
+  "modified": 1,
+  "base": "src (3).zip / E1931F34",
+  "sourceFiles": 1,
+  "created": "2026-09-14",
+  "files": [
+    {
+      "path": "main/resources/templates/mcm2005u/index.html",
+      "sha256": "50F82CB420E9113E3126A6EFAD949B7F11156D82F4E8E9BA0891F5E4F6C56B8C",
+      "originalSha256": "925ADD3E6EEAF3760295236788A765BD5F7985C2571B81DD078CA635852AC4B3",
+      "kind": "modified"
+    }
+  ],
+  "added": 0
+}
