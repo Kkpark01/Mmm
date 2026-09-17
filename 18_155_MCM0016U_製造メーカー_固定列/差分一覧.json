@@ -1,0 +1,13 @@
+[
+  {
+    "screen": "mcm0016u",
+    "name": "18_155_MCM0016U_製造メーカー_固定列",
+    "rel": "src/main/resources/templates/mcm0016u/index.html",
+    "tables": {
+      "makerTable": 4,
+      "koseiTable": 3
+    },
+    "originalSha256": "23a8d1eb7667821d3131fa4c2f1479ba82b15054effc91756a67985b75364ce2",
+    "sha256": "28e672506ae4d178df1c74557579e464f2ffd4e352219615aa43126eb6d7d380"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "screen": "mcm0015u",
+    "name": "17_155_MCM0015U_ブランド_固定列",
+    "rel": "src/main/resources/templates/mcm0015u/index.html",
+    "tables": {
+      "brandGrid": 4
+    },
+    "originalSha256": "6facff203969785c9649be5f86800dbefcd8ff7b4d2a97eab6582517a4b87601",
+    "sha256": "5b1c8587ab359ac4af738acbbd04864dd25cf49da4b8fd2c3a0b99957de42beb"
+  }
+]
