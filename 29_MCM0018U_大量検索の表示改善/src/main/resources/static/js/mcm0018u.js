@@ -196,21 +196,14 @@
         searchForm.addEventListener('submit', function (e) {
             var changed = changeStatusField && changeStatusField.value === 'true';
             if (changed) {
-                /*
-                 * ★未保存の変更がある場合は確認ダイアログを優先表示する。
-                 *   searchForm には data-mcm-no-progress を付与しており、common.js の
-                 *   自動プログレス表示（キャプチャフェーズ、確認ダイアログより手前で発火）を
-                 *   抑止している。確認ダイアログでOKが選ばれ実際に検索を実行する直前に
-                 *   ここで明示的に showProgress() を呼ぶ。
-                 */
+                /* 未保存変更は確認後に検索する。VB準拠で検索中の待機画面は表示しない。 */
                 e.preventDefault();
                 customConfirm('データが変更されています。破棄されますがよろしいですか？', function () {
                     if (discardConfirmedFld) discardConfirmedFld.value = 'true';
                     window.Mcm0018Performance.submitSearch(searchForm);
                 });
             } else {
-                /* 変更なし時は通常通りそのまま検索を実行する。data-mcm-no-progress により
-                   common.js側の自動表示が抑止されているため、ここで明示的に表示する。 */
+                /* 変更なし時は待機画面を表示せず検索する。 */
                 if (discardConfirmedFld) discardConfirmedFld.value = 'false';
                 e.preventDefault();
                 window.Mcm0018Performance.submitSearch(searchForm);
