@@ -6,6 +6,9 @@
     var updateForm = document.getElementById('updateForm');
     var atsukaikikiTbody = document.getElementById('atsukaikikiTbody');
     var koseiTbody = document.getElementById('koseiTbody');
+    // 候補の原本は、画面行の増減やエラーに影響されないよう保持する。
+    var koseiRowTemplate = koseiTbody && koseiTbody.querySelector('tr[data-is-new="true"]');
+    koseiRowTemplate = koseiRowTemplate ? koseiRowTemplate.cloneNode(true) : null;
     var selectedAtsukaikikiIdField = document.getElementById('selectedAtsukaikikiIdField');
     var btnDeleteAtsukaikiki = document.getElementById('btnDeleteAtsukaikiki');
     var btnDeleteKosei = document.getElementById('btnDeleteKosei');
@@ -422,7 +425,7 @@
     function renderKosei(list) {
         if (!koseiTbody) return;
         var newRow = koseiTbody.querySelector('tr[data-is-new="true"]');
-        var newRowClone = newRow ? newRow.cloneNode(true) : null;
+        var newRowClone = (newRow || koseiRowTemplate) ? (newRow || koseiRowTemplate).cloneNode(true) : null;
         if (newRowClone) resetNewRowClone(newRowClone);
         koseiTbody.innerHTML = '';
         var idx = 0;
@@ -464,7 +467,7 @@
     function renderKoseiFromPending(pendingRows) {
         if (!koseiTbody) return;
         var newRow = koseiTbody.querySelector('tr[data-is-new="true"]');
-        var newRowClone = newRow ? newRow.cloneNode(true) : null;
+        var newRowClone = (newRow || koseiRowTemplate) ? (newRow || koseiRowTemplate).cloneNode(true) : null;
         if (newRowClone) resetNewRowClone(newRowClone);
         koseiTbody.innerHTML = '';
         var idx = 0;
@@ -621,15 +624,6 @@
         var noInput = tr.querySelector('.hyojijun-input');
         if (noInput && noInput.getAttribute('data-auto-no') === '1') { noInput.value = ''; noInput.removeAttribute('data-auto-no'); }
     }
-    /* 登録前に「No 以外が空」の新規行を送信対象から外す */
-    function removeEmptyRowsBeforeSubmit() {
-        [atsukaikikiTbody, koseiTbody].forEach(function (tb) {
-            if (!tb) return;
-            tb.querySelectorAll('tr[data-is-new="true"]').forEach(function (tr) {
-                if (isRowContentEmptyTr(tr) && tb.querySelectorAll('tr').length > 1) { tr.parentNode.removeChild(tr); }
-            });
-        });
-    }
     /* index.html 側の 2クリック編集から参照するため公開 */
     window.assignNoForRow = assignNoForRow;
     window.clearAutoNoIfUntouched = clearAutoNoIfUntouched;
@@ -668,7 +662,8 @@
             if (td0) td0.classList.remove('cell-error');
         });
         /* 行がまったく未入力（触っていない新規行）ならチェックしない */
-        if (isRowContentEmptyTr(tr)) return true;
+        if (getRowStatus(tr) === "deleted") return true;
+        if (tr.getAttribute("data-is-new") === "true" && isRowContentEmptyTr(tr)) return true;
         var missing = defs.filter(function (d) { return isElEmpty(d.el); });
         if (missing.length === 0) return true;
         if (mark) { missing.forEach(function (d) {
@@ -849,6 +844,8 @@
         var rows = [];
         if (!tb) return rows;
         tb.querySelectorAll("tr").forEach(function (tr) {
+            if (tr.getAttribute("data-is-new") === "true" && isRowContentEmptyTr(tr)) return;
+            if (tr.getAttribute("data-is-new") === "true" && isRowContentEmptyTr(tr)) return;
             var row = {};
             var hasField = false;
             tr.querySelectorAll("[name^='" + prefix + "[']").forEach(function (el) {
@@ -890,6 +887,29 @@
     // ========== Update button click - MERGE all pending changes ==========
     if (updateBtn && updateForm) {
         updateBtn.addEventListener('click', function () {
+            // 必須エラー時は確認ダイアログも送信も行わず、DOMを保持する。
+            var invalid = null;
+            [atsukaikikiTbody, koseiTbody].forEach(function (tbody) {
+                if (!tbody) return;
+                tbody.querySelectorAll('tr').forEach(function (tr) {
+                    if (!validateRowRequired(tr, true) && !invalid) invalid = tr;
+                });
+            });
+            if (invalid) {
+                customAlert(buildRequiredMsg(getMissingLabelsForRow(invalid)), 'input');
+                return;
+            }
+            var pendingError = false;
+            Object.keys(window.__pendingKoseiChanges).forEach(function (key) {
+                if (key === window.__currentParentKey) return;
+                (window.__pendingKoseiChanges[key] || []).forEach(function (row) {
+                    if (row.rowStatus !== 'deleted' && (!String(row.hyojijun || '').trim() || !String(row.torihikisakiId || '').trim())) pendingError = true;
+                });
+            });
+            if (pendingError) {
+                customAlert('別の取扱機器の取引先に未入力の必須項目があります。（No／取引先）', 'input');
+                return;
+            }
             /* ★桁数・文字数チェック（VB CPValidate 相当） */
             var lenErr = null, lenErrInp = null;
             document.querySelectorAll("#updateForm input.edit-input, #updateForm select.edit-input").forEach(function (inp) {
@@ -959,14 +979,18 @@
                 if (window.__currentParentKey) {
                     captureCurrentKoseiRows(window.__currentParentKey);
                 }
-                // Step 1.5: MCM0015U 準拠 - No 以外が空の新規行は送信しない
-                removeEmptyRowsBeforeSubmit();
-                // Step 2: Inject all OTHER parents' pending as hidden rows
-                mergeAllPendingIntoDom();
-                // Step 3: JSONで送信し、応答受信後に画面を再読み込みする
+                // 画面の空行・候補・他の親の表示を変更せず、JSONのみを組み立てる。
                 var payload = buildTopLevelPayload(updateForm);
                 payload.atsukaikikiRows = buildRowsPayloadGeneric("atsukaikikiTbody", "atsukaikikiRows");
                 payload.koseiRows = buildRowsPayloadGeneric("koseiTbody", "koseiRows");
+                Object.keys(window.__pendingKoseiChanges).forEach(function (key) {
+                    if (key === window.__currentParentKey) return;
+                    (window.__pendingKoseiChanges[key] || []).forEach(function (row) {
+                        var copy = {};
+                        Object.keys(row).forEach(function (field) { copy[field] = row[field] === '' ? null : row[field]; });
+                        payload.koseiRows.push(copy);
+                    });
+                });
                 var headers = { "X-Requested-With": "XMLHttpRequest", "Content-Type": "application/json" };
                 var mh = document.querySelector('meta[name="_csrf_header"]');
                 var mt = document.querySelector('meta[name="_csrf"]');
@@ -1061,42 +1085,6 @@
         });
     }
     restoreViewStateAfterReload();
-
-    function mergeAllPendingIntoDom() {
-        if (!koseiTbody) return;
-        var currentMaxIdx = -1;
-        koseiTbody.querySelectorAll('[name]').forEach(function (el) {
-            var m = el.name.match(/koseiRows\[(\d+)\]/);
-            if (m) {
-                var idx = parseInt(m[1], 10);
-                if (idx > currentMaxIdx) currentMaxIdx = idx;
-            }
-        });
-        var nextIdx = currentMaxIdx + 1;
-        var skipKey = window.__currentParentKey;
-
-        Object.keys(window.__pendingKoseiChanges).forEach(function (key) {
-            if (key === skipKey) return; // Already in DOM
-            var rows = window.__pendingKoseiChanges[key];
-            if (!rows || rows.length === 0) return;
-            rows.forEach(function (k) {
-                var tr = document.createElement('tr');
-                tr.style.display = 'none';
-                var tdHtml = '';
-                Object.keys(k).forEach(function (field) {
-                    // Skip display-only fields
-                    if (field === 'torihikisakiNk' || field === 'createdDt' || field === 'createdBy'
-                        || field === 'lastupdateDt' || field === 'lastupdateBy') return;
-                    var val = k[field];
-                    if (val === null || val === undefined) val = '';
-                    tdHtml += '<input type="hidden" name="koseiRows[' + nextIdx + '].' + field + '" value="' + escapeAttr(val) + '">';
-                });
-                tr.innerHTML = '<td>' + tdHtml + '</td>';
-                koseiTbody.appendChild(tr);
-                nextIdx++;
-            });
-        });
-    }
 
     // ========== Delete button ==========
     /*
