@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm3002uScreen.Designer.vb / Mcm3002uScreen.vb
+  MCM3002U — 支払い明細出力指示
+  【デザイン参照】MCM2008U / MCM1011U（紫帯ヘッダー / data-grid）
+
+  出力ボタンは発注確認書・支払い明細をZIPでダウンロードする。
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf"        th:content="${_csrf != null} ? ${_csrf.token}      : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM3002U - 支払い明細出力指示</title>
+    <style>
+        /* ===== 共通レイアウト (MCM2008U 準拠) ===== */
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            margin: 0; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px; background: #fff;
+            /* [MCM1003U準拠] 画面外周パディング：ヘッダーを画面端から8px内側に配置する */
+            padding: 8px;
+        }
+        button, .btn-close { cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+        /* ヘッダー（MCM1003U準拠：帯の太さ40px・文字サイズ18px） */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 40px; min-height: 40px; padding: 0 10px;
+        }
+        .header .header-center { flex: 1; text-align: center; }
+        .header .header-center h1 {
+            margin: 0; font-size: 18px; font-weight: bold; color: #fff;
+            letter-spacing: 2px; line-height: 30px;
+        }
+        .header .header-left, .header .header-right { display: flex; align-items: center; }
+        .btn-close {
+            display: inline-block; padding: 2px 12px; font-size: 12px; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
+        }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+
+        /* 検索エリア */
+        .search-area {
+            padding: 8px 10px 6px;
+            border-bottom: 1px solid #ccc;
+            background: #f7f7f7;
+        }
+        .search-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .search-row label { white-space: nowrap; font-size: 12px; }
+        .search-row input[type="text"] {
+            height: 22px; border: 1px solid #aaa; padding: 0 4px; font-size: 12px; border-radius: 2px;
+            width: 100px;
+        }
+        .search-row input[type="text"]:focus { outline: 1px solid #7eb4ea; border-color: #7eb4ea; }
+        .radio-group { display: flex; align-items: center; gap: 10px; }
+        .radio-group label { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+        .omit-note {
+            font-size: 11px; color: #888; margin-left: 16px;
+            border: 1px dashed #ccc; padding: 2px 8px; border-radius: 3px;
+            background: #fafafa;
+        }
+
+        /* アクションバー */
+        .action-bar {
+            display: flex; align-items: center; gap: 6px;
+            padding: 4px 10px;
+            border-bottom: 1px solid #ccc;
+            background: #f0f0f0;
+        }
+        .btn-search {
+            padding: 3px 16px; font-size: 12px;
+            background: #e1e1e1; color: #000; border: 1px solid #adadad; border-radius: 2px;
+        }
+        .btn-search:hover { background: #e5f1fb; border-color: #0078d4; }
+
+        /* グリッド */
+        .grid-wrap {
+            /* [MCM1003U準拠] 帯の厚み(+10px)とbody外周パディング(+8px)分を反映し、不要な外側スクロールを防止 */
+            height: calc(100vh - 118px);
+            overflow: auto;
+        }
+        .data-grid {
+            border-collapse: separate; border-spacing: 0;
+            table-layout: fixed; font-size: 11px; white-space: nowrap; width: max-content; min-width: 100%;
+        }
+        .data-grid thead th {
+            position: sticky; top: 0; z-index: 5;
+            background: #eef2f5;
+            border-right: 1px solid #b0bec5; border-bottom: 2px solid #b0bec5;
+            padding: 4px 6px; text-align: left; font-size: 11px;
+        }
+        .data-grid th:first-child, .data-grid td:first-child { border-left: 1px solid #d5dbdb; }
+        .data-grid td {
+            border-right: 1px solid #d5dbdb; border-bottom: 1px solid #d5dbdb;
+            padding: 2px 6px; vertical-align: middle; height: 22px; line-height: 18px;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .data-grid tbody tr:hover td { background: #f5f5f5; }
+        .data-grid tbody tr.row-selected td { background: #bdbdbd !important; }
+
+        /* ダイアログ */
+        .mini-dialog-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.25);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .mini-dialog-overlay.active { display: flex; }
+        .mini-dialog {
+            background: #fbfbfb; min-width: 320px; max-width: 90%;
+            border: 1px solid #7a7a7a; border-radius: 6px; overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,.35);
+        }
+        .mini-dialog-head {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff; color: #000; padding: 6px 8px 6px 12px;
+            font-size: 12px; border-bottom: 1px solid #e5e5e5;
+        }
+        .mini-dialog-head .mini-close {
+            border: none; background: transparent; font-size: 15px; color: #444;
+            cursor: pointer; padding: 2px 6px; border-radius: 3px;
+        }
+        .mini-dialog-head .mini-close:hover { background: #e81123; color: #fff; }
+        .mini-dialog-body {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 16px; background: #fbfbfb; white-space: pre-line; font-size: 13px;
+        }
+        .mini-dialog-body .mini-icon { flex: 0 0 auto; font-size: 22px; }
+        .mini-dialog-foot { padding: 10px 16px 14px; text-align: right; background: #fbfbfb; }
+        .mini-dialog-foot button {
+            min-width: 72px; padding: 4px 12px; font-size: 12px;
+            background: #e1e1e1; border: 1px solid #adadad; border-radius: 3px; cursor: pointer;
+        }
+        .mini-dialog-foot button:hover { background: #e5f1fb; border-color: #0078d4; }
+    </style>
+    <script th:src="@{/js/common.js}"></script>
+</head>
+<body>
+
+<!-- サーバーメッセージ -->
+<div id="serverMessageData" hidden
+     th:attr="data-message=${message},data-error=${error}"></div>
+
+<!-- ===== ヘッダー ===== -->
+<div class="header">
+    <div class="header-left"></div>
+    <div class="header-center"><h1>支払い明細出力指示（MCM3002U）</h1></div>
+    <div class="header-right">
+        <a class="btn-close" th:href="@{/menu}" href="/mcm/menu">閉じる</a>
+    </div>
+</div>
+
+<!-- ===== 検索条件フォーム ===== -->
+<!-- ファイル保存ではページ遷移しないため、共通の遷移待ち表示は使用しない。 -->
+<form th:action="@{/mcm3002u/output}" th:object="${form}" method="post" class="search-area" data-mcm-no-progress>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <div class="search-row">
+        <label>支払い月（YYYYMM）:</label>
+        <input type="text" th:field="*{shiharaiTsuki}" maxlength="6" placeholder="例: 202608"/>
+
+        <label style="margin-left:16px;">支払区分:</label>
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="siharaiKbn" value="年払"
+                       th:checked="${form.siharaiKbn == '年払'}"/>年払い
+            </label>
+            <label>
+                <input type="radio" name="siharaiKbn" value="月払"
+                       th:checked="${form.siharaiKbn == '月払'}"/>月払い
+            </label>
+        </div>
+
+        <button type="submit" class="btn-search">出力</button>
+        <button type="submit" class="btn-search" th:formaction="@{/mcm3002u/search}">検索</button>
+
+        <span class="omit-note">発注確認書・支払い明細をZIPで保存します。</span>
+    </div>
+</form>
+
+<!-- ===== アクションバー ===== -->
+<div class="action-bar">
+    <span style="color:#555;">
+        <span th:if="${form.rows != null and !form.rows.isEmpty()}"
+              th:text="'検索結果: ' + ${#lists.size(form.rows)} + '件'"></span>
+        <span th:if="${form.rows == null or form.rows.isEmpty()}"
+              style="color:#999;">検索条件を入力して検索してください</span>
+    </span>
+</div>
+
+<!-- ===== 一覧グリッド ===== -->
+<div class="grid-wrap">
+    <table class="data-grid" id="mainGrid">
+        <colgroup>
+            <col style="width:110px;"/>   <!-- 書類NO -->
+            <col style="width:80px;"/>    <!-- 取引先CD -->
+            <col style="width:130px;"/>   <!-- 取引先名 -->
+            <col style="width:90px;"/>    <!-- 担当者 -->
+            <col style="width:80px;"/>    <!-- 納入先CD -->
+            <col style="width:130px;"/>   <!-- 納入先名 -->
+            <col style="width:80px;"/>    <!-- 店舗名 -->
+            <col style="width:70px;"/>    <!-- サポートID -->
+            <col style="width:45px;"/>    <!-- 状態 -->
+            <col style="width:50px;"/>    <!-- 支払区分 -->
+            <col style="width:65px;"/>    <!-- 支払月 -->
+            <col style="width:40px;"/>    <!-- 回数 -->
+            <col style="width:25px;"/>    <!-- HW -->
+            <col style="width:180px;"/>   <!-- 備考 -->
+        </colgroup>
+        <thead>
+        <tr>
+            <th>書類NO</th>
+            <th>取引先CD</th>
+            <th>取引先名</th>
+            <th>取引担当者</th>
+            <th>納入先CD</th>
+            <th>納入先名</th>
+            <th>店舗名</th>
+            <th>サポートID</th>
+            <th>状態</th>
+            <th>支払区分</th>
+            <th>支払月</th>
+            <th>回数</th>
+            <th>HW</th>
+            <th>備考</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${form.rows == null or form.rows.isEmpty()}">
+            <td colspan="14" style="text-align:center; padding:12px; color:#888;">
+                検索条件を入力して検索してください。
+            </td>
+        </tr>
+        <tr th:each="row,stat : ${form.rows}"
+            th:id="'row-' + ${stat.index}"
+            onclick="selectRow(this)">
+
+            <td th:text="${row.keiyakuNo}"></td>
+            <td th:text="${row.torihikisakiCd}"></td>
+            <td th:text="${row.torihikisakiNk}"
+                style="overflow:hidden;text-overflow:ellipsis;"
+                th:title="${row.torihikisakiNk}"></td>
+            <td th:text="${row.torisyutantosyaNk}"></td>
+            <td th:text="${row.nonyusakiCd}"></td>
+            <td th:text="${row.nonyusakiNk}"
+                style="overflow:hidden;text-overflow:ellipsis;"
+                th:title="${row.nonyusakiNk}"></td>
+            <td th:text="${row.tenpoNk}"
+                style="overflow:hidden;text-overflow:ellipsis;"
+                th:title="${row.tenpoNk}"></td>
+            <td th:text="${row.supportId}"></td>
+
+            <!-- 状態 -->
+            <td th:switch="${row.jotai}">
+                <span th:case="'1'">見積</span>
+                <span th:case="'2'">契約</span>
+                <span th:case="'3'">破棄</span>
+                <span th:case="'4'">解約</span>
+                <span th:case="*" th:text="${row.jotai}"></span>
+            </td>
+
+            <td th:text="${row.siharai}"></td>
+            <td th:text="${row.tsuki}"></td>
+            <td style="text-align:right;" th:text="${row.kaisu}"></td>
+            <td th:text="${row.hardSeiban}"></td>
+            <td th:text="${row.biko}"
+                style="overflow:hidden;text-overflow:ellipsis;"
+                th:title="${row.biko}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- ===== エラーダイアログ ===== -->
+<div id="miniDialogOverlay" class="mini-dialog-overlay" role="dialog" aria-modal="true">
+    <div class="mini-dialog">
+        <div class="mini-dialog-head">
+            <span id="miniDialogTitle">エラー</span>
+            <button type="button" class="mini-close" onclick="closeMini()">✕</button>
+        </div>
+        <div class="mini-dialog-body">
+            <span class="mini-icon">⚠</span>
+            <span id="miniDialogMsg" class="mini-msg"></span>
+        </div>
+        <div class="mini-dialog-foot">
+            <button type="button" onclick="closeMini()">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showError(message) {
+        document.getElementById('miniDialogMsg').textContent = message;
+        document.getElementById('miniDialogOverlay').classList.add('active');
+    }
+
+    function closeMini() {
+        document.getElementById('miniDialogOverlay').classList.remove('active');
+    }
+
+    function showServerMessageOnce() {
+        var el = document.getElementById('serverMessageData');
+        if (!el) return;
+        var err = el.getAttribute('data-error');
+        var msg = el.getAttribute('data-message');
+        if (err && err.trim()) {
+            showError(err);
+        } else if (msg && msg.trim()) {
+            showError(msg);
+        }
+    }
+
+    function selectRow(tr) {
+        document.querySelectorAll('#mainGrid tbody tr').forEach(function(r) {
+            r.classList.remove('row-selected');
+        });
+        tr.classList.add('row-selected');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        showServerMessageOnce();
+    });
+</script>
+</body>
+</html>
