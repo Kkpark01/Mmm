@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<!--
+    【変換元】Mcm1005uScreen.vb / Mcm1005uScreen.Designer.vb
+              Mcm1005uTabControl.vb / Mcm1005uTabControl.Designer.vb
+    画面ID: MCM1005U
+    画面名: 取引先契約内容
+
+    【VB.NETコントロール → HTML要素 対応】
+      TORIHIKISAKI_NKTextBox / NONYUSAKI_NKTextBox → .torihikisaki-row（表示専用）
+      JOTAICPTextBox / SHONINJOTAICPTextBox         → .status-row（表示専用）
+      KEIYAKU_NOTextBox                              → input#keiyakuNo
+      PACK_FLGCheckBox / PACKKEIYAKUNAIYOCPTextBox  → #packFlg / #packkeiyakunaiyo
+      SHOKAI_KEIYAKU_DTCPTextBox                     → #shokaiKeiyakuDt
+      KEIYAKU_DTTextBox                              → #keiyakuDt
+      JIDOKOSIN_FLGCheckBox                          → #jidokosinFlg
+      KAIYAKU_DTTextBox                              → #kaiyakuDt
+      KEIYAKUMANRYO_DTTextBox                        → #keiyakumanryoDt
+      ENTYOKEIYAKUMANRYO_DTTextBox                   → #entyokeiyakumanryoDt
+      BIKOTextBox                                    → #biko
+      KOSINNAIYOTextBox                              → #kosinnaiyo
+      KikanTabControl (CPTabControl)                 → .kikan-tabs / .kikan-panel
+      MCM_TK_KIKIJOHODataGridView                   → #kikijohoTable（読み取り専用）
+      MCM_TK_TENKENDataGridView                      → #tenkenTable
+      MCM_TK_SIHARAIエリア                           → .siharai-area
+      MCM_TK_TENPUDataGridView                       → #tenpuTable
+      UpdateButton                                   → #saveBtn
+      SinseiButton                                   → #sinseiBtn
+      LockReleaseButton                              → （メンテナンスユーザーのみ表示）
+    【レイアウト参照】MCM0017U
+-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/default}" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf" th:content="${_csrf != null} ? ${_csrf.token} : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>MCM1005U - 取引先契約内容</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css"/>
+    <link rel="stylesheet" th:href="@{/css/mcm1005u.css}" href="../css/mcm1005u.css"/>
+
+    <style>
+        /* MCM0017U 準拠 共通レイアウト */
+        html, body { margin: 0; padding: 0; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px; }
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 30px; padding: 0 10px; box-sizing: border-box;
+        }
+        .header .header-center { flex: 1; text-align: center; }
+        .header .header-center h1 { margin: 0; font-size: 16px; font-weight: bold; color: #fff; line-height: 30px; }
+        .header .header-left, .header .header-right { display: flex; align-items: center; }
+        .btn-close {
+            display: inline-block; padding: 2px 12px; font-size: 12px; color: #000;
+            text-decoration: none; background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; cursor: pointer; line-height: 1.6;
+        }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .content { padding: 4px 6px; }
+
+        .btn { display: inline-block; padding: 3px 14px; font-size: 12px; cursor: pointer;
+               border: 1px solid #adadad; border-radius: 2px; background: #e1e1e1; }
+        .btn:hover { background: #e5f1fb; border-color: #0078d4; }
+        .btn-primary { background: #453f78; color: #fff; border-color: #453f78; }
+        .btn-primary:hover { background: #5a5290; border-color: #5a5290; }
+        .btn-henko { background: #1976d2; color: #fff; border-color: #1565c0; }
+        .btn-henko:hover { background: #1565c0; }
+        .msg-panel { margin: 4px 8px; padding: 5px 12px; border-radius: 3px; font-size: 12px; }
+        .msg-success { background: #e8f5e9; border: 1px solid #43a047; color: #1b5e20; }
+        .msg-error   { background: #fdecea; border: 1px solid #f44336; color: #c62828; }
+        .btn-danger { background: #e1e1e1; color: #c00; border-color: #c00; }
+        .message.success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 4px 10px; margin: 4px 0; border-radius: 3px; font-size: 12px; }
+        .message.error   { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 4px 10px; margin: 4px 0; border-radius: 3px; font-size: 12px; }
+    </style>
+
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<main layout:fragment="content" class="mcm1005u">
+
+    <!-- ========== ヘッダー ========== -->
+    <!-- 【変換元】Title = "取引先契約内容" -->
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center"><h1>取引先契約内容（MCM1005U）</h1></div>
+        <div class="header-right">
+            <a class="btn-close" th:href="@{${returnUrl}}" href="/menu">閉じる</a>
+        </div>
+    </div>
+
+    <!-- ========== メッセージ ========== -->
+    <th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors != null ? errors : errorMsg}, noticeInfo=${infoMessage})}"></th:block>
+    
+
+    <div class="content">
+
+        <!-- メッセージ表示（機器更新完了等） -->
+        
+        
+
+        <!-- ========== 契約ヘッダーエリア ========== -->
+        <!-- 【変換元】MCM_TK_KEIYAKU バインドコントロール群 -->
+        <form id="mainForm" th:action="@{/mcm1005u/save}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="operation" id="operation" value="save"/>
+            <input type="hidden" name="attachmentPeriodId" id="attachmentPeriodId"/>
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="tkKeiyakuId" th:value="${keiyaku?.tkKeiyakuId}"/>
+            <input type="hidden" name="keiyakuVersion" th:value="${keiyaku?.lastupdateDt}"/>
+            <input type="hidden" name="torihikisakiNk" th:value="${torihikisakiNk}"/>
+            <input type="hidden" name="nonyusakiNk" th:value="${nonyusakiNk}"/>
+            <input type="hidden" name="selectedKikanIndex" id="selectedKikanIndex" th:value="${selectedKikanIndex}"/>
+
+            <div class="keiyaku-header">
+
+                <!-- 取引先・納入先（表示専用、Delivery値） -->
+                <!-- 【変換元】TORIHIKISAKI_NKTextBox / NONYUSAKI_NKTextBox (ReadOnly, Gainsboro) -->
+                <div class="header-row">
+                    <span class="field-label">取引先</span>
+                    <span class="readonly-field" th:text="${torihikisakiNk}"></span>
+                    <span class="field-label" style="margin-left:20px;">納入先</span>
+                    <span class="readonly-field" th:text="${nonyusakiNk}"></span>
+
+                    <!-- 登録日時・登録者・更新日時・更新者（右寄せ） -->
+                    <!-- 【変換元】CREATED_DT / LASTUPDATE_DT コントロール群 -->
+                    <span style="margin-left:auto; display:flex; gap:12px; align-items:center;">
+                        <span class="field-label">登録日時</span>
+                        <span class="readonly-field"
+                              th:text="${keiyaku?.createdDt != null} ? ${#temporals.format(keiyaku.createdDt,'yyyy/MM/dd HH:mm')} : ''"></span>
+                        <span class="field-label">登録者</span>
+                        <span class="readonly-field" th:text="${keiyaku?.createdBy}"></span>
+                        <span class="field-label">更新日時</span>
+                        <span class="readonly-field"
+                              th:text="${keiyaku?.lastupdateDt != null} ? ${#temporals.format(keiyaku.lastupdateDt,'yyyy/MM/dd HH:mm')} : ''"></span>
+                        <span class="field-label">更新者</span>
+                        <span class="readonly-field" th:text="${keiyaku?.lastupdateBy}"></span>
+                    </span>
+                </div>
+
+                <!-- 状態・承認状態・契約NO・自動更新・パック -->
+                <!-- 【変換元】JOTAICPTextBox / SHONINJOTAICPTextBox / KEIYAKU_NO / JIDOKOSIN_FLG / PACK_FLG -->
+                <div class="header-row">
+                    <span class="field-label">状態</span>
+                    <span class="readonly-field" style="width:60px; display:inline-block;" th:text="${jotaiLabel}"></span>
+
+                    <span class="field-label">承認状態</span>
+                    <span class="readonly-field" style="width:70px; display:inline-block;" th:text="${approvalLabel}"></span>
+
+                    <span class="field-label">契約NO</span>
+                    <!-- 【不具合修正】元VB: UpdateButton等.AuthorityIsThrough=False（参照専用権限で非活性）。
+                         従来はボタンのみth:disabledで、単票・グリッドの全入力欄には制限がなく、
+                         参照権限のユーザーでも自由に編集できてしまっていた（mcm0012uと同一パターン）。
+                         入力欄側にもth:readonly/th:disabledを追加する。 -->
+                    <input type="text" name="keiyakuNo" id="keiyakuNo" style="width:120px;"
+                           th:value="${keiyaku?.keiyakuNo}" maxlength="50" th:readonly="${!canEditDetails}"/>
+
+                    <label style="display:flex;align-items:center;gap:4px;">
+                        <input type="checkbox" name="jidokosinFlg" id="jidokosinFlg" value="1"
+                               th:checked="${keiyaku?.jidokosinFlg != null and keiyaku.jidokosinFlg == 1}"
+                               th:disabled="${!canEditDetails}"/>
+                        自動更新
+                    </label>
+
+                    <span class="field-label">次回更新日</span>
+                    <span class="readonly-field"
+                          th:text="${keiyaku?.jikaikosinDt != null} ? ${#temporals.format(keiyaku.jikaikosinDt,'yyyy/MM/dd')} : ''"></span>
+
+                    <label style="display:flex;align-items:center;gap:4px;margin-left:10px;">
+                        <input type="checkbox" name="packFlg" id="packFlg" value="1"
+                               th:checked="${keiyaku?.packFlg != null and keiyaku.packFlg == 1}"
+                               th:disabled="${!canEditDetails}"/>
+                        パック契約
+                    </label>
+                </div>
+
+                <!-- 日付フィールド行 -->
+                <!-- 【変換元】SHOKAI_KEIYAKU_DT / KEIYAKU_DT / KEIYAKUMANRYO_DT / ENTYOKEIYAKUMANRYO_DT / KAIYAKU_DT -->
+                <div class="header-row">
+                    <span class="field-label">初回契約日</span>
+                    <input type="text" name="shokaiKeiyakuDt" id="shokaiKeiyakuDt" style="width:80px;"
+                           th:value="${keiyaku?.shokaiKeiyakuDt != null} ? ${#temporals.format(keiyaku.shokaiKeiyakuDt,'yyyy/MM/dd')} : ''"
+                           maxlength="10" placeholder="yyyy/MM/dd" th:readonly="${!canEditDetails}"/>
+
+                    <span class="field-label">契約日</span>
+                    <input type="text" name="keiyakuDt" id="keiyakuDt" style="width:80px;"
+                           th:value="${keiyaku?.keiyakuDt != null} ? ${#temporals.format(keiyaku.keiyakuDt,'yyyy/MM/dd')} : ''"
+                           maxlength="10" placeholder="yyyy/MM/dd" th:readonly="${!canEditDetails}"/>
+
+                    <span class="field-label">解約日</span>
+                    <input type="text" name="kaiyakuDt" id="kaiyakuDt" style="width:80px;"
+                           th:value="${keiyaku?.kaiyakuDt != null} ? ${#temporals.format(keiyaku.kaiyakuDt,'yyyy/MM/dd')} : ''"
+                           maxlength="10" placeholder="yyyy/MM/dd" th:readonly="${!canEditDetails}"/>
+
+                    <span class="field-label">契約満了日</span>
+                    <input type="text" name="keiyakumanryoDt" id="keiyakumanryoDt" style="width:80px;"
+                           th:value="${keiyaku?.keiyakumanryoDt != null} ? ${#temporals.format(keiyaku.keiyakumanryoDt,'yyyy/MM/dd')} : ''"
+                           maxlength="10" placeholder="yyyy/MM/dd" th:readonly="${!canEditDetails}"/>
+
+                    <span class="field-label">延長契約満了日</span>
+                    <input type="text" name="entyokeiyakumanryoDt" id="entyokeiyakumanryoDt" style="width:80px;"
+                           th:value="${keiyaku?.entyokeiyakumanryoDt != null} ? ${#temporals.format(keiyaku.entyokeiyakumanryoDt,'yyyy/MM/dd')} : ''"
+                           maxlength="10" placeholder="yyyy/MM/dd" th:readonly="${!canEditDetails}"/>
+                </div>
+
+                <!-- 依頼事業所・依頼担当者 -->
+                <!-- 【変換元】IRAIJIGYOSYO_NKTextBox / IRAITANTOSYATextBox (ReadOnly) -->
+                <div class="header-row">
+                    <span class="field-label">依頼事業所</span>
+                    <input type="hidden" name="iraijigyosyoNk" th:value="${keiyaku?.iraijigyosyoNk}"/>
+                    <span class="readonly-field" style="min-width:200px;" th:text="${keiyaku?.iraijigyosyoNk}"></span>
+                    <span class="field-label">依頼担当者</span>
+                    <input type="hidden" name="iraitantosya" th:value="${keiyaku?.iraitantosya}"/>
+                    <span class="readonly-field" th:text="${keiyaku?.iraitantosya}"></span>
+                </div>
+
+                <!-- パック契約内容・備考・更新内容 -->
+                <!-- 【変換元】PACKKEIYAKUNAIYOCPTextBox / BIKOTextBox / KOSINNAIYOTextBox -->
+                <div class="header-row">
+                    <span class="field-label">契約内容</span>
+                    <input type="text" name="packkeiyakunaiyo" id="packkeiyakunaiyo" style="width:500px;"
+                           th:value="${keiyaku?.packkeiyakunaiyo}" maxlength="400" th:readonly="${!canEditDetails}"/>
+                </div>
+                <div class="header-row">
+                    <span class="field-label">備考</span>
+                    <textarea name="biko" rows="2" style="width:500px;" maxlength="4000"
+                              th:text="${keiyaku?.biko}" th:readonly="${!canUpdate}"></textarea>
+                </div>
+                <div class="header-row">
+                    <span class="field-label">更新内容</span>
+                    <textarea name="kosinnaiyo" rows="2" style="width:500px;" maxlength="4000"
+                              th:text="${keiyaku?.kosinnaiyo}" th:readonly="${!canUpdate}"></textarea>
+                </div>
+
+            </div><!-- /keiyaku-header -->
+
+            <!-- ========== 期間タブ ========== -->
+            <!-- 【変換元】KikanTabControl (CPTabControl) — 各期間が1タブ -->
+            <div class="kikan-tabs" id="kikanTabs">
+                <span th:each="kikan, stat : ${kikanList}"
+                      th:class="${stat.index == selectedKikanIndex} ? 'kikan-tab active' : 'kikan-tab'"
+                      th:text="${kikan.kaisiDt != null} ? ${#temporals.format(kikan.kaisiDt,'yyyy/MM/dd')} : '新規'"
+                      th:data-index="${stat.index}"
+                      th:data-kikan-id="${kikan.tkKikanId}"
+                      onclick="selectKikanTab(this)"></span>
+                <span th:if="${kikanList.isEmpty()}" class="kikan-tab active"
+                      data-index="0" data-kikan-id=""
+                      style="color:#999;">（期間なし）</span>
+            </div>
+
+            <!-- 期間タブコンテンツ -->
+            <div class="kikan-panel" id="kikanPanel">
+
+                <!-- 期間情報（開始日〜終了日・価格サマリ） -->
+                <!-- 【変換元】KAISI_DTTextBox / SYURYO_DTTextBox / HYOJUNGOKEI_KIN 等 -->
+                <div class="period-pane" th:each="selectedKikan, periodStat : ${kikanList}"
+                     th:data-index="${periodStat.index}" th:data-kikan-id="${selectedKikan.tkKikanId}"
+                     th:hidden="${periodStat.index != selectedKikanIndex}"
+                     th:with="tenkenList=${periodData[periodStat.index].tenken},siharai=${periodData[periodStat.index].siharai},tenpuList=${periodData[periodStat.index].tenpu},kikiList=${periodData[periodStat.index].kiki}">
+                    <input type="hidden" th:name="'kikanVersion_' + ${selectedKikan.tkKikanId}" th:value="${selectedKikan.lastupdateDt}"/>
+
+                    <div class="kikan-info-row">
+                        <span class="field-label">期間</span>
+
+                        <!-- hidden: 期間IDを period インデックスとして配列で送信 -->
+                        <input type="hidden" name="kikanIds" th:value="${selectedKikan.tkKikanId}"/>
+
+                        <input type="text" name="kaisiDts"
+                               th:value="${selectedKikan.kaisiDt != null} ? ${#temporals.format(selectedKikan.kaisiDt,'yyyy/MM/dd')} : ''"
+                               style="width:80px;" placeholder="yyyy/MM/dd" maxlength="10" th:readonly="${!canEditDetails}"/>
+                        <span style="padding:0 4px;">〜</span>
+                        <input type="text" name="syuryoDts"
+                               th:value="${selectedKikan.syuryoDt != null} ? ${#temporals.format(selectedKikan.syuryoDt,'yyyy/MM/dd')} : ''"
+                               style="width:80px;" placeholder="yyyy/MM/dd" maxlength="10" th:readonly="${!canEditDetails}"/>
+
+                        <span class="field-label" style="margin-left:12px;">契約時間帯</span>
+                        <input type="text" name="keiyakujikantai"
+                               th:value="${selectedKikan.keiyakujikantai}"
+                               style="width:50px;" maxlength="2" th:readonly="${!canEditDetails}"/>
+
+                        <!-- 価格サマリ（ReadOnly） -->
+                        <div class="kikan-price-box" style="margin-left:auto;">
+                            <div class="price-row">
+                                <span>≪標準価格≫</span>
+                                <input type="text" style="width:100px; text-align:right;"
+                                       readonly
+                                       th:value="${selectedKikan.hyojungokeiKin != null} ? ${selectedKikan.hyojungokeiKin} : '0'"/>
+                            </div>
+                            <div class="price-row">
+                                <span>≪仕切価格≫小計</span>
+                                <input type="text" style="width:100px; text-align:right;"
+                                       readonly
+                                       th:value="${selectedKikan.sikirisyokeiKin != null} ? ${selectedKikan.sikirisyokeiKin} : '0'"/>
+                            </div>
+                            <div class="price-row">
+                                <span>出精値引き</span>
+                                <input type="text" style="width:100px; text-align:right;"
+                                       readonly
+                                       th:value="${selectedKikan.syusseinebikiKin != null} ? ${selectedKikan.syusseinebikiKin} : '0'"/>
+                            </div>
+                            <div class="price-row">
+                                <span>≪仕切価格≫合計</span>
+                                <input type="text" style="width:100px; text-align:right;"
+                                       readonly
+                                       th:value="${selectedKikan.sikirigokeiKin != null} ? ${selectedKikan.sikirigokeiKin} : '0'"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 期間備考 -->
+                    <div class="kikan-info-row">
+                        <span class="field-label">備考</span>
+                        <textarea name="kikanBikos" rows="2" style="width:500px;" maxlength="4000"
+                                  th:text="${selectedKikan.biko}" th:readonly="${!canEditDetails}"></textarea>
+                    </div>
+
+                    <!-- ===== 変更摘要日 + 変更ボタン ===== -->
+                    <!-- 【変換元】Mcm1005uTabControl.vb HenkoButton_Click（変更ボタン押下） -->
+                    <div class="kikan-info-row" style="margin-top:4px;">
+                        <span class="field-label">変更摘要日</span>
+                        <input type="text" class="tekiyobiDt" placeholder="yyyy/MM/dd" maxlength="10"
+                               style="width:90px;" th:readonly="${!canEditDetails}" />
+                        <!-- 【変換元】HenkoButton (AuthorityIsThrough=False) -->
+                        <button type="button" class="btn btn-henko" style="margin-left:8px;"
+                                th:if="${selectedKikan?.tkKikanId != null}"
+                                th:disabled="${!canEditDetails}"
+                                onclick="launchMcm1006u()">変更</button>
+                    </div>
+
+                    <!-- ===== 機器情報グリッド（読み取り専用）===== -->
+                    <!-- 【変換元】MCM_TK_KIKIJOHODataGridView — ReadOnly=True -->
+                    <div class="sub-section-label">≪機器情報≫</div>
+                    <div class="kikijoho-scroll">
+                        <table class="kikijoho-grid kikijoho-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-kn-nk">機器構成名</th>
+                                    <th class="col-maker">製造メーカー</th>
+                                    <th class="col-hinmei">品名</th>
+                                    <th class="col-katashiki">型式</th>
+                                    <th class="col-suryo">数量</th>
+                                    <th class="col-hyojun">標準価格</th>
+                                    <th class="col-hyojunkei">標準計</th>
+                                    <th class="col-sikiri">仕切価格</th>
+                                    <th class="col-sikirikei">仕切計</th>
+                                    <th class="col-tehai">手配製番</th>
+                                    <th class="col-hosyu-jikan">保守契約時間</th>
+                                    <th class="col-tenkenumu">点検有無</th>
+                                    <th class="col-hosyuhoho">保守方法</th>
+                                    <th class="col-servicekeitai">サービス形態</th>
+                                    <th class="col-support-old">サポートID</th>
+                                    <th class="col-support">現サポートID</th>
+                                    <th class="col-biko">備考</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="kiki : ${kikiList}" tabindex="0">
+                                    <td th:text="${kiki.KIKIKOSEI_NK}"></td><td th:text="${kiki.SEIZOMAKER_NK}"></td>
+                                    <td th:text="${kiki.KIKIHINMEI_NK}"></td><td th:text="${kiki.KIKIKATASHIKI}"></td>
+                                    <td th:text="${kiki.SURYO_NM}"></td><td th:text="${kiki.HYOJUN_KIN}"></td>
+                                    <td th:text="${kiki.HYOJUN_KIN != null and kiki.SURYO_NM != null ? kiki.HYOJUN_KIN * kiki.SURYO_NM : null}"></td>
+                                    <td th:text="${kiki.SIKIRI_KIN}"></td>
+                                    <td th:text="${kiki.SIKIRI_KIN != null and kiki.SURYO_NM != null ? kiki.SIKIRI_KIN * kiki.SURYO_NM : null}"></td>
+                                    <td th:text="${kiki.TEHAISEIBAN}"></td><td th:text="${kiki.TORIHOSYUJIKAN_ID}"></td>
+                                    <td th:text="${kiki.TENKENUMU}"></td><td th:text="${kiki.HOSYUHOHO}"></td>
+                                    <td th:text="${kiki.SERVICEKEITAI}"></td><td th:text="${selectedKikan.supportId}"></td>
+                                    <td th:text="${kiki.MAB_SUPPORT_ID}"></td><td></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(kikiList)}">
+                                    <td colspan="17" style="text-align:center; color:#999;">（機器情報なし）</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ===== 点検情報グリッド ===== -->
+                    <!-- 【変換元】MCM_TK_TENKENDataGridView -->
+                    <div class="sub-section-label">≪点検情報≫</div>
+                    <div class="tenken-scroll">
+                        <table class="tenken-grid" data-grid="tenken">
+                            <thead>
+                                <tr>
+                                    <th class="col-kn-nk">機器構成名</th>
+                                    <th class="col-hinmei">品名</th>
+                                    <th class="col-katashiki">型式</th>
+                                    <th class="col-kaisu">回数</th>
+                                    <th class="col-tsuki">1月</th>
+                                    <th class="col-tsuki">2月</th>
+                                    <th class="col-tsuki">3月</th>
+                                    <th class="col-tsuki">4月</th>
+                                    <th class="col-tsuki">5月</th>
+                                    <th class="col-tsuki">6月</th>
+                                    <th class="col-tsuki">7月</th>
+                                    <th class="col-tsuki">8月</th>
+                                    <th class="col-tsuki">9月</th>
+                                    <th class="col-tsuki">10月</th>
+                                    <th class="col-tsuki">11月</th>
+                                    <th class="col-tsuki">12月</th>
+                                    <th class="col-yobi">可能曜日</th>
+                                    <th class="col-yakan">夜間対応</th>
+                                    <th class="col-biko">備考</th>
+                                    <th class="col-dt">登録日時</th>
+                                    <th class="col-by">登録者</th>
+                                    <th class="col-dt">更新日時</th>
+                                    <th class="col-by">更新者</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tenken : ${tenkenList}">
+                                    <td class="col-kn-nk" style="background:#f5f5f5;">
+                                        <input type="hidden" th:name="'tenkenVersion_' + ${tenken.tkTenkenId}" th:value="${tenken.lastupdateDt}"/>
+                                        <input type="hidden" name="tenkenIds" th:value="${tenken.tkTenkenId}"/>
+                                        <span th:text="${tenken.kikikoseiNk}"></span>
+                                    </td>
+                                    <td class="col-hinmei" style="background:#f5f5f5;"
+                                        th:text="${tenken.kikihinmeiNk}"></td>
+                                    <td class="col-katashiki" style="background:#f5f5f5;"
+                                        th:text="${tenken.kikikatashiki}"></td>
+
+                                    <!-- 回数 -->
+                                    <td class="col-kaisu">
+                                        <input type="text" inputmode="numeric" name="tenkenkaisus" pattern="[0-9]{1,2}" maxlength="2"
+                                               th:value="${tenken.tenkenkaisu}"
+                                               min="0" max="99" style="width:35px; text-align:right;" th:readonly="${!canEditDetails}"/>
+                                    </td>
+
+                                    <!-- 月チェック(1〜12) -->
+                                    <td class="col-tsuki" th:each="m : ${#numbers.sequence(0,11)}">
+                                        <input type="checkbox"
+                                               th:name="'tenkenTsuki_' + ${tenken.tkTenkenId} + '_' + ${m}"
+                                               th:checked="${tenken.getTsukiAt(m) == '1'}"
+                                               th:disabled="${!canEditDetails}"/>
+                                    </td>
+
+                                    <!-- 可能曜日 -->
+                                    <td class="col-yobi">
+                                        <input type="text" name="tenkenkanoyobis" maxlength="1"
+                                               th:value="${tenken.tenkenkanoyobi}" style="width:70px;" th:readonly="${!canEditDetails}"/>
+                                    </td>
+
+                                    <!-- 夜間対応 -->
+                                    <td class="col-yakan" style="text-align:center;">
+                                        <input type="checkbox"
+                                               th:name="'yakantaioumu_' + ${tenken.tkTenkenId}"
+                                               th:checked="${tenken.yakantaioumu == '1'}"
+                                               th:disabled="${!canEditDetails}"/>
+                                    </td>
+
+                                    <!-- 備考 -->
+                                    <td class="col-biko">
+                                        <input type="text" name="tenkenBikos"
+                                               th:value="${tenken.biko}" maxlength="4000" th:readonly="${!canEditDetails}"/>
+                                    </td>
+
+                                    <!-- 監査（ReadOnly） -->
+                                    <td class="col-dt" style="background:#f5f5f5;"
+                                        th:text="${tenken.createdDt != null} ? ${#temporals.format(tenken.createdDt,'yyyy/MM/dd HH:mm')} : ''"></td>
+                                    <td class="col-by" style="background:#f5f5f5;"
+                                        th:text="${tenken.createdBy}"></td>
+                                    <td class="col-dt" style="background:#f5f5f5;"
+                                        th:text="${tenken.lastupdateDt != null} ? ${#temporals.format(tenken.lastupdateDt,'yyyy/MM/dd HH:mm')} : ''"></td>
+                                    <td class="col-by" style="background:#f5f5f5;"
+                                        th:text="${tenken.lastupdateBy}"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(tenkenList)}">
+                                    <td colspan="23" style="text-align:center; color:#999;">（点検情報なし）</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ===== 支払情報エリア ===== -->
+                    <!-- 【変換元】MCM_TK_SIHARAI + Tsuki01〜12CheckBox -->
+                    <div class="sub-section-label">≪支払情報≫</div>
+                    <div th:if="${siharai != null}">
+                        <input type="hidden" th:name="'siharaiVersion_' + ${siharai.tkSiharaiId}" th:value="${siharai.lastupdateDt}"/>
+                        <input type="hidden" name="siharaiId" th:value="${siharai.tkSiharaiId}"/>
+                        <input type="hidden" name="siharaiKikanId" th:value="${siharai.tkKikanId}"/>
+                        <div class="siharai-area">
+                            <div>
+                                <div class="siharai-kaisu-row">
+                                    <span>回数</span>
+                                    <input type="text" name="siharaiKaisu"
+                                           th:value="${siharai.kaisu}" style="width:40px; text-align:right;" th:readonly="${!canEditDetails}"/>
+                                    <span>回</span>
+                                </div>
+                                <div class="tsuki-grid">
+                                    <label th:each="m : ${#numbers.sequence(1,12)}">
+                                        <input type="checkbox" th:name="'siharaiTsuki_' + ${siharai.tkSiharaiId}"
+                                               th:value="${m}"
+                                               th:checked="${siharai.getShiharaiTsukiAt(m - 1)}"
+                                               th:disabled="${!canEditDetails}"/>
+                                        <span th:text="${m} + '月'"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="siharai-biko">
+                                <div>備考</div>
+                                <textarea name="siharaiBiko" rows="3" style="width:400px;"
+                                          maxlength="4000" th:text="${siharai.biko}" th:readonly="${!canEditDetails}"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${siharai == null}" style="color:#999; font-size:12px; padding:4px;">（支払情報なし）</div>
+
+                    <!-- ===== 添付ファイルエリア ===== -->
+                    <!-- 【変換元】MCM_TK_TENPUDataGridView + FileUpButton / FileDelButton -->
+                    <div class="sub-section-label">≪添付資料≫</div>
+                    <div class="tenpu-area-toolbar">
+                        <input type="file" th:name="'attachmentFile_' + ${selectedKikan.tkKikanId}" th:disabled="${!canEditDetails}" aria-label="添付ファイル"/>
+                        <button type="button" class="btn" th:disabled="${!canEditDetails}" onclick="uploadAttachment()">ファイル追加</button>
+                    </div>
+                    <table class="tenpu-grid" data-grid="tenpu">
+                        <thead>
+                            <tr>
+                                <th class="col-filename">ファイル名</th>
+                                <th class="col-shoninjotai">承認状態</th>
+                                <th class="col-action">削除</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="tenpu : ${tenpuList}">
+                                <td class="col-filename">
+                                    <input type="hidden" name="tenpuIds"         th:value="${tenpu.tkTenpuId}"/>
+                                    <input type="hidden" name="tenpuKikanIds"    th:value="${tenpu.tkKikanId}"/>
+                                    <input type="hidden" name="tenpuFileNks"     th:value="${tenpu.tenpufileNk}"/>
+                                    <input type="hidden" name="tenpuDirectories" th:value="${tenpu.directory}"/>
+                                    <input type="hidden" name="tenpuShoninjotais" th:value="${tenpu.shoninjotai}"/>
+                                    <a th:href="@{/mcm1005u/attachment/download(tkKeiyakuId=${keiyaku.tkKeiyakuId},tkTenpuId=${tenpu.tkTenpuId})}" data-mcm-no-progress="true" th:text="${tenpu.tenpufileNk}"></a>
+                                </td>
+                                <td class="col-shoninjotai" th:text="${tenpu.shoninjotai}"></td>
+                                <td class="col-action" style="text-align:center;">
+                                    <!-- 【変換元】FileDelButton (AuthorityIsThrough=False) -->
+                                    <button type="button" class="btn btn-danger"
+                                            style="padding:1px 6px;"
+                                            th:disabled="${!canEditDetails}"
+                                            th:onclick="'deleteTenpu(' + ${tenpu.tkTenpuId} + ')'">削除</button>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(tenpuList)}">
+                                <td colspan="3" style="text-align:center; color:#999;">（添付ファイルなし）</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div><!-- /th:if selectedKikan != null -->
+
+                <div th:if="${selectedKikan == null}" style="padding:20px; color:#999; text-align:center;">
+                    期間が登録されていません。
+                </div>
+
+            </div><!-- /kikan-panel -->
+
+            <!-- ========== ボタンエリア ========== -->
+            <!-- 【変換元】UpdateButton / SinseiButton (LockReleaseButtonは条件付き) -->
+            <div class="btn-area-bottom">
+                <button type="button" class="btn" id="reportBtn" th:disabled="${!canUpdate or selectedKikan == null}"
+                        onclick="issueReport()">契約発行</button>
+                <!-- 【変換元】SinseiButton (AuthorityIsThrough=False) -->
+                <button type="button" class="btn btn-primary" id="sinseiBtn"
+                        th:disabled="${!canEditDetails}"
+                        onclick="confirmSinsei()">申請</button>
+                <!-- 【変換元】UpdateButton (AuthorityIsThrough=False) -->
+                <button type="button" class="btn btn-primary" id="saveBtn"
+                        th:disabled="${!canUpdate}"
+                        onclick="confirmSave()">登録</button>
+            </div>
+
+        </form><!-- /mainForm -->
+
+        <!-- 添付削除用フォーム（非表示） -->
+        <form id="deleteTenpuForm" th:action="@{/mcm1005u/deleteTenpu}" method="post" style="display:none;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="tkTenpuId" id="deleteTenpuId"/>
+            <input type="hidden" name="tkKeiyakuId" th:value="${keiyaku?.tkKeiyakuId}"/>
+            <input type="hidden" name="torihikisakiNk" th:value="${torihikisakiNk}"/>
+            <input type="hidden" name="nonyusakiNk" th:value="${nonyusakiNk}"/>
+            <input type="hidden" name="selectedKikanIndex" id="deleteTenpuKikanIndex" value="0"/>
+        </form>
+
+        <!-- 申請用フォーム（非表示） -->
+        <form id="sinseiForm" th:action="@{/mcm1005u/sinsei}" method="post" style="display:none;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="tkKeiyakuId" th:value="${keiyaku?.tkKeiyakuId}"/>
+            <input type="hidden" name="tkKikanId" id="sinseiKikanId"
+                   th:value="${selectedKikan?.tkKikanId}"/>
+            <input type="hidden" name="torihikisakiNk" th:value="${torihikisakiNk}"/>
+            <input type="hidden" name="nonyusakiNk" th:value="${nonyusakiNk}"/>
+            <input type="hidden" name="selectedKikanIndex" id="sinseiKikanIndex" value="0"/>
+        </form>
+
+    <!-- MCM1006U 起動用フォーム（変更ボタン） -->
+    <!-- 【変換元】TabHenkoButtonClick → Mcm1005uScreen.vb LaunchMcm1006u -->
+    <form id="launchMcm1006uForm" th:action="@{/mcm1005u/launchMcm1006u}" method="post" style="display:none;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" name="tkKeiyakuId"       th:value="${keiyaku?.tkKeiyakuId}"/>
+        <input type="hidden" name="tkKikanId"         id="launchKikanId"
+               th:value="${selectedKikan?.tkKikanId}"/>
+        <input type="hidden" name="tekiyobi"          id="launchTekiyobi"/>
+        <input type="hidden" name="torihikisakiNk"    th:value="${torihikisakiNk}"/>
+        <input type="hidden" name="nonyusakiNk"       th:value="${nonyusakiNk}"/>
+        <input type="hidden" name="selectedKikanIndex" id="launchKikanIndex" th:value="${selectedKikanIndex}"/>
+    </form>
+
+    </div><!-- /content -->
+
+    <script th:inline="javascript">
+    // ── 期間タブ選択 ──
+    // 【変換元】KikanTabControl_SelectedIndexChanged
+    function selectKikanTab(el) {
+        document.getElementById('selectedKikanIndex').value = el.dataset.index;
+        document.querySelectorAll('.kikan-tab').forEach(t => t.classList.toggle('active', t === el));
+        document.querySelectorAll('.period-pane').forEach(p => p.hidden = p.dataset.index !== el.dataset.index);
+        requestAnimationFrame(setupGrids);
+    }
+    const mainForm = document.getElementById('mainForm');
+    const submittedValues = /*[[${submittedValues}]]*/ null;
+    if (submittedValues) {
+        const positions = {};
+        Array.from(mainForm.elements).forEach(el => {
+            if (!el.name || el.name === '_csrf' || el.type === 'file') return;
+            const values = submittedValues[el.name] || [];
+            if (el.type === 'checkbox') el.checked = values.includes(el.value);
+            else {
+                const position = positions[el.name] || 0;
+                if (position < values.length) el.value = values[position];
+                positions[el.name] = position + 1;
+            }
+        });
+    }
+    let dirty = !!submittedValues;
+    mainForm.addEventListener('input', () => dirty = true);
+    mainForm.addEventListener('change', () => dirty = true);
+    mainForm.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && event.target.matches('input[type=text]')) event.preventDefault();
+    });
+    window.addEventListener('beforeunload', event => {
+        if (dirty) { event.preventDefault(); event.returnValue = ''; }
+    });
+    function sendForm(form) { rememberPosition(); dirty = false; form.requestSubmit(); }
+    async function requireSaved() {
+        if (!dirty) return true;
+        await McmNotifications.error('変更内容を登録してから実行してください。');
+        return false;
+    }
+    function activePeriod() { return document.querySelector('.period-pane:not([hidden])'); }
+    function validateMonths() {
+        for (const pane of document.querySelectorAll('.period-pane')) {
+            for (const row of pane.querySelectorAll('.tenken-grid tbody tr')) {
+                const count = row.querySelector('[name=tenkenkaisus]');
+                if (!count) continue;
+                const checks = row.querySelectorAll('[name^=tenkenTsuki_]:checked').length;
+                if (!/^\d{1,2}$/.test(count.value) || Number(count.value) < checks) return '点検回数と月のチェックの数が一致していません。';
+            }
+            const count = pane.querySelector('[name=siharaiKaisu]');
+            if (count && (!/^\d{1,2}$/.test(count.value) || Number(count.value) < pane.querySelectorAll('[name^=siharaiTsuki_]:checked').length)) return '支払回数と月のチェックの数が一致していません。';
+        }
+        return null;
+    }
+    // Colgroups and frozen columns follow VB Designer: equipment 4, inspection 3.
+    function setupGrids() {
+        document.querySelectorAll('.period-pane:not([hidden]) table').forEach(table => {
+            if (table.dataset.ready) return;
+            table.dataset.ready = '1';
+            const heads = Array.from(table.querySelectorAll('thead th'));
+            const group = document.createElement('colgroup');
+            const widths = heads.map(th => Math.max(40, th.getBoundingClientRect().width));
+            widths.forEach(width => { const col=document.createElement('col');col.style.width=width+'px';group.append(col); });
+            table.prepend(group); table.style.tableLayout='fixed';
+            const frozen=table.classList.contains('kikijoho-grid')?4:table.classList.contains('tenken-grid')?3:0;
+            const refresh=()=>{
+                table.style.width=widths.reduce((a,b)=>a+b,0)+'px';
+                table.querySelectorAll('tr').forEach(row=>{
+                    let left=0;
+                    Array.from(row.children).slice(0,frozen).forEach((cell,i)=>{
+                        if(cell.colSpan>1)return;
+                        cell.classList.add('fixed-col');cell.style.left=left+'px';left+=widths[i];
+                    });
+                });
+            };
+            heads.forEach((th,i)=>{
+                const handle=document.createElement('span');handle.className='col-resizer';th.append(handle);
+                handle.addEventListener('pointerdown',e=>{
+                    e.preventDefault();const x=e.clientX,w=widths[i];handle.setPointerCapture(e.pointerId);document.body.classList.add('col-resizing');
+                    const move=ev=>{widths[i]=Math.max(40,w+ev.clientX-x);group.children[i].style.width=widths[i]+'px';refresh();};
+                    const end=()=>{handle.removeEventListener('pointermove',move);document.body.classList.remove('col-resizing');};
+                    handle.addEventListener('pointermove',move);handle.addEventListener('pointerup',end,{once:true});handle.addEventListener('pointercancel',end,{once:true});
+                });
+            });
+            refresh();
+        });
+    }
+    const uiKey = 'MCM1005U_UI_' + mainForm.querySelector('[name=tkKeiyakuId]').value;
+    function rememberPosition() {
+        const panes = Array.from(document.querySelectorAll('.period-pane')).map(p =>
+            Array.from(p.querySelectorAll('.tenken-scroll,.kikijoho-scroll')).map(x => [x.scrollLeft,x.scrollTop]));
+        try { sessionStorage.setItem(uiKey, JSON.stringify({panes, selected: selectedCellIndex})); } catch (_) {}
+    }
+    let selectedCellIndex = -1;
+    const editCells = [];
+    document.querySelectorAll('.tenken-grid tbody td').forEach(cell => {
+        const input = cell.querySelector('input[type=text]');
+        if (!input || input.readOnly || input.disabled) return;
+        const index = editCells.length; editCells.push(cell); cell.tabIndex = 0;
+        input.readOnly = true; input.tabIndex = -1;
+        let editing = false, previous = input.value;
+        function select() {
+            document.querySelectorAll('.cell-selected').forEach(x=>x.classList.remove('cell-selected'));
+            cell.classList.add('cell-selected'); selectedCellIndex=index;
+        }
+        function start() { previous=input.value;editing=true;input.readOnly=false;input.focus();input.select(); }
+        function finish(cancel=false) {
+            if(cancel)input.value=previous;
+            else if(input.name==='tenkenkaisus' && !/^\d{1,2}$/.test(input.value)) {
+                input.value=previous;McmNotifications.error('点検回数は0～99の整数で入力してください。');
+            }
+            editing=false;input.readOnly=true;
+        }
+        cell.addEventListener('click',()=>{const again=selectedCellIndex===index;select();if(again)start();else cell.focus();});
+        input.addEventListener('blur',()=>finish());
+        cell.addEventListener('focus',select);
+        cell.addEventListener('keydown',event=>{
+            if(event.key==='Escape'){event.preventDefault();finish(true);cell.focus();return;}
+            if(event.key==='Tab'||event.key.startsWith('Arrow')){
+                event.preventDefault();finish();
+                const direction=event.key==='ArrowLeft'||event.key==='ArrowUp'||event.shiftKey?-1:1;
+                const pane=cell.closest('.period-pane');
+                const available=editCells.filter(c=>c.closest('.period-pane')===pane);
+                const next=available[available.indexOf(cell)+direction];if(next)next.focus();return;
+            }
+            if(!editing&&(event.key==='Enter'||event.key==='F2'||event.key.length===1&&!event.ctrlKey&&!event.metaKey)){
+                event.preventDefault();start();if(event.key.length===1)input.value=event.key;
+            }
+        });
+    });
+    try {
+        const saved = JSON.parse(sessionStorage.getItem(uiKey) || 'null');sessionStorage.removeItem(uiKey);
+        if (saved) requestAnimationFrame(()=>{
+            document.querySelectorAll('.period-pane').forEach((p,i)=>p.querySelectorAll('.tenken-scroll,.kikijoho-scroll').forEach((x,j)=>{
+                const pos=saved.panes?.[i]?.[j];if(pos){x.scrollLeft=pos[0];x.scrollTop=pos[1];}
+            }));
+            const cell=editCells[saved.selected];if(cell){cell.classList.add('cell-selected');selectedCellIndex=saved.selected;}
+        });
+    } catch (_) {}
+    requestAnimationFrame(setupGrids);
+
+    // ── 登録確認 ──
+    // 【変換元】DisplaySaveConfirm() → UpdateButton_Click
+    async function uploadAttachment() {
+        const pane = activePeriod();
+        const file = pane?.querySelector('input[type=file]');
+        if (!file?.files.length) { await McmNotifications.error('添付ファイルを選択してください。'); return; }
+        document.getElementById('attachmentPeriodId').value = pane.dataset.kikanId;
+        document.getElementById('operation').value = 'upload';
+        sendForm(mainForm);
+    }
+    async function downloadContractReport(period) {
+        const url = new URL(/*[[@{/mcm1005u/report}]]*/ '/mcm1005u/report', location.origin);
+        url.searchParams.set('tkKeiyakuId', mainForm.querySelector('[name=tkKeiyakuId]').value);
+        url.searchParams.set('tkKikanId', period);
+        const button = document.getElementById('reportBtn');
+        const wasDisabled = button.disabled; button.disabled = true;
+        try {
+            const response = await fetch(url, {cache:'no-store'});
+            if (!response.ok || !response.headers.get('Content-Type')?.includes('application/vnd.ms-excel')) {
+                let message = '契約手続依頼書を出力できませんでした。';
+                try { message = (await response.json()).message || message; } catch (_) {}
+                await McmNotifications.error(message); return;
+            }
+            const objectUrl = URL.createObjectURL(await response.blob());
+            const link = document.createElement('a');link.href=objectUrl;link.download='契約手続依頼書.xls';
+            document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);
+        } catch (_) { await McmNotifications.error('契約手続依頼書を出力できませんでした。通信状態を確認してください。'); }
+        finally { button.disabled=wasDisabled; }
+    }
+    async function issueReport() {
+        const period = activePeriod()?.dataset.kikanId;
+        if (!period) { await McmNotifications.error('期間が選択されていません。'); return; }
+        if (dirty) await confirmSave('report');
+        else await downloadContractReport(period);
+    }
+    const reportPeriod = /*[[${reportPeriodId}]]*/ null;
+    if (reportPeriod) downloadContractReport(reportPeriod);
+    async function confirmSave(operation = 'save') {
+        for (const input of mainForm.querySelectorAll('[name$=Dt],[name=kaisiDts],[name=syuryoDts]')) {
+            const value = input.value.trim().replaceAll('-', '/');
+            const match = /^(\d{4})\/(\d{2})\/(\d{2})$/.exec(value);
+            if (!value && !['kaisiDts','syuryoDts'].includes(input.name)) continue;
+            const date = match ? new Date(Number(match[1]), Number(match[2])-1, Number(match[3])) : null;
+            if (!match || date.getFullYear() !== Number(match[1]) || date.getMonth()+1 !== Number(match[2]) || date.getDate() !== Number(match[3])) {
+                await McmNotifications.error('日付が正しくありません。実在する日付をyyyy/MM/dd形式で入力してください。');
+                return;
+            }
+        }
+        const error = /*[[${canEditDetails}]]*/ true;
+        const validationError = error ? validateMonths() : null;
+        if (validationError) { await McmNotifications.error(validationError); return; }
+        for (const pane of error ? document.querySelectorAll('.period-pane') : []) {
+            const start = pane.querySelector('[name=kaisiDts]').value;
+            const count = pane.querySelector('[name=siharaiKaisu]');
+            const month = Number(start.replaceAll('-', '/').split('/')[1]);
+            if (count && !Array.from(pane.querySelectorAll('[name^=siharaiTsuki_]:checked')).some(c => Number(c.value) === month)) {
+                if (!await McmNotifications.confirm('期間の開始月に支払チェックがされてません。処理を続行してもよろしいですか？')) return;
+            }
+        }
+        if ((operation === 'save' || dirty) && !await McmNotifications.confirm('登録を実施します。よろしいですか？')) return;
+        if (operation === 'sinsei' && !await McmNotifications.confirm('申請を実施します。よろしいですか？')) return;
+        document.getElementById('operation').value = operation;
+        sendForm(mainForm);
+    }
+
+    // ── 申請確認 ──
+    // 【変換元】MSG_0120 確認ダイアログ → SinseiButton_Click
+    async function confirmSinsei() {
+        const kikanId = activePeriod()?.dataset.kikanId;
+        if (!kikanId) {
+            alert('期間が選択されていません。');
+            return;
+        }
+        await confirmSave('sinsei');
+    }
+
+    // ── MCM1006U 起動（変更ボタン）──
+    // 【変換元】Mcm1005uTabControl.vb HenkoButton_Click
+    async function launchMcm1006u() {
+        if (!await requireSaved()) return;
+        const tekiyobi = activePeriod()?.querySelector('.tekiyobiDt').value;
+        document.getElementById('launchKikanId').value = activePeriod()?.dataset.kikanId || '';
+        if (!tekiyobi) {
+            alert('変更摘要日を入力してください。');
+            return;
+        }
+        const idx = document.getElementById('selectedKikanIndex').value;
+        document.getElementById('launchTekiyobi').value = tekiyobi;
+        document.getElementById('launchKikanIndex').value = idx;
+        sendForm(document.getElementById('launchMcm1006uForm'));
+    }
+
+    // ── 添付ファイル削除 ──
+    // 【変換元】FileDelButton_Click
+    async function deleteTenpu(tkTenpuId) {
+        if (!await requireSaved()) return;
+        if (!await McmNotifications.confirm('添付ファイルを削除します。よろしいですか？')) return;
+        const idx = document.getElementById('selectedKikanIndex').value;
+        document.getElementById('deleteTenpuId').value = tkTenpuId;
+        document.getElementById('deleteTenpuKikanIndex').value = idx;
+        sendForm(document.getElementById('deleteTenpuForm'));
+    }
+    </script>
+
+</main>
+</body>
+</html>

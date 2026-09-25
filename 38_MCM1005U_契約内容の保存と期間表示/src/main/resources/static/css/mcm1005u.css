@@ -1,0 +1,403 @@
+/*
+ * 【変換元】Mcm1005uScreen.Designer.vb / Mcm1005uTabControl.Designer.vb
+ * 【説明】取引先契約内容（MCM1005U）固有スタイル
+ * 【レイアウト参照】MCM0017U 準拠
+ */
+
+/* ── 契約ヘッダーエリア ── */
+.keiyaku-header {
+    background: #f5f5f5;
+    border: 1px solid #d5dbdb;
+    padding: 6px 10px;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.keiyaku-header .header-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.keiyaku-header .field-label {
+    color: #555;
+    white-space: nowrap;
+    min-width: 70px;
+}
+
+.keiyaku-header .field-value {
+    flex: 1;
+    min-width: 100px;
+}
+
+.keiyaku-header input[type="text"],
+.keiyaku-header input[type="date"] {
+    box-sizing: border-box;
+    height: 22px;
+    padding: 1px 4px;
+    font-size: 12px;
+    border: 1px solid #aaa;
+}
+
+.keiyaku-header input[readonly],
+.keiyaku-header textarea[readonly],
+.keiyaku-header .readonly-field {
+    background: #e8e8e8;
+    color: #555;
+}
+/* 【不具合修正】元VB: UpdateButton等.AuthorityIsThrough=False（参照専用権限で非活性）。
+   従来はボタンのみth:disabledで、単票・グリッドの全入力欄には制限がなく、参照権限のユーザーでも
+   自由に編集できてしまっていた（mcm0012uと同一パターン）。readonly/disabled時の背景色を
+   更新履歴欄と同じ薄い灰色（#e8e8e8）に統一し、編集不可であることを視覚的にも分かるようにする。 */
+.keiyaku-header input[type="checkbox"]:disabled { opacity: .6; cursor: default; }
+
+.keiyaku-header textarea {
+    box-sizing: border-box;
+    font-size: 12px;
+    border: 1px solid #aaa;
+    resize: vertical;
+    padding: 2px 4px;
+}
+
+/* ── 期間タブ ── */
+.kikan-tabs {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    border-bottom: 2px solid #453f78;
+    margin-bottom: 0;
+    gap: 2px;
+    padding: 0 4px;
+}
+
+.kikan-tab {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #aaa;
+    border-bottom: none;
+    background: #f0f0f0;
+    border-radius: 3px 3px 0 0;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.kikan-tab:hover { background: #e5f1fb; }
+.kikan-tab.active {
+    background: #453f78;
+    color: #fff;
+    border-color: #453f78;
+    font-weight: bold;
+}
+
+/* ── 期間タブ内コンテンツ ── */
+.kikan-panel {
+    border: 1px solid #453f78;
+    border-top: none;
+    padding: 6px 8px;
+    background: #fff;
+}
+
+.kikan-info-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.kikan-info-row .field-label {
+    white-space: nowrap;
+    color: #555;
+    min-width: 50px;
+}
+
+.kikan-info-row input[type="text"] {
+    box-sizing: border-box;
+    height: 22px;
+    padding: 1px 4px;
+    font-size: 12px;
+    border: 1px solid #aaa;
+}
+/* 【不具合修正】期間情報（開始日〜終了日・契約時間帯・期間備考）を参照権限時に編集不可にする。
+   契約ヘッダーと同じ薄い灰色（#e8e8e8）で統一する。 */
+.kikan-info-row input[readonly],
+.kikan-info-row textarea[readonly] { background: #e8e8e8; color: #555; }
+
+.kikan-price-box {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    font-size: 12px;
+    background: #fafafa;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 180px;
+}
+
+.kikan-price-box .price-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.kikan-price-box input {
+    text-align: right;
+    width: 100px;
+    height: 20px;
+    border: 1px solid #aaa;
+    background: #e8e8e8;
+    font-size: 12px;
+}
+
+/* ── サブセクション共通ラベル ── */
+.sub-section-label {
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+    margin: 6px 0 3px 0;
+    padding: 2px 4px;
+    border-left: 3px solid #453f78;
+    background: #f0f0f8;
+}
+
+/* ── 機器情報グリッド（読み取り専用） ── */
+.kikijoho-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    table-layout: fixed;
+}
+
+.kikijoho-grid th {
+    background: #eef2f5;
+    border: 1px solid #b0bec5;
+    padding: 3px 5px;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: normal;
+}
+
+.kikijoho-grid td {
+    border: 1px solid #d5dbdb;
+    padding: 2px 5px;
+    vertical-align: middle;
+    height: 22px;
+    background: #f5f5f5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 列幅（Mcm1005uTabControl.Designer.vb準拠） */
+.kikijoho-grid .col-kn-nk        { width: 140px; }
+.kikijoho-grid .col-maker        { width: 95px; }
+.kikijoho-grid .col-hinmei       { width: 120px; }
+.kikijoho-grid .col-katashiki    { width: 120px; }
+.kikijoho-grid .col-suryo        { width: 54px; text-align: right; }
+.kikijoho-grid .col-hyojun       { width: 80px; text-align: right; }
+.kikijoho-grid .col-hyojunkei    { width: 90px; text-align: right; }
+.kikijoho-grid .col-sikiri       { width: 80px; text-align: right; }
+.kikijoho-grid .col-sikirikei    { width: 90px; text-align: right; }
+.kikijoho-grid .col-tehai        { width: 85px; }
+.kikijoho-grid .col-hosyu-jikan  { width: 160px; }
+.kikijoho-grid .col-tenkenumu    { width: 80px; text-align: center; }
+.kikijoho-grid .col-hosyuhoho    { width: 80px; text-align: center; }
+.kikijoho-grid .col-servicekeitai{ width: 90px; text-align: center; }
+.kikijoho-grid .col-support-old  { width: 85px; }
+.kikijoho-grid .col-support      { width: 105px; }
+.kikijoho-grid .col-biko         { min-width: 120px; }
+
+/* ── 点検グリッド ── */
+.tenken-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    table-layout: fixed;
+}
+
+.tenken-grid th,
+.tenken-grid td {
+    border: 1px solid #d5dbdb;
+    padding: 2px 4px;
+    vertical-align: middle;
+    height: 22px;
+}
+
+.tenken-grid th {
+    background: #eef2f5;
+    font-weight: normal;
+    text-align: center;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.tenken-grid .col-kn-nk      { width: 140px; }
+.tenken-grid .col-hinmei     { width: 140px; }
+.tenken-grid .col-katashiki  { width: 140px; }
+.tenken-grid .col-kaisu      { width: 38px; text-align: right; }
+.tenken-grid .col-tsuki      { width: 32px; text-align: center; }
+.tenken-grid .col-yobi       { width: 80px; text-align: center; }
+.tenken-grid .col-yakan      { width: 70px; text-align: center; }
+.tenken-grid .col-biko       { min-width: 120px; }
+.tenken-grid .col-dt         { width: 110px; }
+.tenken-grid .col-by         { width: 80px; }
+
+.tenken-grid input[type="text"],
+.tenken-grid input[type="number"],
+.tenken-grid select {
+    width: 100%;
+    box-sizing: border-box;
+    height: 20px;
+    font-size: 12px;
+    border: 1px solid #aaa;
+    padding: 0 3px;
+}
+/* 【不具合修正】点検情報グリッド（回数・可能曜日・備考）を参照権限時に編集不可にする。 */
+.tenken-grid input[readonly] { background: #e8e8e8; color: #555; }
+.tenken-grid input[type="checkbox"]:disabled { opacity: .6; cursor: default; }
+
+/* ── 支払情報エリア ── */
+.siharai-area {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.siharai-kaisu-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.siharai-kaisu-row input[type="text"] {
+    width: 40px;
+    height: 22px;
+    border: 1px solid #aaa;
+    font-size: 12px;
+    text-align: right;
+    padding: 1px 3px;
+}
+
+.tsuki-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 50px);
+    gap: 3px 8px;
+    margin-bottom: 6px;
+}
+
+.tsuki-grid label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.siharai-biko textarea {
+    width: 400px;
+    height: 60px;
+    font-size: 12px;
+    border: 1px solid #aaa;
+    resize: vertical;
+    padding: 2px 4px;
+}
+/* 【不具合修正】支払情報（回数・月チェック・備考）を参照権限時に編集不可にする。 */
+.siharai-kaisu-row input[readonly],
+.siharai-biko textarea[readonly] { background: #e8e8e8; color: #555; }
+.tsuki-grid input[type="checkbox"]:disabled { opacity: .6; cursor: default; }
+
+/* ── 添付ファイルグリッド ── */
+.tenpu-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    table-layout: fixed;
+    margin-top: 4px;
+}
+
+.tenpu-grid th,
+.tenpu-grid td {
+    border: 1px solid #d5dbdb;
+    padding: 2px 5px;
+    vertical-align: middle;
+    height: 22px;
+}
+
+.tenpu-grid th {
+    background: #eef2f5;
+    font-weight: normal;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.tenpu-grid .col-filename     { width: 300px; }
+.tenpu-grid .col-shoninjotai  { width: 90px; text-align: center; }
+.tenpu-grid .col-action       { width: 60px; text-align: center; }
+
+.tenpu-area-toolbar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 4px;
+    align-items: center;
+}
+
+/* ── ボタンエリア ── */
+.btn-area-bottom {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 4px;
+    border-top: 1px solid #d5dbdb;
+    margin-top: 6px;
+}
+
+/* ── スクロール可能エリア ── */
+.kikan-scroll-area {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 380px);
+}
+
+.kikijoho-scroll {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 180px;
+    margin-bottom: 4px;
+}
+
+.tenken-scroll {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 130px;
+    margin-bottom: 4px;
+}
+
+/* 2026-09-25共通仕様: disabled色、見出し固定、VBの固定列、列幅変更 */
+.mcm1005u [hidden] { display: none !important; }
+.mcm1005u :disabled { background:#f2f2f2 !important; color:#b0b0b0 !important; border-color:#dcdcdc !important; opacity:1 !important; cursor:default; }
+.mcm1005u .keiyaku-header { background:white; }
+.mcm1005u table { border-collapse:separate; border-spacing:0; }
+.mcm1005u table thead th { position:sticky; top:0; z-index:3; background:var(--color-grid-header,#eef2f5); }
+.mcm1005u table tbody tr:nth-child(even) { background:var(--color-grid-even,#eef7ff); }
+.mcm1005u table tbody tr:nth-child(odd) { background:white; }
+.mcm1005u .fixed-col { position:sticky; z-index:1; background:inherit; }
+.mcm1005u thead th.fixed-col { z-index:4; }
+.mcm1005u .col-resizer { position:absolute; top:0; right:0; width:6px; height:100%; cursor:col-resize; touch-action:none; z-index:6; }
+body.col-resizing { cursor:col-resize !important; }
+.mcm1005u table input { max-width:100%; box-sizing:border-box; }
+.mcm1005u .kikijoho-scroll,.mcm1005u .tenken-scroll { overflow:auto; }
+
+.mcm1005u .cell-selected { outline:2px solid #888; outline-offset:-2px; }
+.mcm1005u .tenken-grid .col-biko { width:160px; }
+.mcm1005u table th,.mcm1005u table td { height:24px; }
+.mcm1005u .sub-section-label { background:white; border-left:0; padding-left:0; }
