@@ -18,7 +18,7 @@
 .mcm3007u-screen input[type=checkbox] { width:13px; height:13px; margin:0; }
 .mcm3007u-screen #searchButton { position:absolute; right:0; bottom:5px; width:75px; cursor:pointer; }
 .mcm3007u-screen .grid-heading { height:24px; line-height:24px; background:transparent; border:0; padding:0; font-size:12px; font-weight:normal; }
-.mcm3007u-screen .grid-scroll { overflow:auto; border:1px solid var(--mcm-border); background:white; }
+.mcm3007u-screen .grid-scroll { overflow:auto; border:1px solid var(--mcm-border); background:var(--color-grid-empty-bg,#ababab); }
 .mcm3007u-screen #masterScroll { height:124px; }
 .mcm3007u-screen #umScroll { height:248px; }
 .mcm3007u-screen #tkScroll { height:374px; }
@@ -32,7 +32,7 @@
 .mcm3007u-screen .empty-grid { margin:0; padding:8px; color:#666; }
 .mcm3007u-screen [hidden] { display:none!important; }
 
-/* MCM1003U・2004Uと同じ白背景、行頭固定、セル選択。列幅は縮めず横スクロールする。 */
+/* セルは白、空き領域はVB同様のグレー。行頭固定・セル選択・横スクロールを維持。 */
 .mcm3007u-screen .data-grid td { background:#fff; }
 .mcm3007u-screen .data-grid td.cell-active { background:#e0e0e0; }
 .mcm3007u-screen .data-grid .row-head { position:sticky; left:0; z-index:2; padding:0 2px; }
