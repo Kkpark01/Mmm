@@ -63,11 +63,11 @@ public class Mcm2008uService {
     @Transactional(readOnly = true)
     public java.nio.file.Path resolveAttachment(BigDecimal umKihonMitsumoriId, BigDecimal attachmentId)
             throws java.io.IOException {
-
         Mcm2008uForm.TenpuRowForm target = repository.findTenpuByKihonMitsumoriId(umKihonMitsumoriId).stream()
             .filter(r -> r.getUmTenpuId() != null && r.getUmTenpuId().compareTo(attachmentId) == 0)
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("添付資料が見つかりません。"));
+
         return storage.resolve(target.getDirectory(), target.getTenpufileNk());
     }
 
@@ -160,15 +160,23 @@ public class Mcm2008uService {
     // ===================================================================
 
     @Transactional(rollbackFor = Exception.class)
-    public void approve(List<MitsumoriRowForm> checkedRows, UserInfo userInfo, String loginUser) {
+    public int approve(List<MitsumoriRowForm> checkedRows, UserInfo userInfo, String loginUser) {
         Integer shinsaKin = (userInfo != null) ? userInfo.getMitsumoriShinsaKin() : null;
         Integer shoninKin = (userInfo != null) ? userInfo.getMitsumoriShoninKin() : null;
         // 捺印の名前欄に使う氏名（MCM_MO_TANTO.TANTO_NK）。姓の抽出は捺印サービス側で行う。
         String userName = (userInfo != null) ? userInfo.getUserName() : null;
 
+        // 実際に承認処理を行った件数。
+        //   破棄・解約の除外後、審査中／承認中の有効な行が0件なら呼び出し元で MSG_0088G を表示する
+        //   （VB版 SYONINButton_Click: 破棄・解約のチェックを外した後の件数チェック相当）。
+        int processed = 0;
+
         for (MitsumoriRowForm row : checkedRows) {
-            String jotai = row.getJotai();
-            // 破棄・解約は対象外（VB版 SYONINButton_Click の冒頭ロジック）
+            // 破棄・解約は承認対象外（VB版 SYONINButton_Click 冒頭「破棄・解約のチェックをはずす」相当）。
+            //   破棄・解約の行はチェック可能だが、承認実行時に処理対象から除外する。
+            //   不正リクエストでチェックが付いていてもサーバー側で確実に除外する。
+            //   JOTAI の前後空白はトリムして判定する（表示側は #strings.trim で吸収済みのため揃える）。
+            String jotai = (row.getJotai() != null) ? row.getJotai().trim() : null;
             if (McmConstants.JOTAI_HAKI.equals(jotai) || McmConstants.JOTAI_KAIYAKU.equals(jotai)) {
                 continue;
             }
@@ -188,6 +196,7 @@ public class Mcm2008uService {
                 //   SHINSA_BY は VB版どおり担当者名（UserName）、LASTUPDATE_BY はログインID
                 natsuinService.stamp(row.getUmKihonMitsumoriId(), syouninJotai, userName);
                 repository.approveShinsachu(row.getUmKihonMitsumoriId(), userName, loginUser);
+                processed++;
 
             } else if (McmConstants.SHONINJOTAI_SHONINCHU_CD.equals(syouninJotai)) {
                 if (shoninKin != null && kingaku != null
@@ -201,8 +210,10 @@ public class Mcm2008uService {
                 //   SYOUNIN_BY は VB版どおり担当者名（UserName）、LASTUPDATE_BY はログインID
                 natsuinService.stamp(row.getUmKihonMitsumoriId(), syouninJotai, userName);
                 repository.approveShoninchu(row.getUmKihonMitsumoriId(), userName, loginUser);
+                processed++;
             }
         }
+        return processed;
     }
 
     // ===================================================================
