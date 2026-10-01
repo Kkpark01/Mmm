@@ -1,0 +1,123 @@
+spring:
+  profiles:
+    default: local
+  application:
+    name: mcm-web
+  datasource:
+    url: jdbc:sqlserver://ILCM-SYSDEV:1433;databaseName=SYSDEV;encrypt=true;trustServerCertificate=true
+    username: app_user
+    password: password_1
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        # 【修正】Spring Bootのデフォルト命名戦略(SpringPhysicalNamingStrategy)は
+        #   @Columnで明示指定した物理名も強制的に小文字化してしまう。
+        #   本プロジェクトのDBは大文字カラム名(例: H24, TM_IRAI_ID)を前提としているため、
+        #   @Columnの指定をそのまま使う標準戦略に変更する。
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+        default_schema: mcm
+        # 【修正】show-sql（ハイフン）はHibernateに認識されないプロパティ名だったため、
+        #   正しい show_sql（アンダースコア）に修正した。
+        show_sql: false
+        # 【再修正】spring.jpa.hibernate.naming.physical-strategy が環境によって
+        #   反映されないケースがあったため、Hibernateネイティブのプロパティキー
+        #   (hibernate.physical_naming_strategy) でも同じ設定を明示する（保険）。
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: false
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    mode: HTML
+  session:
+    store-type: none
+  messages:
+    # 【Part 3 / D-05】画面別メッセージ(messages_mcm0022u.properties)を読み込むため追記。
+    #   Spring は messages_xxx を「xxxロケール」と解釈するため、画面別ファイルは
+    #   basename にカンマ区切りで明示列挙が必要（アンダースコアでの自動読込は不可）。
+    basename: messages,messages_mcm0022u,messages_mcm0023u
+    encoding: UTF-8
+logging:
+  level:
+    root: INFO
+    com.daifuku.mcm: DEBUG
+server:
+  port: 8080
+  servlet:
+    context-path: /mcm
+    session:
+      # 【セッションタイムアウト変更】社内向け業務システムのため、無操作状態が
+      #   続いた場合の再ログイン頻度を減らす目的で、Tomcatデフォルト(30分)から
+      #   無操作8時間へ緩和する。
+      timeout: 12h
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  # 【MCM0023U等の大規模グリッド画面対応】
+  #   Tomcatのリクエストパラメータ数上限(デフォルト10000)を拡張する設定は
+  #   Spring Boot 3.3系には server.tomcat.max-parameter-count プロパティが
+  #   存在しないため(3.4以降で追加)、ここでの指定は無視される。
+  #   実際の設定は WebMvcConfig の TomcatConnectorCustomizer で行う。
+
+# 同じJARを利用する。明示プロファイル > MCM_ENV > 稼働ホスト名 > local。
+mcm:
+  runtime:
+    # 自動判定用ホスト名はYAML／環境変数／起動引数で設定する。
+    # DNS別名・URLやDBサーバー名は設定しない。
+    test-server: ${MCM_TEST_SERVER:ILCM-DEV}
+    prod-server: ${MCM_PROD_SERVER:}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+mcm:
+  runtime:
+    environment: local
+  file:
+    # 共有検証DBを使うPCは、検証サーバーの同じ保存先を指すUNCを設定する。
+    # 共有名未定のため、自PCのC/Fドライブへの自動保存は行わない。
+    upload-path: ${MCM_UPLOAD_PATH:}
+    legacy-roots: ${MCM_LEGACY_ROOTS:}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    # 未指定の場合、従来の検証DB設定を継承する。
+    # 接続先を変える場合は保存先も同じデータ環境へ揃える。
+    url: ${MCM_TEST_DB_URL:jdbc:sqlserver://ILCM-SYSDEV:1433;databaseName=SYSDEV;encrypt=true;trustServerCertificate=true}
+mcm:
+  runtime:
+    environment: test
+  file:
+    # FはJava稼働サーバー上のドライブであることを配備時に確認。
+    upload-path: ${MCM_UPLOAD_PATH:F:/uploadfolder/MCM}
+    # 旧パスの親ルートをカンマ区切りで明示。未指定なら読み替えなし。
+    legacy-roots: ${MCM_LEGACY_ROOTS:}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    # 本番値は未定。検証DBの値を継承せず、空ならDB初期化前に停止する。
+    url: ${MCM_PROD_DB_URL:}
+    username: ${MCM_PROD_DB_USERNAME:}
+    password: ${MCM_PROD_DB_PASSWORD:}
+mcm:
+  runtime:
+    environment: prod
+  file:
+    upload-path: ${MCM_UPLOAD_PATH:}
+    legacy-roots: ${MCM_LEGACY_ROOTS:}
