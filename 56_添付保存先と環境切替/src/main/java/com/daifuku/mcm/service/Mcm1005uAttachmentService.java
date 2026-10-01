@@ -22,7 +22,7 @@ public class Mcm1005uAttachmentService {
     @Autowired private Mcm1005uRepository repository;
     @Autowired private Mcm1005uService contracts;
     @Autowired private Mcm2004uService permissions;
-    @Autowired private com.daifuku.mcm.common.AttachmentStorage storage;
+    @Autowired private com.daifuku.mcm.common.FileStorageService storage;
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Mcm1005uAttachmentService.class);
 
     @Transactional(rollbackFor = Exception.class)

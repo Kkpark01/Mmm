@@ -57,7 +57,7 @@ public class Mcm3005uAttachmentService {
     @Autowired
     private Mcm3005uRepository repository;
 
-    @Autowired private com.daifuku.mcm.common.AttachmentStorage storage;
+    @Autowired private com.daifuku.mcm.common.FileStorageService storage;
 
     /**
      * 添付ファイルを追加する。
@@ -187,8 +187,8 @@ public class Mcm3005uAttachmentService {
     /** DIRECTORY（ファイルのフルパス）がアップロードルート配下なら正規化したパスを返す。 */
     private Path insideRoot(String directory, String fileName) {
         try { return storage.resolve(directory, fileName); }
-        catch (com.daifuku.mcm.exception.AttachmentStorageException ex) {
-            log.warn("添付削除の実ファイルを確認できないため物理ファイルは保管します: reason={}", ex.getReason());
+        catch (McmBusinessException ex) {
+            log.warn("添付削除の実ファイルを確認できないため物理ファイルは保管します: {}", ex.getMessage());
             return null;
         }
     }

@@ -1,8 +1,7 @@
 spring:
-  profiles:
-    default: local
   application:
     name: mcm-web
+  # 検証用DB。添付保存先と同じ環境にそろえる。
   datasource:
     url: jdbc:sqlserver://ILCM-SYSDEV:1433;databaseName=SYSDEV;encrypt=true;trustServerCertificate=true
     username: app_user
@@ -65,59 +64,31 @@ server:
   #   存在しないため(3.4以降で追加)、ここでの指定は無視される。
   #   実際の設定は WebMvcConfig の TomcatConnectorCustomizer で行う。
 
-# 同じJARを利用する。明示プロファイル > MCM_ENV > 稼働ホスト名 > local。
-mcm:
-  runtime:
-    # 自動判定用ホスト名はYAML／環境変数／起動引数で設定する。
-    # DNS別名・URLやDBサーバー名は設定しない。
-    test-server: ${MCM_TEST_SERVER:ILCM-DEV}
-    prod-server: ${MCM_PROD_SERVER:}
-
----
-spring:
-  config:
-    activate:
-      on-profile: local
-mcm:
-  runtime:
-    environment: local
-  file:
-    # 共有検証DBを使うPCは、検証サーバーの同じ保存先を指すUNCを設定する。
-    # 共有名未定のため、自PCのC/Fドライブへの自動保存は行わない。
-    upload-path: ${MCM_UPLOAD_PATH:}
-    legacy-roots: ${MCM_LEGACY_ROOTS:}
-
----
-spring:
-  config:
-    activate:
-      on-profile: test
-  datasource:
-    # 未指定の場合、従来の検証DB設定を継承する。
-    # 接続先を変える場合は保存先も同じデータ環境へ揃える。
-    url: ${MCM_TEST_DB_URL:jdbc:sqlserver://ILCM-SYSDEV:1433;databaseName=SYSDEV;encrypt=true;trustServerCertificate=true}
+# ===== 検証用（現在有効） =====
+# 開発PCも検証DBを使う場合、添付保存先は同じ実ファイルを指す共有UNCへ変更する。
+# FドライブはJava稼働サーバー上に存在することを配備時に確認する。
 mcm:
   runtime:
     environment: test
   file:
-    # FはJava稼働サーバー上のドライブであることを配備時に確認。
     upload-path: ${MCM_UPLOAD_PATH:F:/uploadfolder/MCM}
-    # 旧パスの親ルートをカンマ区切りで明示。未指定なら読み替えなし。
+    # DBに残る旧保存ルート。移行済みの実パスだけをカンマ区切りで指定する。
     legacy-roots: ${MCM_LEGACY_ROOTS:}
 
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-  datasource:
-    # 本番値は未定。検証DBの値を継承せず、空ならDB初期化前に停止する。
-    url: ${MCM_PROD_DB_URL:}
-    username: ${MCM_PROD_DB_USERNAME:}
-    password: ${MCM_PROD_DB_PASSWORD:}
-mcm:
-  runtime:
-    environment: prod
-  file:
-    upload-path: ${MCM_UPLOAD_PATH:}
-    legacy-roots: ${MCM_LEGACY_ROOTS:}
+# ===== 本番用（未定・コメントアウト） =====
+# 本番配備時は、以下の「# ---」から最終行までの先頭「# 」をすべて外す。
+# 後続のYAML文書として、上記の検証用DB・保存先をまとめて上書きする。
+# 本番の各値を環境変数、またはこのブロックの直接記入で設定する。
+# 必須項目が空ならDB接続前に起動を停止する。未定の値は推測して入れない。
+# ---
+# spring:
+#   datasource:
+#     url: ${MCM_PROD_DB_URL:}
+#     username: ${MCM_PROD_DB_USERNAME:}
+#     password: ${MCM_PROD_DB_PASSWORD:}
+# mcm:
+#   runtime:
+#     environment: prod
+#   file:
+#     upload-path: ${MCM_PROD_UPLOAD_PATH:}
+#     legacy-roots: ${MCM_PROD_LEGACY_ROOTS:}

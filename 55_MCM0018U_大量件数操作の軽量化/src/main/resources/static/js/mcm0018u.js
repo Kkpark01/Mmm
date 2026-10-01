@@ -199,14 +199,14 @@
         searchForm.addEventListener('submit', function (e) {
             var changed = changeStatusField && changeStatusField.value === 'true';
             if (changed) {
-                /* 未保存変更は確認後に検索する。#415に従い待機案内を表示する。 */
+                /* 未保存変更は確認後に検索する。VB準拠で検索中の待機画面は表示しない。 */
                 e.preventDefault();
                 customConfirm('データが変更されています。破棄されますがよろしいですか？', function () {
                     if (discardConfirmedFld) discardConfirmedFld.value = 'true';
                     window.Mcm0018Performance.submitSearch(searchForm);
                 });
             } else {
-                /* 変更なし時も検索中の案内を表示する。 */
+                /* 変更なし時は待機画面を表示せず検索する。 */
                 if (discardConfirmedFld) discardConfirmedFld.value = 'false';
                 e.preventDefault();
                 window.Mcm0018Performance.submitSearch(searchForm);
@@ -215,6 +215,34 @@
     }
 
     // ========== Utils ==========
+    /* index.html の共有候補処理と同じ正規化（BigDecimal の "123.0" 等を "123" に揃える） */
+    function normalizeOptionKey(v) { return String(v == null ? '' : v).replace(/\.0+$/, ''); }
+    /* 取引先 ID→名称。原本select(#mcm0018TorihikisakiSource)から初回だけ作って使い回す。 */
+    var torihikisakiLabels = null;
+    function getTorihikisakiLabels() {
+        if (torihikisakiLabels) return torihikisakiLabels;
+        torihikisakiLabels = {};
+        var src = document.getElementById('mcm0018TorihikisakiSource');
+        if (src) {
+            for (var i = 0; i < src.options.length; i++) {
+                var op = src.options[i];
+                if (op.value !== '') torihikisakiLabels[normalizeOptionKey(op.value)] = op.textContent;
+            }
+        }
+        return torihikisakiLabels;
+    }
+    /*
+     * 【性能改善】子グリッド再描画の後処理。
+     *   ・保持している ▶/行選択の状態を捨てる（行を作り直したため）
+     *   ・再描画で発生した MutationRecord を破棄し、行ごとの遅延スイープを起こさない
+     *   ・ヌル表記の除去は子グリッドに1回だけ。option は除去済みの原本由来のため走査しない
+     */
+    var nullSweepObserver = null;
+    function finishKoseiRender() {
+        window.Mcm0018Performance.resetGrid(koseiTbody);
+        if (nullSweepObserver) nullSweepObserver.takeRecords();
+        if (koseiTbody) sweepNullLiterals(koseiTbody, true);
+    }
     function escapeHtml(s) {
         if (s === null || s === undefined) return '';
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -286,14 +314,48 @@
     }
 
     // ========== Parent row click ==========
-    function selectParentRow(tr, onMarkerCell) {
-            if (!tr || tr.parentNode !== atsukaikikiTbody || tr.style.display === 'none') return;
+    if (atsukaikikiTbody) {
+        /*
+         * 製造メーカー・機器分類(select)セルは、ブラウザ仕様と2クリック編集（mousedownでの
+         * preventDefault／ネイティブ一覧の展開）により click が発火しないことがあり、
+         * 取引先グリッドが切り替わらなかった。select セルは mousedown 時点で行切替を行い、
+         * 後続の click では二重に処理しない。
+         */
+        var lastActivatedParentTr = null;  // 直近で取引先を表示した親行
+        var selectHandledTr = null;        // mousedown で処理済みの行（直後の click を無視するため）
+        atsukaikikiTbody.addEventListener('mousedown', function (e) {
+            if (e.button !== 0) return;
+            var sel = e.target.closest && e.target.closest('select');
+            if (!sel) return;
+            var tr = sel.closest('tr');
+            if (!tr || tr.parentNode !== atsukaikikiTbody) return;
+            selectHandledTr = tr;
+            if (tr === lastActivatedParentTr) return; // 同じ行内の select は再描画不要
+            activateParentRow(tr, false);
+        });
+        atsukaikikiTbody.addEventListener('click', function (e) {
+            var tr = e.target.closest('tr');
+            if (!tr || tr.parentNode !== atsukaikikiTbody) return;
+            var handled = selectHandledTr === tr && e.target.closest && e.target.closest('select');
+            selectHandledTr = null;
+            if (handled) return;
+            activateParentRow(tr, !!(e.target.closest && e.target.closest('td.col-select')));
+        });
+
+        window.selectMcm0018ParentRow = activateParentRow;
+        function activateParentRow(tr, onMarkerCell) {
+            if (tr.style.display === 'none') return;
+            lastActivatedParentTr = tr;
+            // 子グリッドに今表示している親のキー（取引先の退避先）
             var previousKey = window.__currentParentKey;
 
             // Step 2: Update selection
             /* MCM0015U 準拠: 行選択グレーは最左▶列(td.col-select)を押した時だけ。
-               通常のセルクリックでは行グレーにせず、セル選択グレーのみとする。 */
-            window.Mcm0018Performance.setRowState(tr, onMarkerCell);
+               通常のセルクリックでは行グレーにせず、セル選択グレーのみとする。
+               【性能改善】全行(6000行規模)の検索をやめ、直前の1行だけクラスを外す。 */
+            window.Mcm0018Performance.markSelected(atsukaikikiTbody, onMarkerCell ? tr : null);
+            /* ▶マーカー（行アクティブ）は常に移動 */
+            window.Mcm0018Performance.markActive(tr);
             var parentId = tr.getAttribute('data-parent-id') || '';
             var isNewRow = tr.getAttribute('data-is-new') === 'true';
             var rowStatus = getRowStatus(tr);
@@ -314,23 +376,47 @@
             }
             updateKoseiNewRowParentId(parentId);
 
-            // Step 3: Render kosei - prefer pending if available
+            // Step 1+3: 退避と子グリッド描画は scheduleKoseiRender() でまとめて行う
             var newKey = window.__currentParentKey;
-            if (newKey === previousKey) return; // 同じ親のセル移動では子表を再生成しない。
-            if (previousKey) captureCurrentKoseiRows(previousKey);
-            if (newKey && window.__pendingKoseiChanges[newKey]) {
-                renderKoseiFromPending(window.__pendingKoseiChanges[newKey]);
-            } else if (isNewRow || rowStatus === 'added') {
-                renderKoseiFromPending([]);
-            } else {
-                var list = (window.__koseiRowsMap || {})[parentId] || [];
-                renderKosei(list);
-            }
+            if (newKey === previousKey && !koseiRenderPending) return; // 同じ親のセル移動では子表を再生成しない
+            scheduleKoseiRender(previousKey, { newKey: newKey, parentId: parentId, isNew: isNewRow || rowStatus === 'added' });
+        }
     }
-    window.selectMcm0018ParentRow = selectParentRow;
-    if (atsukaikikiTbody) atsukaikikiTbody.addEventListener('click', function(e){
-        selectParentRow(e.target.closest('tr'), !!e.target.closest('td.col-select'));
-    });
+
+    /*
+     * 子グリッドの再描画は次の描画フレームにまとめ、最後に選んだ親の分だけ行う。
+     *   ↑↓キー連打・長押しで親行を移動した場合、途中の親ごとに取引先を退避・再構築していたのを
+     *   1回にまとめる。60msの固定待機をなくし、親の選択と子一覧を同じ描画で反映する。
+     *   captureKey は「現在子グリッドに表示されている親」のキーで、最初の予約時の値を保持する。
+     *   子グリッド・登録・行削除・変更判定の前には flushKoseiRender() で必ず確定させる。
+     */
+    var koseiRenderFrame = null;
+    var koseiRenderPending = null; // { captureKey, target }
+    function scheduleKoseiRender(previousKey, target) {
+        if (!koseiRenderPending) koseiRenderPending = { captureKey: previousKey, target: target };
+        else koseiRenderPending.target = target;
+        if (koseiRenderFrame === null) koseiRenderFrame = requestAnimationFrame(flushKoseiRender);
+    }
+    function flushKoseiRender() {
+        if (koseiRenderFrame !== null) { cancelAnimationFrame(koseiRenderFrame); koseiRenderFrame = null; }
+        var p = koseiRenderPending;
+        koseiRenderPending = null;
+        if (!p) return;
+        var t = p.target;
+        // A→B→A のように表示中の親へ戻った場合は作り直さない（親キーが無い新規行同士は従来どおり再描画）
+        if (t.newKey && t.newKey === p.captureKey) return;
+        // Step 1: Capture current kosei before switching
+        if (p.captureKey) captureCurrentKoseiRows(p.captureKey);
+        // Step 3: Render kosei - prefer pending if available
+        if (t.newKey && window.__pendingKoseiChanges[t.newKey]) {
+            renderKoseiFromPending(window.__pendingKoseiChanges[t.newKey]);
+        } else if (t.isNew) {
+            renderKoseiFromPending([]);
+        } else {
+            renderKosei((window.__koseiRowsMap || {})[t.parentId] || []);
+        }
+    }
+    window.flushMcm0018KoseiRender = flushKoseiRender;
 
     function updateKoseiNewRowParentId(parentId) {
         if (!koseiTbody) return;
@@ -351,14 +437,24 @@
     function buildKoseiRow(k, idx, templateForOptions) {
         var tr = document.createElement('tr');
 
-        // torihikisaki/kisanbi のoptionをplaceholderから借用
-        var torihikisakiOptionsHtml = '';
+        // kisanbi のoptionはplaceholderから借用（件数が少ないため従来どおり）
         var kisanbiOptionsHtml = '';
         if (templateForOptions) {
-            var tSel = templateForOptions.querySelector('select[name$=".torihikisakiId"]');
-            if (tSel) torihikisakiOptionsHtml = tSel.innerHTML;
             var kSel = templateForOptions.querySelector('select[name$=".kisanbiKbn"]');
             if (kSel) kisanbiOptionsHtml = kSel.innerHTML;
+        }
+        /*
+         * 【性能改善】取引先は全候補を行ごとに複製せず、空＋選択中の1件だけを持たせる。
+         *   候補はプルダウンを開く時に index.html の共有候補処理（data-shared-options）が
+         *   #mcm0018TorihikisakiSource から展開する。原本に無い値は従来どおり未選択になる。
+         */
+        var torihikisakiOptionsHtml = '<option value=""></option>';
+        var tKey = normalizeOptionKey(k.torihikisakiId);
+        if (tKey !== '') {
+            var tLabel = getTorihikisakiLabels()[tKey];
+            if (tLabel !== undefined) {
+                torihikisakiOptionsHtml += '<option value="' + escapeAttr(tKey) + '" selected>' + escapeHtml(tLabel) + '</option>';
+            }
         }
 
         // No.以外のhidden inputs
@@ -379,7 +475,7 @@
             '<td class="col-no">' + hiddenHtml +
                 '<input type="number" name="koseiRows[' + idx + '].hyojijun" class="edit-input hyojijun-input text-right" value="' + escapeAttr(k.hyojijun) + '" style="width: 40px;">' +
             '</td>' +
-            '<td class="col-torihikisaki"><select name="koseiRows[' + idx + '].torihikisakiId" class="edit-input">' + torihikisakiOptionsHtml + '</select></td>' +
+            '<td class="col-torihikisaki"><select name="koseiRows[' + idx + '].torihikisakiId" class="edit-input" data-shared-options="torihikisakiId">' + torihikisakiOptionsHtml + '</select></td>' +
             '<td class="col-maker-dt"><input type="text" name="koseiRows[' + idx + '].makerhosyuDt" class="edit-input" value="' + escapeAttr(k.makerhosyuDt) + '" style="width:85px;"></td>' +
             '<td class="col-keiyaku"><input type="text" name="koseiRows[' + idx + '].keiyakukanokikan" class="edit-input" value="' + escapeAttr(k.keiyakukanokikan) + '"></td>' +
             '<td class="col-kisanbi"><select name="koseiRows[' + idx + '].kisanbiKbn" class="edit-input">' + kisanbiOptionsHtml + '</select></td>' +
@@ -390,9 +486,7 @@
             '<td class="col-dt readonly">' + escapeHtml(k.lastupdateDt || '') + '</td>' +
             '<td class="col-user readonly">' + escapeHtml(k.lastupdateBy || '') + '</td>';
 
-        // innerHTML後に選択値を設定
-        var tSel2 = tr.querySelector('select[name$=".torihikisakiId"]');
-        if (tSel2 && k.torihikisakiId) tSel2.value = k.torihikisakiId;
+        // innerHTML後に選択値を設定（取引先は上で selected 済み）
         var kSel2 = tr.querySelector('select[name$=".kisanbiKbn"]');
         if (kSel2 && k.kisanbiKbn) kSel2.value = k.kisanbiKbn;
 
@@ -420,7 +514,6 @@
         var newRow = koseiTbody.querySelector('tr[data-is-new="true"]');
         var newRowClone = (newRow || koseiRowTemplate) ? (newRow || koseiRowTemplate).cloneNode(true) : null;
         if (newRowClone) resetNewRowClone(newRowClone);
-        window.Mcm0018Performance.resetGrid(koseiTbody);
         koseiTbody.innerHTML = '';
         var idx = 0;
         (list || []).forEach(function (k) {
@@ -432,9 +525,14 @@
             reindexNewRow(newRowClone, idx, 'koseiRows');
             koseiTbody.appendChild(newRowClone);
         }
+        finishKoseiRender();
     }
 
     function resetNewRowClone(clone) {
+        /* 展開中の取引先候補を複製していても、新規行は空＋選択1件の形に戻す */
+        window.Mcm0018Performance.compactRow(clone);
+        clone.classList.remove('selected-row', 'row-active');
+        clone.querySelectorAll('.cell-selected').forEach(function (cell) { cell.classList.remove('cell-selected'); });
         clone.querySelectorAll('input, select').forEach(function (el) {
             if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
             else if (el.tagName === 'SELECT') el.selectedIndex = 0;
@@ -463,7 +561,6 @@
         var newRow = koseiTbody.querySelector('tr[data-is-new="true"]');
         var newRowClone = (newRow || koseiRowTemplate) ? (newRow || koseiRowTemplate).cloneNode(true) : null;
         if (newRowClone) resetNewRowClone(newRowClone);
-        window.Mcm0018Performance.resetGrid(koseiTbody);
         koseiTbody.innerHTML = '';
         var idx = 0;
         (pendingRows || []).forEach(function (k) {
@@ -475,6 +572,7 @@
             reindexNewRow(newRowClone, idx, 'koseiRows');
             koseiTbody.appendChild(newRowClone);
         }
+        finishKoseiRender();
     }
 
     // ========== 旧 buildKoseiRowFromPending（後方互換用に残置。renderKoseiFromPendingからは使用しない）==========
@@ -554,6 +652,7 @@
         if (!m) return;
         var currentIdx = parseInt(m[1], 10);
         var clone = tr.cloneNode(true);
+        /* 展開中の候補(数百件)を複製しないよう、次の新規行は空＋選択1件の形にする */
         window.Mcm0018Performance.compactRow(clone);
         reindexNewRow(clone, currentIdx + 1, prefix);
         clone.querySelectorAll('input, select').forEach(function (el) {
@@ -569,6 +668,7 @@
         clone.setAttribute('data-is-new', 'true');
         clone.classList.add('new-row');
         clone.classList.remove('selected-row');
+        /* 選択状態は1行だけで保持するため、複製元の ▶/セル選択を引き継がない */
         clone.classList.remove('row-active');
         clone.querySelectorAll('.cell-selected').forEach(function (cell) { cell.classList.remove('cell-selected'); });
         if (prefix === 'koseiRows') {
@@ -706,6 +806,7 @@
 
     /* ===== MCM0015U 準拠: 変更有無の判定（「閉じる」の確認ダイアログ用） ===== */
     function hasUnsavedChanges() {
+        flushKoseiRender(); // 予約中の子グリッド切り替えを確定してから判定する
         var changed = false;
         [atsukaikikiTbody, koseiTbody].forEach(function (tb) {
             if (!tb || changed) return;
@@ -908,6 +1009,7 @@
     // ========== Update button click - MERGE all pending changes ==========
     if (updateBtn && updateForm) {
         updateBtn.addEventListener('click', function () {
+            flushKoseiRender(); // 予約中の子グリッド切り替えを確定してからチェック・送信する
             // 必須エラー時は確認ダイアログも送信も行わず、DOMを保持する。
             var invalid = null;
             [atsukaikikiTbody, koseiTbody].forEach(function (tbody) {
@@ -1094,7 +1196,8 @@
                  *   親行クリック処理（Parent row click）をそのまま実行して、すべて同期させる。
                  */
                 tr.click();
-                if (state.parentRowSelected) window.Mcm0018Performance.setRowState(tr, true);
+                flushKoseiRender(); // 直後に子行の選択を復元するため即時に描画する
+                if (state.parentRowSelected) window.Mcm0018Performance.markSelected(atsukaikikiTbody, tr);
             }
         }
         if (state.selectedAtsukaikikikoseiId && koseiTbody) {
@@ -1102,7 +1205,7 @@
                 'input[name$=".atsukaikikikoseiId"][value="' + state.selectedAtsukaikikikoseiId + '"]');
             var kTr = kInput && kInput.closest('tr');
             if (kTr) {
-                window.Mcm0018Performance.setRowState(kTr, true);
+                window.Mcm0018Performance.markSelected(koseiTbody, kTr);
             }
         }
 
@@ -1146,6 +1249,7 @@
     function setupDeleteButton(btn, tbody, confirmMsg, idFieldSuffix, checkUrl, paramName, extraParamsFn) {
         if (!btn || !tbody) return;
         btn.addEventListener('click', function () {
+            flushKoseiRender(); // 親削除の保留子ID収集・子行選択は表示確定後に行う
             var selected = tbody.querySelector('tr.selected-row');
             if (!selected) { customAlert('行が選択されていません。', 'input'); return; }
             if (selected.getAttribute('data-is-new') === 'true') { customAlert('末尾の新規行は削除できません。', 'input'); return; }
@@ -1256,13 +1360,26 @@
             }
             var tr = cell.closest('tr');
             if (!tr || tr.parentNode !== tbody) return;
-            window.Mcm0018Performance.setRowState(tr, true);
+            /* 【性能改善】全行検索をやめ、保持している直前の1行だけを外す */
+            window.Mcm0018Performance.markSelected(tbody, tr);
+            window.Mcm0018Performance.markActive(tr);
         });
     }
     bindRowSelectByMarker(atsukaikikiTbody);
     bindRowSelectByMarker(koseiTbody);
 
-    /* 初期readonlyはHTMLの編集初期化で1回だけ設定。生成行はビルダーで設定。 */
+    /* ===== MCM0015U 準拠: 初期表示時は全入力欄を readonly（2クリックで編集開始） =====
+     * 【性能改善】index.html の setupTwoClickEdit() の lockAll() が同じ処理を初期化時に1回行うため、
+     *   ここでの全入力(数万件)への重複設定はやめた。JS生成行は buildKoseiRow() で設定済み。 */
+
+    /* 子グリッドを触る前に、予約中の再描画を確定させる（capture で他の処理より先に実行） */
+    (function bindKoseiRenderFlush() {
+        var koseiGridEl = document.getElementById('koseiGrid');
+        if (!koseiGridEl) return;
+        ['pointerdown', 'mousedown', 'focusin', 'keydown'].forEach(function (ev) {
+            koseiGridEl.addEventListener(ev, flushKoseiRender, true);
+        });
+    })();
 
     /* ===== 入力されたら .field-error を解除する（MCM0015U 準拠） ===== */
     [atsukaikikiTbody, koseiTbody].forEach(function (tb) {
@@ -1281,35 +1398,31 @@
     });
     /* ===== [修正] "<<NULL>>" 等のヌル表記を画面上から一掃する（備考に限らず全セル対象） ===== */
     /*   DB値・Thymeleaf描画・JS動的生成のどの経路で入っても、描画後にまとめて空欄化する。 */
-    function sweepNullLiterals(root) {
+    /* skipOptions=true: 候補(option)は除去済みの原本由来のため走査しない（子グリッド再描画用） */
+    function sweepNullLiterals(root, skipOptions) {
         root = root || document.body;
         if (!root || !root.querySelectorAll) return;
         var NULLPAT = /^[\s\u3000]*(?:<<|\u00AB|\uFF1C\uFF1C|\u2039\u2039|\uFF62|\u300E|\u300C|\()?[\s\u3000]*(?:NULL|\u30CC\u30EB)[\s\u3000]*(?:>>|\u00BB|\uFF1E\uFF1E|\u203A\u203A|\uFF63|\u300F|\u300D|\))?[\s\u3000]*$/i;
         /* 1) 入力欄（text/number/date/hidden/textarea）の値と value 属性 */
-        var inputs = Array.from(root.querySelectorAll("input, textarea"));
-        if (root.matches && root.matches("input, textarea")) inputs.unshift(root);
-        inputs.forEach(function (el) {
+        root.querySelectorAll("input, textarea").forEach(function (el) {
             if (el.type === "checkbox" || el.type === "radio") return;
             if (NULLPAT.test(el.value || "")) { el.value = ""; }
             var dv = el.getAttribute("value");
             if (dv !== null && NULLPAT.test(dv)) { el.setAttribute("value", ""); }
         });
         /* 2) プルダウンの選択肢テキスト */
-        var options = Array.from(root.querySelectorAll("option"));
-        if (root.matches && root.matches("option")) options.unshift(root);
-        options.forEach(function (op) {
+        if (!skipOptions) root.querySelectorAll("option").forEach(function (op) {
             if (NULLPAT.test(op.textContent || "")) { op.textContent = ""; }
         });
         /* 3) 子要素を持たない末端要素のテキスト（td/th/span/label 等） */
-        var leaves = Array.from(root.querySelectorAll("td, th, span, label, div, p, a"));
-        if (root.matches && root.matches("td, th, span, label, div, p, a")) leaves.unshift(root);
-        leaves.forEach(function (el) {
+        root.querySelectorAll("td, th, span, label, div, p, a").forEach(function (el) {
             if (el.children.length === 0 && NULLPAT.test(el.textContent || "")) { el.textContent = ""; }
         });
         /* 4) 文章の一部に混ざった "<<NULL>>" "«NULL»" 等の表記も除去 */
         var wk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
         var tn, hits = [];
         while ((tn = wk.nextNode())) {
+            if (skipOptions && tn.parentNode && tn.parentNode.nodeName === "OPTION") continue;
             if (/(?:<<|\u00AB|\uFF1C\uFF1C|\u2039\u2039)[\s\u3000]*NULL[\s\u3000]*(?:>>|\u00BB|\uFF1E\uFF1E|\u203A\u203A)/i.test(tn.nodeValue || "")) { hits.push(tn); }
         }
         hits.forEach(function (n) {
@@ -1317,7 +1430,14 @@
         });
     }
     function sweepAllGrids() { sweepNullLiterals(document.body); }
-    // このスクリプトは本文末尾で実行されるため、初期DOMは1回で走査できる。
+    /*
+     * 【性能改善】従来は描画タイミングのズレに備えて、DOMContentLoaded / load / 0ms / 300ms / 1000ms
+     *   と計6回、画面全体（6000行規模・数十万ノード）を走査していた。表示直後の約1秒間に
+     *   クリックしても反応が遅れる原因になっていた。
+     *   グリッドはサーバー側で描画済みで、このスクリプトは本文末尾（グリッドの後）で実行されるため、
+     *   初期DOMは1回の走査で足りる。後から追加・再描画される行は下の MutationObserver と
+     *   finishKoseiRender() が対象にする。
+     */
     sweepAllGrids();
     /*
      * 【性能改善】動的な行追加・再描画への追従は必要だが、従来は
@@ -1348,6 +1468,12 @@
         ].filter(Boolean);
         var observer = new MutationObserver(function (mutations) {
             mutations.forEach(function (m) {
+                /*
+                 * 【性能改善】共有候補の展開・縮小（select 直下の option 入れ替え）は対象外。
+                 *   option は除去済みの原本から作るため不要で、展開のたびに数百件の option を
+                 *   個別にスイープ予約すると、それ自体がセル選択時のもたつきになる。
+                 */
+                if (m.type === "childList" && m.target && m.target.nodeName === "SELECT") return;
                 // 追加ノードがある場合はそのノードだけをスイープ対象にする
                 if (m.addedNodes && m.addedNodes.length > 0) {
                     m.addedNodes.forEach(function (n) {
@@ -1363,5 +1489,132 @@
         watchTargets.forEach(function (t) {
             observer.observe(t, { childList: true, subtree: true, characterData: true });
         });
+        nullSweepObserver = observer;
     }
+})();
+
+/*
+ * ===== 検索条件「製造メーカー」入力可能コンボボックス =====
+ * 表示用 input に文字を入力すると、候補一覧（部分一致・大文字小文字無視）を直下に表示する。
+ * 確定値は非表示の select(#searchSeizomakerId) に反映し、送信値・グリッド編集候補の原本は従来のまま。
+ * 候補に一致しない入力は、確定時に直前の選択値へ戻す（ID検索のため曖昧な値は送らない）。
+ */
+(function () {
+    var input = document.getElementById('searchSeizomakerText');
+    var list = document.getElementById('searchSeizomakerList');
+    var source = document.getElementById('searchSeizomakerId');
+    var form = document.getElementById('searchForm');
+    if (!input || !list || !source) return;
+
+    // select の option から候補 li を生成（先頭の空 option も「未選択」として残す）
+    var items = Array.prototype.map.call(source.options, function (opt, i) {
+        var li = document.createElement('li');
+        li.id = 'searchSeizomakerOpt' + i;
+        li.setAttribute('role', 'option');
+        li.dataset.value = opt.value;
+        li.textContent = opt.textContent;
+        if (opt.value === '') li.innerHTML = '&nbsp;';
+        list.appendChild(li);
+        return li;
+    });
+    function labelOf(value) {
+        var opt = Array.prototype.find.call(source.options, function (o) { return o.value === value; });
+        return opt ? opt.textContent : '';
+    }
+    function syncFromSource() { input.value = labelOf(source.value); }
+
+    function visibleItems() { return items.filter(function (li) { return !li.hidden; }); }
+    function setActive(li) {
+        items.forEach(function (o) { o.classList.remove('active'); o.removeAttribute('aria-selected'); });
+        if (li) {
+            li.classList.add('active'); li.setAttribute('aria-selected', 'true');
+            input.setAttribute('aria-activedescendant', li.id);
+            li.scrollIntoView({ block: 'nearest' });
+        } else {
+            input.removeAttribute('aria-activedescendant');
+        }
+    }
+    function open(filterText) {
+        var f = (filterText || '').trim().toLowerCase();
+        var any = false;
+        items.forEach(function (li) {
+            // 絞り込み中は空の「未選択」候補を出さない
+            var show = f === '' ? true : (li.dataset.value !== '' && li.textContent.toLowerCase().indexOf(f) >= 0);
+            li.hidden = !show; if (show) any = true;
+        });
+        list.hidden = !any;
+        input.setAttribute('aria-expanded', String(any));
+        // 絞り込み時は先頭候補、未入力時は現在値をアクティブにする
+        var vis = visibleItems();
+        setActive(f === '' ? items.find(function (li) { return li.dataset.value === source.value; }) || null : (vis[0] || null));
+    }
+    function close() {
+        list.hidden = true;
+        input.setAttribute('aria-expanded', 'false');
+        setActive(null);
+    }
+    function choose(li) {
+        if (source.value !== li.dataset.value) {
+            source.value = li.dataset.value;
+            source.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        syncFromSource();
+        close();
+    }
+    // 入力文字列を候補に確定させる（完全一致 → 絞り込み結果が1件 → 空欄はクリア → それ以外は元に戻す）
+    function commit() {
+        var text = input.value.trim();
+        if (text === '') { choose(items[0]); return; }
+        // 現在値の表示名のままなら変更しない（同名メーカーがあっても選択IDを維持）
+        if (text === labelOf(source.value).trim()) { syncFromSource(); close(); return; }
+        var lower = text.toLowerCase();
+        var exact = items.filter(function (li) { return li.dataset.value !== '' && li.textContent.trim().toLowerCase() === lower; });
+        if (exact.length >= 1) { choose(exact[0]); return; }
+        var partial = items.filter(function (li) { return li.dataset.value !== '' && li.textContent.toLowerCase().indexOf(lower) >= 0; });
+        if (partial.length === 1) { choose(partial[0]); return; }
+        syncFromSource();
+        close();
+    }
+
+    input.addEventListener('focus', function () { input.select(); open(''); });
+    input.addEventListener('click', function () { if (list.hidden) open(''); });
+    input.addEventListener('input', function () { open(input.value); });
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { syncFromSource(); close(); return; }
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (list.hidden) { open(''); return; }
+            var vis = visibleItems(); if (!vis.length) return;
+            var idx = vis.findIndex(function (li) { return li.classList.contains('active'); });
+            idx = e.key === 'ArrowDown' ? Math.min(idx + 1, vis.length - 1) : Math.max(idx - 1, 0);
+            setActive(vis[idx]);
+            return;
+        }
+        if (e.key === 'Enter') {
+            // 一覧表示中の Enter は候補確定のみ（検索は実行しない）
+            if (!list.hidden) {
+                e.preventDefault();
+                var active = items.find(function (li) { return li.classList.contains('active') && !li.hidden; });
+                if (active) choose(active); else commit();
+            } else {
+                commit(); // 一覧非表示時はそのまま検索（送信前に確定）
+            }
+        }
+    });
+    // mousedown で確定（blur より先に処理し、入力欄のフォーカスを維持）
+    list.addEventListener('mousedown', function (e) {
+        var li = e.target.closest('li');
+        e.preventDefault();
+        if (li && !li.hidden) choose(li);
+    });
+    document.addEventListener('mousedown', function (e) {
+        if (!e.target.closest || !e.target.closest('.combo-wrap')) close();
+    });
+    // 送信前の保険（キャプチャで既存の submit ハンドラより先に確定させる）
+    if (form) form.addEventListener('submit', function () { if (document.activeElement === input) commit(); }, true);
+    // ブラウザの戻る等でフォーム値が復元された場合も表示を合わせる
+    window.addEventListener('pageshow', syncFromSource);
+
+    syncFromSource();
 })();

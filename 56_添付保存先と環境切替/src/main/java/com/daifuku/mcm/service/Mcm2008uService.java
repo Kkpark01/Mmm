@@ -36,7 +36,7 @@ public class Mcm2008uService {
     private Mcm2004uService permissions;
 
     /** 添付ファイルの保存ルート。MCM2003U と同一の保管場所を参照する。 */
-    @Autowired private com.daifuku.mcm.common.AttachmentStorage storage;
+    @Autowired private com.daifuku.mcm.common.FileStorageService storage;
 
     /**
      * 【移植】元VB: CPCoreUserControl.GetAuthorityDivision() および

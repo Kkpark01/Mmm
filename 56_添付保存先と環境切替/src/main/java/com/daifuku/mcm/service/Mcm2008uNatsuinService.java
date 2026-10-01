@@ -96,7 +96,7 @@ public class Mcm2008uNatsuinService {
     private Mcm2008uRepository repository;
 
     /** 添付ファイルの保存ルート。MCM2003U と同一の保管場所を参照する。 */
-    @Autowired private com.daifuku.mcm.common.AttachmentStorage storage;
+    @Autowired private com.daifuku.mcm.common.FileStorageService storage;
 
     /**
      * 店舗見積に紐付く添付Excelへ、承認状態に応じた捺印を行う。

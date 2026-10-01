@@ -12,7 +12,7 @@
     <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
     <title>MCM0018U - 取扱機器マスタ</title>
     <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css"/>
-    <link rel="stylesheet" th:href="@{/css/mcm0018u.css(v=20261001-415)}" href="../css/mcm0018u.css"/>
+    <link rel="stylesheet" th:href="@{/css/mcm0018u.css(v=20261001-selection)}" href="../css/mcm0018u.css"/>
     <link rel="stylesheet" th:href="@{/css/custom-dialog.css}" href="../css/custom-dialog.css"/>
     <script th:src="@{/js/common.js}"></script>
 
@@ -168,6 +168,23 @@
         .search-area .combo-search { min-width: 160px; }
         .search-area .combo-search#searchKikibunruiId { width: 320px; min-width: 320px; } /* [調整] 機器分類のみ横幅を2倍(160px→320px) */
         .search-area .btn-search { margin-left: auto; } /* [調整] 検索ボタンを右端に配置 */
+        /* 製造メーカー：入力可能コンボボックス（MCM0014U と同じ「直下に候補一覧」方式） */
+        .search-area .combo-wrap { position: relative; display: inline-block; vertical-align: middle; }
+        .search-area .combo-source { display: none !important; }
+        .search-area #searchSeizomakerText {
+            width: 200px; padding-right: 20px; background-color: #fff;
+            /* 機器分類(select)のブラウザ標準の矢印（⌄ 型シェブロン）に合わせる */
+            background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='12'%20height='8'%20viewBox='0%200%2012%208'%3E%3Cpath%20d='M1.5%201.5%20L6%206%20L10.5%201.5'%20fill='none'%20stroke='%23000'%20stroke-width='1.8'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 5px center;
+        }
+        .search-area .combo-list {
+            position: absolute; left: 0; top: 100%; z-index: 20; min-width: 100%; max-height: 240px; overflow-y: auto;
+            margin: 2px 0 0; padding: 2px 0; list-style: none; background: #fff; border: 1px solid #adadad;
+            border-radius: 2px; box-shadow: 0 2px 6px rgba(0,0,0,.15); font-size: 12px; box-sizing: border-box;
+        }
+        .search-area .combo-list li { padding: 3px 8px; min-height: 14px; cursor: pointer; white-space: nowrap; }
+        .search-area .combo-list li:hover,
+        .search-area .combo-list li.active { background: #e8f2fc; }
         /* JS(mcm0018u.js)が参照するクラス名は維持。selected-row / new-row の配色は下部で一元定義 */
         /* ===== MCM0015U 準拠：▶列・列幅リサイズ・2クリック編集 ===== */
         .data-grid { table-layout: fixed; }
@@ -244,25 +261,31 @@
 (() => {
  'use strict';
  let expanded=null, submitting=false;
+ /*
+  * 【性能改善】行の ▶(row-active)・行選択グレー(selected-row) を tbody ごとに保持する。
+  *   従来はクリックのたびに全行(6000行規模)を検索してクラスを外していた。
+  *   状態は初回だけDOMから拾い、子グリッドを作り直した時は resetGrid() で捨てる。
+  */
  const rowStates=new WeakMap();
  function rowState(tbody){
   let state=rowStates.get(tbody);
   if(!state){state={active:tbody.querySelector('tr.row-active'),selected:tbody.querySelector('tr.selected-row')};rowStates.set(tbody,state);}
   return state;
  }
- function clearRowSelection(tbody){const state=rowState(tbody);if(state.selected)state.selected.classList.remove('selected-row');state.selected=null;}
- function setRowState(tr,selected){
+ function markActive(tr){
   const tbody=tr?.parentElement;if(!tbody)return;const state=rowState(tbody);
-  if(state.active!==tr){if(state.active)state.active.classList.remove('row-active');tr.classList.add('row-active');state.active=tr;}
-  if(!selected||state.selected!==tr)clearRowSelection(tbody);
-  if(selected){tr.classList.add('selected-row');state.selected=tr;}
+  if(state.active===tr)return;
+  if(state.active)state.active.classList.remove('row-active');
+  tr.classList.add('row-active');state.active=tr;
  }
- function setSearchBusy(busy){
-  const status=document.getElementById('mcm0018SearchStatus');if(status)status.hidden=!busy;
-  const gridForm=document.getElementById('updateForm');
-  if(gridForm)gridForm.querySelectorAll('.grid-container,.toolbar,.form-actions').forEach(region=>{region.inert=busy;region.setAttribute('aria-busy',String(busy));});
+ function markSelected(tbody,tr){
+  if(!tbody)return;const state=rowState(tbody);
+  if(state.selected===tr)return;
+  if(state.selected)state.selected.classList.remove('selected-row');
+  if(tr)tr.classList.add('selected-row');
+  state.selected=tr||null;
  }
- const sources={seizomakerId:'searchSeizomakerId',kikibunruiId:'searchKikibunruiId'};
+ const sources={seizomakerId:'searchSeizomakerId',kikibunruiId:'searchKikibunruiId',torihikisakiId:'mcm0018TorihikisakiSource'};
  const key=v=>String(v??'').replace(/\.0+$/,'');
  function compact(select) {
   if(!select)return;
@@ -283,25 +306,28 @@
   select.replaceChildren(fragment);select.value=key(value);expanded=select;
  }
  // captureで既存の2クリック編集・新規行生成より前に候補を用意する。
- document.addEventListener('focusin',e=>expand(e.target),true);
- document.addEventListener('pointerdown',e=>expand(e.target.closest?.('select[data-shared-options]')),true);
+ // 【性能改善】セル選択（1クリック目・矢印キー移動）のフォーカスでは展開しない。
+ //   展開はプルダウンが開く時だけ：選択済みセルの2クリック目、編集開始（startEdit）、Alt+↑↓/F4。
+ document.addEventListener('pointerdown',e=>{
+  const select=e.target.closest?.('select[data-shared-options]');
+  if(select&&(select.closest('td')?.classList.contains('cell-selected')||document.activeElement===select))expand(select);
+ },true);
+ document.addEventListener('keydown',e=>{
+  if(e.target.matches?.('select[data-shared-options]')&&(e.key==='F4'||(e.altKey&&(e.key==='ArrowDown'||e.key==='ArrowUp'))))expand(e.target);
+ },true);
  document.addEventListener('focusout',e=>{if(e.target===expanded)compact(expanded);},true);
  window.Mcm0018Performance={
-  setRowState,clearRowSelection,setSearchBusy,
-  activeRow(tbody){return rowState(tbody).active;},
-  resetGrid(tbody){rowStates.delete(tbody);},
+  markActive,markSelected,expandOptions:expand,
+  activeRow(tbody){return tbody?rowState(tbody).active:null;},
+  selectedRow(tbody){return tbody?rowState(tbody).selected:null;},
+  resetGrid(tbody){if(tbody)rowStates.delete(tbody);},
   compactRow(row){row.querySelectorAll('select[data-shared-options]').forEach(compact);},
   submitSearch(form){
    if(submitting)return;submitting=true;
-   setSearchBusy(true);
-   let sent=false;
-   const send=()=>{if(sent)return;sent=true;try{window.McmCommon?.markLeaving();HTMLFormElement.prototype.submit.call(form);}catch(error){submitting=false;setSearchBusy(false);throw error;}};
-   // 待機案内を描画してから遷移。非表示タブでrAFが止まっても検索を続ける。
-   requestAnimationFrame(()=>requestAnimationFrame(send));setTimeout(send,1000);
+   try{HTMLFormElement.prototype.submit.call(form);}catch(error){submitting=false;throw error;}
   }
  };
- // 新しいページでもHTMLの取得・初期描画が終わるまで待機案内を残す。
- window.addEventListener('pageshow',()=>{requestAnimationFrame(()=>requestAnimationFrame(()=>{setSearchBusy(false);submitting=false;}));});
+ window.addEventListener('pageshow',()=>{submitting=false;});
 })();
 
 </script>
@@ -335,11 +361,19 @@
         <input type="hidden" th:field="*{changeStatus}" id="changeStatusField"/>
         <input type="hidden" name="discardConfirmed" id="discardConfirmed" value="false"/>
             <div class="search-area">
-                <label class="required-label">製造メーカー:</label>
-                <select th:field="*{searchSeizomakerId}" class="combo-search">
-                    <option value=""></option>
-                    <option th:each="m : ${seizomakerList}" th:value="${m.SEIZOMAKER_ID}" th:text="${m.SEIZOMAKER_NK}"></option>
-                </select>
+                <label class="required-label" for="searchSeizomakerText">製造メーカー:</label>
+                <!-- 製造メーカーは入力して候補を絞り込める自作コンボボックス（MCM0014U と同方式）。
+                     送信値・グリッド編集候補の原本は従来どおり非表示の select(#searchSeizomakerId) が持ち、
+                     表示用 input は name を持たないため送信されない。 -->
+                <div class="combo-wrap">
+                    <input type="text" id="searchSeizomakerText" class="combo-search combo-input" autocomplete="off"
+                           role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchSeizomakerList"/>
+                    <ul id="searchSeizomakerList" class="combo-list" role="listbox" hidden></ul>
+                    <select th:field="*{searchSeizomakerId}" class="combo-search combo-source" hidden tabindex="-1" aria-hidden="true">
+                        <option value=""></option>
+                        <option th:each="m : ${seizomakerList}" th:value="${m.SEIZOMAKER_ID}" th:text="${m.SEIZOMAKER_NK}"></option>
+                    </select>
+                </div>
                 <label>取扱機器名・型式:</label>
                 <input type="text" th:field="*{searchAtsukaikikiKatashiki}" class="input-search"/>
                 <label class="required-label">機器分類:</label>
@@ -364,8 +398,6 @@
         <div class="section">
             <div class="section-header">
                 <span class="grid-title">&lt;&lt; 取扱機器 &gt;&gt;</span>
-                <span id="mcm0018SearchStatus" class="mcm0018-search-status" role="status" aria-live="polite">検索結果を取得・表示しています…</span>
-                <script>window.Mcm0018Performance.setSearchBusy(true);</script>
                 <div class="toolbar">
                     <button type="button" id="btnDeleteAtsukaikiki" class="btn btn-danger" th:disabled="${!isUpdateAuthority}">行削除</button>
                 </div>
@@ -491,10 +523,12 @@
 
                 <!-- 取引先 -->
                 <td class="col-torihikisaki">
-                    <select th:name="|koseiRows[${iter.index}].torihikisakiId|" class="edit-input">
+                    <!-- 【性能改善】行には空＋選択中の1件だけを持たせ、候補は開く時に #mcm0018TorihikisakiSource から展開する -->
+                    <select th:name="|koseiRows[${iter.index}].torihikisakiId|" class="edit-input" data-shared-options="torihikisakiId">
                         <option value=""></option>
-                        <option th:each="t : ${torihikisakiList}" th:value="${t.TORIHIKISAKI_ID}" th:text="${t.TORIHIKISAKI_NK}"
-                                th:selected="${k.torihikisakiId != null and #strings.equals(k.torihikisakiId.toString(), t.TORIHIKISAKI_ID.toString())}"></option>
+                        <option th:each="t : ${torihikisakiList}"
+                                th:if="${k.torihikisakiId != null and #strings.equals(k.torihikisakiId.toString(), t.TORIHIKISAKI_ID.toString())}"
+                                th:value="${t.TORIHIKISAKI_ID}" th:text="${t.TORIHIKISAKI_NK}" selected></option>
                     </select>
                 </td>
 
@@ -555,6 +589,13 @@
         </div>
     </form>
 
+    <!-- 取引先候補の原本（name なし・disabled・フォーム外のため送信されない）。
+         子グリッドの各行は選択中の1件だけを持ち、プルダウンを開く時にここから展開する。 -->
+    <select id="mcm0018TorihikisakiSource" hidden disabled aria-hidden="true">
+        <option value=""></option>
+        <option th:each="t : ${torihikisakiList}" th:value="${t.TORIHIKISAKI_ID}" th:text="${t.TORIHIKISAKI_NK}"></option>
+    </select>
+
     <!-- ============================================================ -->
     <!-- ミニダイアログ（MCM0015U 準拠。ID は mcm0018u.js と互換）      -->
     <!-- ============================================================ -->
@@ -575,7 +616,7 @@
         </div>
     </div>
 
-    <script th:src="@{/js/mcm0018u.js(v=20261001-415)}" src="../js/mcm0018u.js"></script>
+    <script th:src="@{/js/mcm0018u.js(v=20261001-selection)}" src="../js/mcm0018u.js"></script>
 
     <script>
         /* ===== 閉じる（MCM0015U 準拠：変更があるときだけ確認ダイアログ） ===== */
@@ -621,7 +662,7 @@
                     total += ws[i];
                 }
                 table.style.width = total + "px";
-                table.style.setProperty("--mcm-column-widths", ws.map(function(w){return w + "px";}).join(" "));
+                table.style.setProperty("--mcm-column-widths", ws.map(function (w) { return w + "px"; }).join(" "));
             }
             function fitInitial() {
                 var ws = baseWidths.slice();
@@ -661,7 +702,7 @@
                                 total += parseFloat(cols[i].style.width) || 0;
                             }
                             table.style.width = total + "px";
-                            table.style.setProperty("--mcm-column-widths", Array.from(cols).map(function(col){return col.style.width;}).join(" "));
+                            table.style.setProperty("--mcm-column-widths", Array.from(cols, function (col) { return col.style.width; }).join(" "));
                         }
                         function onUp() {
                             document.body.classList.remove("col-resizing");
@@ -685,8 +726,11 @@
             if (!tbody) return;
             var selTd = null;
             var editing = null;
+            /* 【性能改善】readonly を外した入力だけを覚え、編集終了時はそれだけを readonly に戻す */
             var unlockedInputs = new Set();
-            tbody.addEventListener("focusin", function(e){ if(e.target.matches("input.edit-input") && !e.target.readOnly) unlockedInputs.add(e.target); });
+            tbody.addEventListener("focusin", function (e) {
+                if (e.target.matches && e.target.matches("input.edit-input") && !e.target.readOnly) unlockedInputs.add(e.target);
+            });
             var lastRow = null;    /* 最後に触った行（MCM0015U 準拠） */
 			var lastTd = null;
 
@@ -700,20 +744,23 @@
                     i.setAttribute("readonly", "readonly");
                 });
             }
+            /* 【性能改善】全セル検索をやめ、選択中のセル(selTd)だけを解除する */
             function clearCellSel() {
                 if (selTd) selTd.classList.remove("cell-selected");
                 selTd = null;
             }
-            /* 行選択グレー(tr.selected-row)をこのグリッド内から解除 */
+            /* 行選択グレー(tr.selected-row)をこのグリッド内から解除（保持している1行だけ） */
             function clearRowSelected() {
-                window.Mcm0018Performance.clearRowSelection(tbody);
+                window.Mcm0018Performance.markSelected(tbody, null);
             }
+            /* 【性能改善】全入力(数万件)への readonly 再設定をやめ、編集で外した入力だけを戻す */
             function stopEdit() {
                 var previous = editing; editing = null;
                 if (previous) { try { previous.blur(); } catch (ev) { } }
-                if (previous && previous.matches("input.edit-input")) previous.readOnly = true;
-                unlockedInputs.forEach(function(i){ i.readOnly = true; });unlockedInputs.clear();
-                try { var s = window.getSelection(); if (s) s.removeAllRanges(); } catch (ev) { }
+                if (previous && previous.matches && previous.matches("input.edit-input")) previous.readOnly = true;
+                unlockedInputs.forEach(function (i) { i.readOnly = true; });
+                unlockedInputs.clear();
+                try { var s = window.getSelection(); if (s && s.rangeCount) s.removeAllRanges(); } catch (ev) { }
             }
             /* 未入力の必須項目があるときにエラーを表示する共通処理 */
             function showRequiredError(tr) {
@@ -765,10 +812,9 @@
 			    lastTd = td;
 			    /* 新規行を選択したら前行 No + 1 を自動採番（MCM0015U 準拠） */
 			    if (typeof assignNoForRow === "function") { assignNoForRow(tr); }
-			    if (tr) {
-                    window.Mcm0018Performance.setRowState(tr, false);
-                    if (tbody.id === "atsukaikikiTbody") window.selectMcm0018ParentRow(tr, false);
-                }
+			    if (tr && tbody.id === "atsukaikikiTbody" && typeof window.selectMcm0018ParentRow === "function") {
+                    window.selectMcm0018ParentRow(tr, false);
+                } else if (tr) { window.Mcm0018Performance.markActive(tr); }
 			    var f = td.querySelector(".edit-input") || td.querySelector("input[type=checkbox]");
 			    if (f) { try { f.focus({ preventScroll: true }); } catch (ev) { f.focus(); } }
 			}
@@ -789,11 +835,14 @@
 			    clearCellSel();
                 /* MCM0015U 準拠: 編集開始時はセル選択グレーを付けない（clearCellSel のみ） */
                 if (inp.tagName === "SELECT") {
+                    /* 共有候補のプルダウンは編集開始時に全候補を展開する（フォーカスだけでは展開しない） */
+                    window.Mcm0018Performance.expandOptions(inp);
                     editing = inp;
                     try { inp.focus({ preventScroll: true }); } catch (ev) { inp.focus(); }
                     return;
                 }
                 inp.removeAttribute("readonly");
+                unlockedInputs.add(inp);
                 editing = inp;
                 if (typedChar != null) {
                     inp.value = typedChar;
@@ -821,6 +870,7 @@
             function deselectRowOnOtherClick(e) {
                 var t = e.target;
                 if (!t || typeof t.closest !== "function") return;
+                /* 選択・親子切替の前に検査する。後段で検査すると直前の行を失う。 */
                 var nextRow = t.closest("tr");
                 if (nextRow && nextRow.parentElement === tbody && !guardLeaveRow(nextRow)) {
                     e.preventDefault(); e.stopImmediatePropagation(); return;
@@ -830,7 +880,7 @@
                 /* [修正] ▶列を押した時は行選択グレーを確実に付与（capture段階で確定） */
                 if (onMarker) {
                     var trMk = mk.closest("tr");
-                    if (trMk) { window.Mcm0018Performance.setRowState(trMk, true); }
+                    if (trMk && trMk.parentElement === tbody) { window.Mcm0018Performance.markSelected(tbody, trMk); }
                 } else {
                     clearRowSelected();
                 }
@@ -1042,6 +1092,8 @@
 			document.addEventListener("click", function (e) {
 			    var btn = (e.target && typeof e.target.closest === "function") ? e.target.closest("#btnUpdate") : null;
 			    if (!btn) return;
+			    /* 予約中の子グリッド切り替えを確定してからチェックする */
+			    if (typeof window.flushMcm0018KoseiRender === "function") window.flushMcm0018KoseiRender();
 			    var invalid = null;
 			    makerDateInputs().forEach(function (inp) {
 			        if (invalid) return;

@@ -20,7 +20,7 @@ public class Mcm2003uAttachmentService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Mcm2003uAttachmentService.class);
     @Autowired private Mcm2003uRepository repo;
     @Autowired private Mcm2003uService estimates;
-    @Autowired private com.daifuku.mcm.common.AttachmentStorage storage;
+    @Autowired private com.daifuku.mcm.common.FileStorageService storage;
     @Transactional(rollbackFor=Exception.class)
     public void add(Mcm2003uForm form, MultipartFile file, String user) throws IOException {
         estimates.requireEditable(form);
@@ -47,8 +47,8 @@ public class Mcm2003uAttachmentService {
         } catch(IOException | RuntimeException ex) {
             try { discardUpload(target,dir); }
             catch(IOException | RuntimeException cleanupError) { ex.addSuppressed(cleanupError); }
-            if (ex instanceof IOException) throw new com.daifuku.mcm.exception.AttachmentStorageException(
-                com.daifuku.mcm.exception.AttachmentStorageException.Reason.SAVE_FAILED, ex);
+            if (ex instanceof IOException) throw new com.daifuku.mcm.exception.McmBusinessException(
+                "添付ファイルを保存できませんでした。管理者に確認してください。", ex);
             throw ex;
         }
     }

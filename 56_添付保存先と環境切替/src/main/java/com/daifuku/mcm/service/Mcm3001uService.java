@@ -46,7 +46,7 @@ public class Mcm3001uService {
     private static final int KENSAKU_KBN_TK = 1;
 
     /** 添付ファイルの保存ルート。MCM2003U/MCM2008U と同一の保管場所を参照する。 */
-    @Autowired private com.daifuku.mcm.common.AttachmentStorage storage;
+    @Autowired private com.daifuku.mcm.common.FileStorageService storage;
 
     // ===================================================================
     // 検索

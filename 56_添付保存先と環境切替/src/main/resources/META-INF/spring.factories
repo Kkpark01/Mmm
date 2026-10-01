@@ -1,3 +1,0 @@
-org.springframework.boot.env.EnvironmentPostProcessor=\
-com.daifuku.mcm.config.McmEnvironmentSelector,\
-com.daifuku.mcm.config.McmEnvironmentGuard

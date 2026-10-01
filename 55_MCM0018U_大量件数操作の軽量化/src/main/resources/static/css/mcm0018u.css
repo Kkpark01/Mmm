@@ -135,13 +135,10 @@
 .data-grid tbody tr > td.col-readonly,
 .data-grid tbody tr > td.readonly { border-right: 1px solid #a9b0b0; border-bottom: 1px solid #a9b0b0; }
 
-/* #415：表の高さ・列幅・入力サイズを維持し、検索中の案内を表示する。 */
-.mcm0018-search-status { margin-left:12px; color:#555; font-size:12px; font-weight:normal; }
-.mcm0018-search-status[hidden] { display:none; }
-
-/* 全行・入力値はHTMLに保持。画面外の行だけブラウザーの描画計算を省略する。
-   native table-rowにはサイズ包含が適用できないため、行を同じ列幅のCSS Gridで配置。
-   入力高さ22pxを維持して親行を23pxに固定。colgroupの幅を使い見出しと本文を同期する。 */
+/* 全結果・入力値はDOMに保持し、画面外の親行の描画計算を省略する。
+   native table-rowではサイズ包含が効かないため、colgroupの幅で各行を配置する。
+   22pxの入力、列幅、上下表の高さと配色は維持する。 */
+.grid-scroll-parent, .grid-scroll-child { contain:layout paint; }
 #atsukaikikiGrid { display:block; }
 #atsukaikikiGrid > colgroup { display:none; }
 #atsukaikikiGrid > thead { display:block; position:sticky; top:0; z-index:10; }

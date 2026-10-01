@@ -1,95 +1,101 @@
 # 56：添付保存先と環境切替
 
-最新基準：2026-10-01 14:34受領のsrc（536ファイル）。**修正版を受領srcへ重ねておらず、配備先・DBも変更していません。**
+基準：2026-10-01 14:34受領src（536ファイル）。**受領src・配備先・DBは変更していません。**
 
-同日更新：新srcの`Mcm2008uService.approve()`のint返却・処理件数・破棄／解約のtrim判定を残し、添付取得部分を統合した。[最新競合確認](../../検証記録/review_20261001/latest-source-conflicts/README.md)。最新src単体401ファイル／56統合405ファイルのJavaコンパイルとローカル6項目合格。**更新後の56を使用すること。**
+## 今回の整理：新規ファイルをなくす
 
-## 変更内容
+保存ルート、相対パス・旧絶対パスの読み替え、取得時の検査を既存の`FileStorageService.java`へ統合した。6サービスの参照先も変更し、例外は既存の`McmBusinessException`を使う。利用者向けの文言・原因ログ、権限、ロールバック、削除タイミングは維持する。
 
-- 同じJARで`local`（開発PC）、`test`（検証）、`prod`（本番）を切り替え、DB設定と添付保存先を一緒に読む。
-- 優先順位は明示プロファイル（起動引数／環境変数／YAML）→`MCM_ENV`→Javaが動くWindowsの`COMPUTERNAME`→`local`。外部`config/application.yml`、`spring.config.additional-location`も標準Spring設定として扱う。
-- 検証ホスト名の初期値は以前共有された`ILCM-DEV`。**実際のJava稼働ホスト名は未確認**。URLの`ilcm-sysdev`、DBホスト名、閲覧PC名では判定しない。本番ホスト名は空欄。
-- 検証保存先は画像の`F:/uploadfolder/MCM`を基準とし、1005の新規添付を`取引先/契約ID/期間ID/UUID/ファイル名`へ保存。店舗は`店舗/見積ID/UUID`、作業予定は`作業予定/登録ID/UUID`。
-- 新規DBパスは相対パス（取引先／作業予定はファイル、店舗はフォルダ）。旧フルファイル／フォルダ両形式と旧英語フォルダを参照できる。3001の取引先添付にファイル名を二重連結する問題も修正。
-- 旧絶対パスは、設定した旧ルートだけを現在の保存先へ読み替える。DBの値を自動変更したり、全ドライブから同名ファイルを探したりしない。
-- 保存先未設定・未存在・アクセス不可・実ファイルなしは業務エラーとして既存共通ハンドラーへ渡す。内部パス／例外原因はログに残す。既存2003等の個別捕捉経路は今回変更していない。
-- 権限、同名禁止、排他、登録失敗／ロールバック時の専用ファイル削除、コミット後削除を維持。読み替え先でもルート外・`..`・ジャンクション経由の逸脱を拒否する。
+`AttachmentStorage.java`と`AttachmentStorageException.java`を削除し、**反映対象は既存9ファイル、新規0ファイル**。設定ファイルと起動チェックは前回のコメントアウト方式から変更していない。[今回の検証記録](../../検証記録/review_20261001/attachment-storage-consolidation/README.md)。
+
+## 今回の整理：コメントアウトで切替
+
+利用者の指示により、サーバー名による自動判定とlocal/test/prodのプロファイル選択を廃止した。検証用を有効、本番用をコメントアウトで用意する。
+
+- `application.yml`の検証用DBと`F:/uploadfolder/MCM`を現在の設定として使う。
+- 本番は末尾のコメントアウトされたYAML文書にまとめた。`# ---`から最後まで先頭の`# `を外すと、後続文書が検証用DB・保存先・環境区分を上書きする。
+- 本番DB・認証・保存先は未定。空欄のまま有効にすると、通常Bean（DB接続を含む）の生成前に起動を止める。保存先が相対パスの場合も止める。
+- 起動チェックは既存の`McmApplication.java`へ集約した。静的`BeanFactoryPostProcessor`なので、既存のどちらの起動クラスからもコンポーネント検索で読み込まれる。
+- `McmEnvironmentSelector.java`、`McmEnvironmentGuard.java`、`META-INF/spring.factories`は廃止。今回の共通保存処理の統合と合わせ、初版56の新規5ファイルをすべて不要にした。
+- 以前の`MCM_ENV`、ホスト名、環境選択用`spring.profiles.active`で切り替える手順は使わない。サーバーごとの外部YAMLに、そのサーバーで使う設定を置く。
 
 ## 対象ファイル・反映方法
 
-`src`以下の13ファイルを、プロジェクトの同じ相対位置へコピーする。**追加クラスとMETA-INF/spring.factoriesも必須**。YAMLだけの反映では旧パス・相対パス対応は完了しない。
+`src`以下の既存9ファイルを、プロジェクトの同じ相対位置へコピーする。
 
 | 区分 | ファイル |
 |---|---|
 | 環境設定 | `main/resources/application.yml` |
-| 起動登録（追加） | `main/resources/META-INF/spring.factories` |
-| 環境選択・本番検査（追加） | `config/McmEnvironmentSelector.java`、`McmEnvironmentGuard.java` |
-| 共通保存先／業務例外（追加） | `common/AttachmentStorage.java`、`exception/AttachmentStorageException.java` |
+| 起動検査（既存） | `main/java/com/daifuku/mcm/McmApplication.java` |
 | 添付登録・取得 | `service/Mcm1005uAttachmentService.java`、`Mcm2003uAttachmentService.java`、`Mcm3005uAttachmentService.java` |
 | 承認画面の取得・捺印 | `service/Mcm3001uService.java`、`Mcm2008uService.java`、`Mcm2008uNatsuinService.java` |
-| 共通アップロード | `common/FileStorageService.java` |
+| 共通アップロード・パス解決・業務エラー | `common/FileStorageService.java`（例外は既存`McmBusinessException`を使用） |
 
-全Javaのパッケージ基準は`main/java/com/daifuku/mcm/`。帳票出力フォルダの設定は今回の対象外。
+Javaのパッケージ基準は`main/java/com/daifuku/mcm/`。YAMLだけの反映では旧パス・相対パスの対応は完了しない。
 
-51～55との対象重複は0件。最新srcでは52・54が反映済み、53は8/9一致してCSSに別調整がある。**旧55のJS／HTMLは新srcと異なるため一括上書きしない。** 53のSMTP未設定時の既知のVB差異は受領コードに残る。53の捺印サービスが56の相対パスを扱えることは初版試験で確認した。古い43（2003取得／Office起動）は56と取得サービスが重複するため一括上書きしない。Office起動が必要な場合は最新版へ別途差分統合する。
+**旧56をプロジェクトへ反映済みの場合**は、以下の旧追加ファイルも削除してからクリーンビルドする。コピーだけでは旧クラスが残る。
 
-アプリをビルドし直し、配備先の外部YAMLが新設定を上書きしていないか確認して再起動する。配備先`config`が標準検索対象になるかは**JARの位置ではなく起動時の作業ディレクトリ**に依存する。必要なら起動引数で外部設定位置を指定する。
+- `main/java/com/daifuku/mcm/config/McmEnvironmentSelector.java`
+- `main/java/com/daifuku/mcm/config/McmEnvironmentGuard.java`
+- `main/resources/META-INF/spring.factories`（他の登録を加えている場合はファイルごと削除せず、上記2クラスの登録だけを除く）
+- `main/java/com/daifuku/mcm/common/AttachmentStorage.java`
+- `main/java/com/daifuku/mcm/exception/AttachmentStorageException.java`
 
-## 配備時の設定
+Eclipseは「プロジェクト → クリーン」、JAR作成は`mvn clean package`等で旧生成物を除く。その後、配備先の外部YAMLも更新して再起動する。受領srcには旧追加5ファイルは存在しない。
+
+## 配備先と開発PCの設定
 
 ### 検証サーバー
 
-1. Javaが動くサーバーで`hostname`を確認。名前が`ILCM-DEV`と異なる場合はYAMLの`mcm.runtime.test-server`か`MCM_TEST_SERVER`を変更する。
-2. **そのサーバー上**で`F:/uploadfolder/MCM/取引先`を開けることを確認する。画像のFが別サーバー／RDP利用者だけの割当ドライブなら、そのまま使わずUNCへ変更する。
-3. Javaを実行するWindowsユーザーに、保存ルートの読取・作成・変更・削除権限を設定する。RDP利用者が開けるだけでは確認完了にならない。
-4. 初回は`--spring.profiles.active=test`を明示して確認。その後、ホスト名の自動判定で同じ設定が選ばれることを確認する。
+Javaが動くサーバー上に`F:/uploadfolder/MCM`があり、Java実行ユーザーで読取・作成・変更・削除できることを確認する。画像のFが別サーバーやRDP利用者だけの割当ドライブの場合は、実際の共有UNCへ変更する。検証DBは従来の`ILCM-SYSDEV:1433 / SYSDEV`を維持。
+
+推奨は、今回のYAMLを配備先の`config/application.yml`へ配置し、検証用を有効にしたまま使うこと。例：`D:/Webアプリ/mcm-web/config/application.yml`。実際の起動設定・外部設定の配置場所は未確認。
 
 ```powershell
-# 実際のJAR名に置き換える。保存ルート自体は管理者が事前に用意する。
-$env:MCM_ENV = 'test'
-$env:MCM_UPLOAD_PATH = 'F:/uploadfolder/MCM'
-java -jar '実際のJAR名.jar'
+# 設定例。実際のJAR名・配置へ置き換える。
+Set-Location -LiteralPath 'D:/Webアプリ/mcm-web'
+java -jar 'jar/実際のJAR名.jar' --spring.config.additional-location=file:./config/
 ```
 
-検証DBは従来の`ILCM-SYSDEV:1433 / SYSDEV`を維持する。URL変更は`MCM_TEST_DB_URL`、認証変更は標準の`SPRING_DATASOURCE_USERNAME`／`SPRING_DATASOURCE_PASSWORD`でも指定できる。秘密情報は共有README等へ書かない。
+外部YAMLの標準検索はJARの位置ではなく起動時の作業ディレクトリに依存するため、上記では設定位置も明示している。同じJARでも、各サーバーの外部YAMLで設定を変えられる。
 
 ### 開発PC
 
-検証DBを使う場合、全PCで**検証サーバーと同じ実ファイル**を参照する必要がある。共有名が未定なので`local`の保存先は空欄とし、添付以外の開発は続けられるようにした。保存先が空のまま添付操作すると未設定の案内が出る。
+検証DBを使うPCは、検証サーバーと**同じ実ファイル**を指す共有UNCを設定する。自PCのFドライブや個人フォルダへ保存すると、他PCから開けない。共有名は未定。
 
 ```powershell
-# 以下のUNCは例。実際に決まったサーバー名・共有名へ置き換える。
-$env:MCM_ENV = 'local'
+# 以下は例。実際に決まったサーバー名・共有名へ置き換える。
 $env:MCM_UPLOAD_PATH = '//保存サーバー/共有名/MCM'
-# 検証DBにFドライブの絶対パスが残る場合に、同じ相対位置へ読み替える。
 $env:MCM_LEGACY_ROOTS = 'F:/uploadfolder/MCM'
 java -jar '実際のJAR名.jar'
 ```
 
-この設定はEclipseの実行構成の「環境」欄でも指定できる。**検証DBのまま個人PCの別フォルダへ保存すると他PCから開けない**。個人保存先を使う場合はDBも個人用へ切り替える。新しい相対パスはWeb版での運用を前提とし、同じ添付テーブルを旧VB版が直接利用する併用運用は別途確認が必要。
+Eclipseの実行構成の「環境」欄でも指定できる。添付以外の開発だけを行う場合、開発PCの外部YAMLで`mcm.file.upload-path: ''`にすれば、添付操作時に未設定の案内を出す。個人用保存先を使う場合はDBも個人用へ変更する。
 
-### 本番
+### 本番サーバー
 
-本番名・保存先・DBは未定のため値を入れていない。`prod`を選んだとき、DB URL・ユーザー・パスワード・保存先のいずれかが空なら**DB接続／Bean初期化前に停止**する。起動した時点でフォルダの存在・権限まで保証する仕組みではない。
+本番側の外部`application.yml`で、末尾の`# ---`から最後までの先頭`# `を外す。`---`も含め、ブロック全体を有効にする。DBと保存先を別々に切り替えない。
 
-設定する項目は`MCM_PROD_SERVER`（ホスト自動判定用）、`MCM_PROD_DB_URL`、`MCM_PROD_DB_USERNAME`、`MCM_PROD_DB_PASSWORD`、`MCM_UPLOAD_PATH`。初回配備では`--spring.profiles.active=prod`を明示し、検証DBへ接続しないことを確認する。未登録ホストは`local`になるため、ホスト登録前に自動判定だけで本番運用を始めない。
+必要な値は`MCM_PROD_DB_URL`、`MCM_PROD_DB_USERNAME`、`MCM_PROD_DB_PASSWORD`、`MCM_PROD_UPLOAD_PATH`。旧パスがある場合は`MCM_PROD_LEGACY_ROOTS`も設定する。環境変数を使わず、YAMLの該当値を直接設定することも可能。秘密情報は共有READMEへ記載しない。
 
-## 既存ファイルの移行
+本番名・DB・保存先は未定。起動チェックは未設定を検出するが、接続先が本当に本番か、フォルダの存在・権限まで保証するものではない。本番切替は手動であり、設定変更後に再起動する。
 
-ファイルを保存先へコピーし、旧ルートから下の構成を維持する。例：旧`D:/旧保存先/MCM/取引先/顧客フォルダ/資料.xls`を新`F:/uploadfolder/MCM/取引先/顧客フォルダ/資料.xls`へコピーした場合、`MCM_LEGACY_ROOTS=D:/旧保存先/MCM`を設定する。
+## 添付保存・既存資料の移行
 
-旧ルートは**DBの実パスを見てから**決める。画像だけでは確定しない。`取引先`を含む位置の対応を揃える。複数はカンマ区切りで指定できる。`C:/opt/mcm/upload`も、その配下の実ファイルを同じ構成で移した場合だけ登録する。
+- 新規は日本語業務フォルダを使い、取引先は`取引先/契約ID/期間ID/UUID/ファイル名`、店舗は`店舗/見積ID/UUID`、作業予定は`作業予定/登録ID/UUID`へ保存する。
+- 新規DBパスは相対パス。旧フルファイル／フォルダ形式、旧英語フォルダにも対応。取引先添付のファイル名二重連結も修正済み。
+- 旧絶対パスは`legacy-roots`へ明示した旧ルートだけを現在の保存先へ読み替える。実ファイルを新ルートへコピーし、旧ルートから下の構成を維持する。DBを自動更新したり、同名ファイルを全ドライブから探したりしない。
+- 例：旧`D:/旧保存先/MCM/取引先/顧客/資料.xls`を`F:/uploadfolder/MCM/取引先/顧客/資料.xls`へコピーした場合、旧ルートは`D:/旧保存先/MCM`。DBの実パスを見て設定し、複数はカンマ区切りで指定する。
+- 未設定・未存在・読取不可・実ファイルなしは業務エラーとして共通ハンドラーへ渡す。権限、同名禁止、排他、登録失敗／ロールバック時の削除、コミット後の削除、ルート外／リンク経由の逸脱防止は維持した。
 
-読み替えによってDBを更新せずに既存リンクを検証できる。DBを相対パスへ統一するSQLの実行は今回行っていない。未コピーの資料、構成が異なるコピー、アクセスできない共有先は設定だけでは直らない。
+**切り戻し／旧VBとの併用には注意**。新規相対パスはWeb版向けであり、旧JARだけに戻すと新規分を開けない。パス互換処理を残すか、旧版が読める絶対パスへ戻す手順が必要。同じ添付テーブルを旧VBが使う場合も相対パスの互換性を確認する。
 
-## 検証結果・残る確認
+## 競合・検証
 
-### 追加の影響確認（2026-10-01）
+最新srcの`Mcm2008uService.approve()`のint返却・件数・破棄／解約のtrim判定は、[前回統合](../../検証記録/review_20261001/latest-source-conflicts/README.md)を維持。55との対象重複は0。旧55は新srcの性能対策と異なるので一括上書きしない。53のSMTP未設定時の既知差異は受領コードに残る。旧43のOffice起動対応は取得サービスが重複するため別途差分統合が必要。
 
-保存先切替と削除の順序を追加13項目で確認し、すべて合格。[影響確認記録](../../検証記録/review_20261001/attachment-environments/影響確認.md)。コードの追加変更はない。
+今回の[共通保存処理の統合検証](../../検証記録/review_20261001/attachment-storage-consolidation/README.md)を参照。前回の[コメント切替検証28項目](../../検証記録/review_20261001/attachment-comment-config/README.md)、初版の[84項目](../../検証記録/review_20261001/attachment-environments/README.md)・[追加影響13項目](../../検証記録/review_20261001/attachment-environments/影響確認.md)は履歴として保持する。
 
-**切り戻し時には注意が必要**。56で新規添付を登録すると、DBに相対パスが入る。旧JARの取得処理は相対パスを保存ルートに結合しないため、JARだけを旧版へ戻すと新規分を開けなくなる。切り戻す場合は、56のパス互換処理を維持するか、対象の相対パスを旧版が読める絶対パスへ戻す手順を事前に用意する。旧VB版と同じ添付テーブルを併用する場合も、相対パスの互換性を確認する。
+今回の統合後はmain Java401ファイルのコンパイル成功、ローカル111項目合格。受領src536ファイルのハッシュ一致、新規ファイル0、55との対象重複0も確認した。
 
-初版の[検証記録](../../検証記録/review_20261001/attachment-environments/README.md)では統合main Java405ファイルのコンパイル、ローカル84項目を確認。追加影響13項目も合格。最新536ファイル版については冒頭の競合確認・コンパイル・統合6項目を実施した。実Spring設定読込等の合格済み全試験は再実行していない。
-
-実DB、サーバーF、UNC接続、実行ユーザーのACL、実利用者の追加→他PC参照、本番、Officeアプリで開く操作は未確認。**取得処理の修正だけでOfficeを直接開く動作には変わらない**。この版のリンクは既存のダウンロード動作を維持する。
+実DB、サーバーF、UNC、実行ユーザーのACL、他PCからの参照、本番、Office起動は未確認。リンクは既存のダウンロード動作を維持する。
