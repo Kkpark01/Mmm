@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm3003uScreen.Designer.vb / Mcm3003uScreen.vb
+  MCM3003U — 保守点検出力指示
+  【デザイン参照】MCM3002U（出力指示のみの画面）／MCM1003U（紫帯ヘッダー）
+
+  【レイアウト改修】VB版 Mcm3003uScreen.Designer.vb と実画面キャプチャを正として画面構成を合わせる。
+    VBコントロール                              位置(X,Y)  W   → Web要素
+    TENKENTAISHOTSUKI     "点検対象月"          (3,10)   赤太字 → label.cond-label.required-label（1行目左）
+    FromTextBox           点検対象月(開始)      (80,7)   55   → input#fromTsuki（LightCyan＝必須項目色）
+    NamiLabel             "～"                  (142,12)      → span.tilde
+    ToTextBox             点検対象月(終了)      (165,7)  55   → input#toTsuki（LightCyan＝必須項目色）
+    ZenkenRadioButton     "全件出力" 既定ON     (3,35)        → radio syutsuryokuKbn=1（2行目）
+    SabunRadioButton      "差分出力"            (3,60)        → radio syutsuryokuKbn=2（3行目）
+    ShutrurhokuLabel      "出力対象日付"        (99,62)       → label（3行目、差分ラジオの右）
+    SabunFromTextBox      出力対象日付(開始)    (182,59) 75   → input#sabunFrom（White＝任意項目色）
+    CpLabel1              "～"                  (263,62)      → span.tilde
+    SabunToTextBox        出力対象日付(終了)    (286,59) 75   → input#sabunTo（White＝任意項目色）
+    DBTorokuyoButton      "ＤＢ登録用データ"    (1022,880)    → フッター右下 button#dbTorokuyoBtn
+    SagyoyoListOutputButton "作業用リスト出力"  (1140,880)    → フッター右下 button#sagyoyoListBtn
+
+  VB版に存在しない「検索」ボタン・検索結果一覧・件数バー・「Excel出力は省略」注記はすべて削除した。
+  出力対象日付は VB版でも常に入力可能（ReadOnly 化のコードはコメントアウト済み）のため、
+  差分出力を選んでいない状態でも非表示・非活性にはしない。
+  操作順は VB の TabIndex（点検対象月From → To → 全件 → 差分 → 対象日付From → To
+  → ＤＢ登録用データ → 作業用リスト出力）を優先し、WEB固有の「閉じる」を最後にする。
+-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf"        th:content="${_csrf != null} ? ${_csrf.token}      : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>保守点検出力指示（MCM3003U）</title>
+    <style>
+        /* ===== 共通レイアウト (MCM3002U / MCM1003U 準拠) ===== */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px;
+            color: #333; background: #f4f6f7;
+            /* [MCM1003U準拠] 画面外周パディング：ヘッダーを画面端から8px内側に配置する */
+            padding: 8px;
+        }
+        button, .btn-close { cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+        /* 画面全体：ヘッダー / 入力エリア / 操作エリア（VB版の出力ボタン右下配置を再現）
+           VB版のクライアント領域は WinForms 標準の Control 色（#f0f0f0）で、
+           入力エリアと出力ボタンの間に帯（区切り）は存在しない。 */
+        .screen {
+            display: flex; flex-direction: column;
+            position: relative; height: calc(100vh - 16px); min-height: 240px;
+            background: #f0f0f0; border: 1px solid #d5dbdb;
+        }
+
+        /* ヘッダー（MCM1003U準拠：帯の太さ40px・文字サイズ18px） */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 40px; min-height: 40px; padding: 0 10px;
+        }
+        .header .header-center { flex: 1; min-width: 0; text-align: center; }
+        .header .header-center h1 {
+            margin: 0; font-size: 18px; font-weight: bold; color: #fff;
+            letter-spacing: 2px; line-height: 30px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .header .header-left, .header .header-right { display: flex; align-items: center; min-width: 90px; }
+        .header .header-right { justify-content: flex-end; }
+        .btn-close {
+            position: absolute; top: 7px; right: 10px; display: inline-block; padding: 2px 12px; font-size: 12px; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad; text-decoration: none;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
+        }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .btn-close:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+
+        /* 入力フォーム：画面の残り領域を使い、フッターを最下部に固定する */
+        .output-form { flex: 1; display: flex; flex-direction: column; min-height: 0; margin: 0; }
+
+        /* 条件エリア（VB版：左上に3行で配置） */
+        .cond-area { flex: 1; padding: 7px 3px; }
+        .cond-row { display: flex; align-items: center; min-height: 24px; }
+        .cond-row + .cond-row { margin-top: 5px; }
+        /* VB: ラベル X=3 → テキスト X=80（ラベル欄 77px） */
+        .cond-label { flex: 0 0 77px; white-space: nowrap; }
+        /* VB: TENKENTAISHOTSUKI は必須項目ラベル（太字・赤）。Web版の必須表示として踏襲 */
+        .required-label { font-weight: bold; color: #dc2626; }
+        .cond-row input[type="text"] {
+            height: 22px; padding: 0 4px; font-size: 12px; font-family: inherit;
+            border: 1px solid #aaa; border-radius: 2px;
+        }
+        .cond-row input[type="text"]:focus { outline: 1px solid #7eb4ea; border-color: #7eb4ea; }
+        /* VB: FromTextBox / ToTextBox は W55・BackColor=LightCyan（必須項目色） */
+        .field-month { width: 62px; background: #e0ffff; }
+        /* VB: SabunFromTextBox / SabunToTextBox は W75・BackColor=White（任意項目色） */
+        .field-date { width: 82px; background: #fff; }
+        /* VB: NamiLabel X=142（From右端 135 の直後）／CpLabel1 X=263 */
+        .tilde { flex: 0 0 30px; text-align: center; }
+
+        /* VB: ZenkenRadioButton X=3 / SabunRadioButton X=3（ラジオは各行の先頭） */
+        .radio-label { display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; flex: 0 0 96px; }
+        .radio-label input[type="radio"] { margin: 0; accent-color: #453f78; }
+        .radio-label input[type="radio"]:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+        /* VB: ShutrurhokuLabel X=99 → SabunFromTextBox X=182（ラベル欄 83px） */
+        .sabun-label { flex: 0 0 86px; white-space: nowrap; }
+
+        /* 操作エリア：VB版 DBTorokuyoButton(1022,880) / SagyoyoListOutputButton(1140,880) = 右下。
+           VB版に区切り帯は無いため背景・境界線は付けない（間隔 1140-1022-103=15px）。 */
+        .footer-bar {
+            display: flex; justify-content: flex-end; align-items: center; gap: 15px;
+            padding: 8px 10px;
+        }
+        /* VB: CPButton は WinForms 標準ボタン（UseVisualStyleBackColor=True）。Size = 103 x 23 */
+        .btn-output {
+            width: 103px; height: 23px; padding: 0 4px;
+            font-family: inherit; font-size: 12px; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
+        }
+        .btn-output:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .btn-output:active { background-color: #cce4f7; border-color: #005499; }
+        .btn-output:focus-visible { outline: 2px solid #1a56db; outline-offset: 1px; }
+        .btn-output:disabled { background-color: #f0f0f0; color: #a0a0a0; border-color: #cfcfcf; box-shadow: none; cursor: default; }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20261002p60)}"></script>
+</head>
+<body>
+<main layout:fragment="content">
+
+<!-- 共通通知：フラッシュ属性は共通フラグメントから表示する -->
+<th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors}, noticeInfo=${infoMessage})}"></th:block>
+
+<div class="screen">
+
+    <!-- ===== ヘッダー ===== -->
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center"><h1>保守点検出力指示（MCM3003U）</h1></div>
+        <div class="header-right"></div>
+    </div>
+
+    <!-- ===== 出力条件フォーム ===== -->
+    <!-- ファイル保存ではページ遷移しないため、共通の遷移待ち表示は使用しない。 -->
+    <form th:action="@{/mcm3003u/output/db}" th:object="${form}" method="post"
+          class="output-form" data-mcm-no-progress>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="cond-area">
+            <!-- 1行目：点検対象月（VB: TENKENTAISHOTSUKI + FromTextBox/ToTextBox / TabIndex 0,1） -->
+            <div class="cond-row">
+                <label for="fromTsuki" class="cond-label required-label">点検対象月</label>
+                <input type="text" id="fromTsuki" th:field="*{fromTsuki}" class="field-month"
+                       maxlength="7" autofocus title="YYYY/MM形式で入力してください"
+                       onkeydown="if(event.key === 'Enter') event.preventDefault()"/>
+                <span class="tilde">～</span>
+                <input type="text" id="toTsuki" th:field="*{toTsuki}" class="field-month"
+                       maxlength="7" title="YYYY/MM形式で入力してください"
+                       onkeydown="if(event.key === 'Enter') event.preventDefault()"/>
+            </div>
+
+            <!-- 2行目：全件出力（VB: ZenkenRadioButton / TabIndex 2 / 既定ON） -->
+            <div class="cond-row">
+                <label class="radio-label">
+                    <input type="radio" name="syutsuryokuKbn" value="1"
+                           th:checked="${form.syutsuryokuKbn != 2}"/>全件出力
+                </label>
+            </div>
+
+            <!-- 3行目：差分出力＋出力対象日付（VB: SabunRadioButton / TabIndex 3,4,5） -->
+            <div class="cond-row">
+                <label class="radio-label">
+                    <input type="radio" name="syutsuryokuKbn" value="2"
+                           th:checked="${form.syutsuryokuKbn == 2}"/>差分出力
+                </label>
+                <label for="sabunFrom" class="sabun-label">出力対象日付</label>
+                <input type="text" id="sabunFrom" th:field="*{sabunFrom}" class="field-date"
+                       maxlength="10" title="YYYY/MM/DD形式で入力してください"
+                       onkeydown="if(event.key === 'Enter') event.preventDefault()"/>
+                <span class="tilde">～</span>
+                <input type="text" id="sabunTo" th:field="*{sabunTo}" class="field-date"
+                       maxlength="10" title="YYYY/MM/DD形式で入力してください"
+                       onkeydown="if(event.key === 'Enter') event.preventDefault()"/>
+            </div>
+        </div>
+
+        <!-- ===== 右下の出力ボタン2種（VB: DBTorokuyoButton / SagyoyoListOutputButton / TabIndex 6,7） ===== -->
+        <!-- 単一フォームから formaction で送信先を切り替える（VB版の2ボタンに1:1対応） -->
+        <div class="footer-bar">
+            <button type="submit" id="dbTorokuyoBtn" class="btn-output"
+                    th:formaction="@{/mcm3003u/output/db}">ＤＢ登録用データ</button>
+            <button type="submit" id="sagyoyoListBtn" class="btn-output"
+                    th:formaction="@{/mcm3003u/output/list}">作業用リスト出力</button>
+        </div>
+    </form>
+    <!-- WEB共通の閉じるは視覚的にはヘッダー右、操作順では出力ボタンの後 -->
+    <a class="btn-close" th:href="@{/menu}" href="/mcm/menu">閉じる</a>
+</div>
+
+
+<script>
+// DB登録用データは同じ画面で取得する。出力中はボタンだけを非活性にし、待機画面は作らない。
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('.output-form');
+    const dbButton = document.getElementById('dbTorokuyoBtn');
+    const buttons = [dbButton, document.getElementById('sagyoyoListBtn')];
+    let pending = false;
+    form.addEventListener('submit', async function (event) {
+        if (pending) { event.preventDefault(); return; }
+        if (event.submitter && event.submitter !== dbButton) return;
+        event.preventDefault();
+        // 非活性化の前に送信値を採取する。条件は出力中も編集可能で、別タブとは共有しない。
+        const body = new FormData(form);
+        const disabled = buttons.map(button => button.disabled);
+        const text = dbButton.textContent;
+        pending = true;
+        buttons.forEach(button => { button.disabled = true; });
+        dbButton.textContent = '出力中…';
+        form.setAttribute('aria-busy', 'true');
+        try {
+            const response = await fetch(dbButton.formAction || form.action, {
+                method: 'POST', body, credentials: 'same-origin', cache: 'no-store',
+                headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+            });
+            const type = (response.headers.get('Content-Type') || '').toLowerCase();
+            if (!response.ok || !type.includes('application/vnd.ms-excel')) {
+                let message = response.redirected && response.url.includes('/login')
+                    ? 'ログインの有効期限が切れました。再度ログインしてください。'
+                    : '帳票を出力できませんでした。';
+                if (type.includes('application/json')) {
+                    const error = await response.json();
+                    if (typeof error.message === 'string' && error.message) message = error.message;
+                }
+                await McmNotifications.error(message);
+                return;
+            }
+            const blob = await response.blob();
+            if (!blob.size) throw new Error('Empty report');
+            const disposition = response.headers.get('Content-Disposition') || '';
+            const encoded = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
+            const filename = encoded ? decodeURIComponent(encoded[1]) : '定期点検DB登録データ.xls';
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (error) {
+            await McmNotifications.error('帳票を出力できませんでした。通信状態を確認してください。');
+        } finally {
+            pending = false;
+            buttons.forEach((button, index) => { button.disabled = disabled[index]; });
+            dbButton.textContent = text;
+            form.removeAttribute('aria-busy');
+        }
+    });
+});
+</script>
+
+</main>
+</body>
+</html>
