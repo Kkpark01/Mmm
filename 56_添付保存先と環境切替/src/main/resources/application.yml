@@ -65,14 +65,15 @@ server:
   #   実際の設定は WebMvcConfig の TomcatConnectorCustomizer で行う。
 
 # ===== 検証用（現在有効） =====
-# 開発PCも検証DBを使う場合、添付保存先は同じ実ファイルを指す共有UNCへ変更する。
-# FドライブはJava稼働サーバー上に存在することを配備時に確認する。
+# 開発PC・検証サーバーとも同じ共有フォルダを使う。
+# Java実行ユーザーに共有／フォルダの読取・作成・変更・削除権限が必要。
 mcm:
   runtime:
     environment: test
   file:
-    upload-path: ${MCM_UPLOAD_PATH:F:/uploadfolder/MCM}
-    # DBに残る旧保存ルート。移行済みの実パスだけをカンマ区切りで指定する。
+    upload-path: ${MCM_UPLOAD_PATH://ILCM-SYSDEV/uploadfolder/MCM}
+    # 現段階は新規添付の保存・取得のみ。旧パスの読み替えは指定しない。
+    # 既存資料の移行時に必要なら、DBの旧パスと実ファイルを確認して設定する。
     legacy-roots: ${MCM_LEGACY_ROOTS:}
 
 # ===== 本番用（未定・コメントアウト） =====

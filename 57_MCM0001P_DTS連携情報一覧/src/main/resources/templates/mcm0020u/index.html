@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${screenTitle} + '（' + ${screenId} + '）'">DTS連携エラー一覧（MCM0020U）</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css" />
+    <link rel="stylesheet" th:href="@{/css/mcm0020u.css}" href="../css/mcm0020u.css" />
+    <script th:src="@{/js/mcm-notifications.js}"></script>
+</head>
+<body>
+<div layout:fragment="content">
+<div class="screen-layout">
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center">
+            <h1 th:text="${screenTitle} + '（' + ${screenId} + '）'">DTS連携エラー一覧（MCM0020U）</h1>
+        </div>
+        <div class="header-right">
+            <a class="btn-close" id="btnCloseLink" th:href="@{/menu}">閉じる</a>
+        </div>
+    </div>
+
+    <!-- data-mcm-ignore-dirty: 検索条件の入力は未保存データではないため、離脱確認（common.js）の対象外とする -->
+    <form th:action="@{/mcm0020u/search}" method="post" id="searchForm" class="search-form" data-mcm-ignore-dirty>
+        <input type="hidden" th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <div class="search-area">
+            <div class="condition-lines">
+                <div class="condition-row">
+                    <label class="radio-label">
+                        <input type="radio" name="searchMode" value="DTSLOG"
+                               th:checked="${form.searchMode == 'DTSLOG'}" />
+                        <span>DTSマスタ連携ログ</span>
+                    </label>
+                    <div class="date-range" id="dateRangeArea">
+                        <label for="logDateFrom">ログ出力日</label>
+                        <input type="text" id="logDateFrom" name="logDateFrom"
+                               th:value="${form.logDateFrom}"
+                               placeholder="yyyy/MM/dd" maxlength="10" class="date-input" />
+                        <span class="date-separator">～</span>
+                        <input type="text" id="logDateTo" name="logDateTo"
+                               th:value="${form.logDateTo}"
+                               placeholder="yyyy/MM/dd" maxlength="10" class="date-input"
+                               aria-label="ログ出力日終了日" />
+                    </div>
+                </div>
+                <div class="condition-row">
+                    <label class="radio-label">
+                        <input type="radio" name="searchMode" value="GENZAIJOTAI"
+                               th:checked="${form.searchMode == 'GENZAIJOTAI'}" />
+                        <span>DTSマスタ連携エラー</span>
+                    </label>
+                </div>
+            </div>
+            <div class="search-action">
+                <button type="submit" id="searchBtn" class="btn btn-primary">検索</button>
+            </div>
+        </div>
+    </form>
+
+    <main class="result-area">
+        <div class="table-container">
+            <table id="resultTable" class="data-grid readonly">
+                <colgroup>
+                    <col class="col-log-date" />
+                    <col class="col-customer-code" />
+                    <col class="col-customer-name" />
+                    <col class="col-support-id" />
+                    <col class="col-plant-name" />
+                    <col class="col-content" />
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th>ログ出力日</th>
+                        <th>納入先コード</th>
+                        <th>納入先名</th>
+                        <th>サポートID</th>
+                        <th>プラント名</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="row : ${results}">
+                        <td th:text="${row.logDt}"></td>
+                        <td th:text="${row.nonyusakiCd}"></td>
+                        <td th:text="${row.nonyusakiNk}"></td>
+                        <td th:with="canLink=${linkEnabled and row.plantId != null and row.plantId.signum() > 0 and !#strings.isEmpty(#strings.trim(row.supportIdHyoji))}">
+                            <a th:if="${canLink}"
+                               th:href="@{/mcm0021u(plantId=${row.plantId})}"
+                               th:text="${row.supportIdHyoji}"
+                               class="support-id-link"></a>
+                            <span th:unless="${canLink}"
+                                  th:text="${row.supportIdHyoji}"></span>
+                        </td>
+                        <td th:text="${row.plantNk}"></td>
+                        <td th:text="${row.naiyo}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(results)}">
+                        <td colspan="6" class="no-data"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="excel-action-area">
+            <form th:action="@{/mcm0020u/excel}" method="post" id="excelForm" data-mcm-ignore-dirty data-mcm-no-progress>
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" name="state" th:value="${returnStateToken}" />
+                <button type="submit" id="excelBtn" class="btn btn-excel">Excel出力</button>
+            </form>
+        </div>
+    </main>
+</div>
+
+<div th:replace="~{fragments/mcm-notifications :: messages(${message}, ${error}, ${errors}, ${infoMessage})}"></div>
+
+<script th:inline="javascript">
+    "use strict";
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var radios = document.querySelectorAll('input[name="searchMode"]');
+        var dateArea = document.getElementById('dateRangeArea');
+        var fromInput = document.getElementById('logDateFrom');
+        var toInput = document.getElementById('logDateTo');
+
+        function toggleDateArea() {
+            var selected = document.querySelector('input[name="searchMode"]:checked');
+            var disabled = selected && selected.value === 'GENZAIJOTAI';
+            dateArea.classList.toggle('is-disabled', disabled);
+            fromInput.disabled = disabled;
+            toInput.disabled = disabled;
+        }
+        radios.forEach(function (radio) { radio.addEventListener('change', toggleDateArea); });
+        toggleDateArea();
+
+        // #344: 一覧はサーバーのスナップショット、入力途中の条件と表示位置はタブ内に保持。
+        var stateToken = /*[[${returnStateToken}]]*/ null;
+        var restoring = /*[[${restoreReturnState}]]*/ false;
+        var storagePrefix = 'mcm344:' + /*[[@{/mcm0020u}]]*/ '/mcm0020u';
+        var tableBox = document.querySelector('.table-container');
+        if (restoring && stateToken) {
+            try {
+                var saved = JSON.parse(sessionStorage.getItem(storagePrefix + ':' + stateToken) || 'null');
+                if (saved) {
+                    radios.forEach(function(r) { r.checked = r.value === saved.mode; });
+                    fromInput.value = saved.from; toInput.value = saved.to;
+                    toggleDateArea();
+                    var selected = document.querySelectorAll('#resultTable tbody tr')[saved.row];
+                    if (selected) { selected.classList.add('selected'); selected.style.outline = '1px solid #7eb4ea'; }
+                    requestAnimationFrame(function() {
+                        tableBox.scrollTop = saved.top; tableBox.scrollLeft = saved.left;
+                        window.scrollTo(saved.x, saved.y);
+                    });
+                }
+            } catch (e) { /* ストレージ制限時もサーバー側の条件・結果を表示する。 */ }
+        }
+        // Excel生成失敗で戻る場合も、出力前の条件・選択行・表示位置を復元する。
+        function saveReturnState() {
+            if (!stateToken) return;
+            try {
+                var mode = document.querySelector('input[name="searchMode"]:checked');
+                var selectedRow = document.querySelector('#resultTable tbody tr.selected');
+                sessionStorage.setItem(storagePrefix + ':' + stateToken, JSON.stringify({
+                    mode:mode.value, from:fromInput.value, to:toInput.value,
+                    row:Array.from(document.querySelectorAll('#resultTable tbody tr')).indexOf(selectedRow),
+                    top:tableBox.scrollTop, left:tableBox.scrollLeft, x:window.scrollX, y:window.scrollY
+                }));
+            } catch (e) { /* ストレージ制限時も帳票取得を妨げない。 */ }
+        }
+        document.getElementById('excelForm').addEventListener('submit', saveReturnState);
+
+        document.querySelectorAll('.support-id-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                if (!stateToken) return;
+                try {
+                    var selected = document.querySelector('input[name="searchMode"]:checked');
+                    sessionStorage.setItem(storagePrefix + ':' + stateToken, JSON.stringify({
+                        mode:selected.value, from:fromInput.value, to:toInput.value,
+                        row:Array.from(document.querySelectorAll('#resultTable tbody tr')).indexOf(link.closest('tr')),
+                        top:tableBox.scrollTop, left:tableBox.scrollLeft, x:window.scrollX, y:window.scrollY
+                    }));
+                    sessionStorage.setItem(storagePrefix + ':pending', JSON.stringify({token:stateToken, url:link.href}));
+                } catch (e) { /* 通常のプラント起動を妨げない。 */ }
+            });
+        });
+
+    });
+
+</script>
+</div>
+</body>
+</html>

@@ -12,7 +12,7 @@
     <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
     <title>MCM0018U - 取扱機器マスタ</title>
     <link rel="stylesheet" th:href="@{/css/common.css}" href="../css/common.css"/>
-    <link rel="stylesheet" th:href="@{/css/mcm0018u.css(v=20261001-selection)}" href="../css/mcm0018u.css"/>
+    <link rel="stylesheet" th:href="@{/css/mcm0018u.css(v=20261001-virtual)}" href="../css/mcm0018u.css"/>
     <link rel="stylesheet" th:href="@{/css/custom-dialog.css}" href="../css/custom-dialog.css"/>
     <script th:src="@{/js/common.js}"></script>
 
@@ -448,6 +448,7 @@
         <tbody id="atsukaikikiTbody">
             <tr th:each="row, iter : ${form.atsukaikikiRows}"
                 th:with="isPlaceholder=${row.atsukaikikiId == null and (row.rowStatus == null or #strings.isEmpty(row.rowStatus) or 'unchanged' == row.rowStatus)}"
+                th:if="${#lists.size(form.atsukaikikiRows) <= 200 or iter.index == 0 or (row.atsukaikikiId == null and (row.rowStatus == null or #strings.isEmpty(row.rowStatus) or 'unchanged' == row.rowStatus))}"
                 th:data-parent-index="${iter.index}"
                 th:data-parent-id="${row.atsukaikikiId}"
                 th:attr="data-is-new=${isPlaceholder ? 'true' : null}"
@@ -579,6 +580,8 @@
         <!-- JSに渡すデータ -->
         <script th:inline="javascript">
             /*<![CDATA[*/
+            window.__atsukaikikiRows = /*[[${#lists.size(form.atsukaikikiRows) > 200 ? form.atsukaikikiRows : null}]]*/ null;
+            window.__parentSelectedIndex = /*[[${form.selectedParentIndex}]]*/ 0;
             window.__koseiRowsMap = /*[[${form.koseiRowsMap}]]*/ {};
             window.__selectedAtsukaikikiId = /*[[${form.selectedAtsukaikikiId}]]*/ null;
             /*]]>*/
@@ -616,7 +619,8 @@
         </div>
     </div>
 
-    <script th:src="@{/js/mcm0018u.js(v=20261001-selection)}" src="../js/mcm0018u.js"></script>
+    <script th:src="@{/js/mcm0018u-virtual.js(v=20261001-virtual)}"></script>
+    <script th:src="@{/js/mcm0018u.js(v=20261001-virtual)}" src="../js/mcm0018u.js"></script>
 
     <script>
         /* ===== 閉じる（MCM0015U 準拠：変更があるときだけ確認ダイアログ） ===== */
@@ -733,7 +737,12 @@
             });
             var lastRow = null;    /* 最後に触った行（MCM0015U 準拠） */
 			var lastTd = null;
+            var guardedRow = null;
 
+            function nextGridRow(tr, direction) {
+                if (tbody.id === 'atsukaikikiTbody' && window.Mcm0018VirtualGrid) return window.Mcm0018VirtualGrid.neighbor(tr, direction);
+                return direction > 0 ? tr.nextElementSibling : tr.previousElementSibling;
+            }
             function isCellTd(td) {
                 return td && td.querySelector &&
                     (td.querySelector(".edit-input") || td.querySelector("input[type=checkbox]"));
@@ -774,10 +783,11 @@
             }
             /* 前に触った行に「一部入力あり＆必須未入力」があればエラーを出して移動を止める（MCM0015U 準拠） */
             function guardLeaveRow(nextTr) {
+                if (nextTr && nextTr === guardedRow) return true;
                 if (!lastRow || !nextTr || lastRow === nextTr) return true;
                 if (!document.body.contains(lastRow)) return true;
                 if (typeof window.validateRowRequired !== "function") return true;
-                if (window.validateRowRequired(lastRow, true)) return true;
+                if (window.validateRowRequired(lastRow, true)) { guardedRow = nextTr; return true; }
                 showRequiredError(lastRow);
                 return false;
             }
@@ -868,6 +878,7 @@
              * キャプチャフェーズなので 2クリック編集の mousedown や bindRowSelect より先に走る。
              */
             function deselectRowOnOtherClick(e) {
+                guardedRow = null;
                 var t = e.target;
                 if (!t || typeof t.closest !== "function") return;
                 /* 選択・親子切替の前に検査する。後段で検査すると直前の行を失う。 */
@@ -890,7 +901,7 @@
                 }
             }
             table.addEventListener("mousedown", deselectRowOnOtherClick, true);
-            table.addEventListener("click", deselectRowOnOtherClick, true);
+            table.addEventListener("click", function (e) { if (e.detail === 0) deselectRowOnOtherClick(e); }, true);
             /* === /ROW-DESELECT-GUARD === */
 
             table.addEventListener("mousedown", function (e) {
@@ -909,14 +920,30 @@
             });
 
             table.addEventListener("keydown", function (e) {
+                guardedRow = null;
+                if (e.key === "Tab") {
+                    var current = editing ? editing.closest('td') : selTd;
+                    if (current) {
+                        var direction = e.shiftKey ? -1 : 1, row = current.parentElement;
+                        var index = Array.prototype.indexOf.call(row.children, current) + direction, next = null;
+                        while (row && !next) {
+                            while (index >= 0 && index < row.children.length) {
+                                if (isCellTd(row.children[index])) { next = row.children[index]; break; }
+                                index += direction;
+                            }
+                            if (!next) { row = nextGridRow(row, direction); if (row) index = direction > 0 ? 0 : row.children.length - 1; }
+                        }
+                        if (next) { e.preventDefault(); selectTd(next); next.scrollIntoView({block: 'nearest', inline: 'nearest'}); return; }
+                    }
+                }
                 if (editing) {
                     if (e.key === "Escape") { var te = editing.closest("td"); stopEdit(); selectTd(te); return; }
                     if (e.key === "Enter") {
                         var t2 = editing.closest("td");
                         var ci2 = Array.prototype.indexOf.call(t2.parentElement.children, t2);
                         stopEdit();
-                        var nr2 = t2.parentElement.nextElementSibling;
-                        while (nr2 && !isCellTd(nr2.children[ci2])) nr2 = nr2.nextElementSibling;
+                        var nr2 = nextGridRow(t2.parentElement, 1);
+                        while (nr2 && !isCellTd(nr2.children[ci2])) nr2 = nextGridRow(nr2, 1);
                         if (nr2) { selectTd(nr2.children[ci2]); nr2.children[ci2].scrollIntoView({ block: "nearest", inline: "nearest" }); }
                         else { selectTd(t2); }
                         e.preventDefault();
@@ -928,8 +955,8 @@
                 var tds = Array.prototype.slice.call(tr.children);
                 var ci = tds.indexOf(selTd);
                 var target = null;
-                if (e.key === "ArrowDown") { var nr = tr.nextElementSibling; while (nr && !isCellTd(nr.children[ci])) nr = nr.nextElementSibling; if (nr) target = nr.children[ci]; }
-                else if (e.key === "ArrowUp") { var pr = tr.previousElementSibling; while (pr && !isCellTd(pr.children[ci])) pr = pr.previousElementSibling; if (pr) target = pr.children[ci]; }
+                if (e.key === "ArrowDown") { var nr = nextGridRow(tr, 1); while (nr && !isCellTd(nr.children[ci])) nr = nextGridRow(nr, 1); if (nr) target = nr.children[ci]; }
+                else if (e.key === "ArrowUp") { var pr = nextGridRow(tr, -1); while (pr && !isCellTd(pr.children[ci])) pr = nextGridRow(pr, -1); if (pr) target = pr.children[ci]; }
                 else if (e.key === "ArrowRight") { for (var j = ci + 1; j < tds.length; j++) { if (isCellTd(tds[j])) { target = tds[j]; break; } } }
                 else if (e.key === "ArrowLeft") { for (var k = ci - 1; k >= 0; k--) { if (isCellTd(tds[k])) { target = tds[k]; break; } } }
                 /* チェックボックスセル：SpaceでON/OFF（Excel準拠）／文字入力・編集開始は無効 */

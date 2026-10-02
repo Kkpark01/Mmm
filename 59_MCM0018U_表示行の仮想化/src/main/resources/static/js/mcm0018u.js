@@ -5,6 +5,29 @@
     var updateBtn = document.getElementById('btnUpdate');
     var updateForm = document.getElementById('updateForm');
     var atsukaikikiTbody = document.getElementById('atsukaikikiTbody');
+    var parentGrid = window.createMcm0018VirtualGrid(atsukaikikiTbody, window.__atsukaikikiRows, window.__parentSelectedIndex);
+    window.Mcm0018VirtualGrid = parentGrid;
+    function eachGridRow(tb, callback) {
+        if (tb === atsukaikikiTbody && parentGrid) parentGrid.forEachRow(callback);
+        else if (tb) tb.querySelectorAll('tr').forEach(callback);
+    }
+    function previousGridRow(tr) {
+        if (parentGrid && tr.hasAttribute('data-parent-index')) return parentGrid.previous(tr);
+        return tr.previousElementSibling;
+    }
+    function focusGridInput(input) {
+        if (!input) return;
+        if (parentGrid && input.closest('tr[data-parent-index]')) {
+            var original = input, cell = input.closest('td');
+            input = parentGrid.revealInput(input);
+            if (input) {
+                if (original.classList.contains('field-error')) input.classList.add('field-error');
+                if (cell && cell.classList.contains('cell-error')) input.closest('td').classList.add('cell-error');
+                if (window.selectMcm0018ParentRow) window.selectMcm0018ParentRow(input.closest('tr'), false);
+            }
+        }
+        if (input) input.focus({preventScroll: true});
+    }
     var koseiTbody = document.getElementById('koseiTbody');
     // 候補の原本は、画面行の増減やエラーに影響されないよう保持する。
     var koseiRowTemplate = koseiTbody && koseiTbody.querySelector('tr[data-is-new="true"]');
@@ -75,7 +98,11 @@
                 e.target.classList.add("field-error");
                 customAlert(msg, 'input');
             } else {
-                e.target.classList.remove("field-error");
+                // 画面外の必須エラー行を表示してダイアログへフォーカスが移っても、赤い表示を消さない。
+                var required = getRequiredDefs(tr) || [];
+                if (!required.some(function (definition) { return definition.el === e.target && isElEmpty(e.target); })) {
+                    e.target.classList.remove("field-error");
+                }
             }
         }
     });
@@ -315,37 +342,17 @@
 
     // ========== Parent row click ==========
     if (atsukaikikiTbody) {
-        /*
-         * 製造メーカー・機器分類(select)セルは、ブラウザ仕様と2クリック編集（mousedownでの
-         * preventDefault／ネイティブ一覧の展開）により click が発火しないことがあり、
-         * 取引先グリッドが切り替わらなかった。select セルは mousedown 時点で行切替を行い、
-         * 後続の click では二重に処理しない。
-         */
-        var lastActivatedParentTr = null;  // 直近で取引先を表示した親行
-        var selectHandledTr = null;        // mousedown で処理済みの行（直後の click を無視するため）
-        atsukaikikiTbody.addEventListener('mousedown', function (e) {
-            if (e.button !== 0) return;
-            var sel = e.target.closest && e.target.closest('select');
-            if (!sel) return;
-            var tr = sel.closest('tr');
-            if (!tr || tr.parentNode !== atsukaikikiTbody) return;
-            selectHandledTr = tr;
-            if (tr === lastActivatedParentTr) return; // 同じ行内の select は再描画不要
-            activateParentRow(tr, false);
-        });
+        // 入力セルは2クリック編集側で親選択する。マーカー/読取専用セルはclickで1回だけ切替。
         atsukaikikiTbody.addEventListener('click', function (e) {
             var tr = e.target.closest('tr');
             if (!tr || tr.parentNode !== atsukaikikiTbody) return;
-            var handled = selectHandledTr === tr && e.target.closest && e.target.closest('select');
-            selectHandledTr = null;
-            if (handled) return;
+            if (e.detail > 0 && e.target.closest('.edit-input, input[type=checkbox]')) return;
             activateParentRow(tr, !!(e.target.closest && e.target.closest('td.col-select')));
         });
 
         window.selectMcm0018ParentRow = activateParentRow;
         function activateParentRow(tr, onMarkerCell) {
             if (tr.style.display === 'none') return;
-            lastActivatedParentTr = tr;
             // 子グリッドに今表示している親のキー（取引先の退避先）
             var previousKey = window.__currentParentKey;
 
@@ -624,7 +631,7 @@
         }
         /* MCM0015U 準拠: 採番は「直前行の No + 1」 */
         var newH = 1;
-        var prevR = tr.previousElementSibling;
+        var prevR = previousGridRow(tr);
         while (prevR) {
             if (prevR.style.display !== 'none') {
                 var phi = prevR.querySelector('.hyojijun-input');
@@ -636,7 +643,7 @@
                 }
                 if (pv !== null && !isNaN(pv)) { newH = pv + 1; break; }
             }
-            prevR = prevR.previousElementSibling;
+            prevR = previousGridRow(prevR);
         }
         var hInput = tr.querySelector('.hyojijun-input');
         /* MCM0015U 準拠: ユーザーが入力済み（自動採番でない）なら上書きしない */
@@ -684,7 +691,8 @@
         }
         tr.removeAttribute('data-is-new');
         tr.classList.remove('new-row');
-        tbody.appendChild(clone);
+        if (parentGrid && tbody === atsukaikikiTbody) parentGrid.append(tr, clone);
+        else tbody.appendChild(clone);
     }
 
     // ========== MCM0015U 準拠: 新規行ヘルパ ==========
@@ -703,13 +711,13 @@
         if (!tr || tr.getAttribute('data-is-new') !== 'true') return;
         var noInput = tr.querySelector('.hyojijun-input');
         if (!noInput || noInput.value !== '') return;
-        var prev = tr.previousElementSibling;
+        var prev = previousGridRow(tr);
         while (prev) {
             if (prev.style.display !== 'none') {
                 var pno = prev.querySelector('.hyojijun-input');
                 if (pno && pno.value !== '') { var v = parseInt(pno.value, 10); if (!isNaN(v)) { noInput.value = v + 1; break; } }
             }
-            prev = prev.previousElementSibling;
+            prev = previousGridRow(prev);
         }
         if (noInput.value === '') noInput.value = 1;
         noInput.setAttribute('data-auto-no', '1');
@@ -731,7 +739,7 @@
     function getRequiredDefs(tr) {
         if (!tr) return null;
         var tb = tr.parentNode;
-        if (tb === atsukaikikiTbody) {
+        if (tb === atsukaikikiTbody || (parentGrid && tr.hasAttribute('data-parent-index'))) {
             return [
                 { el: tr.querySelector('.hyojijun-input'), label: 'No' },
                 { el: tr.querySelector('td.col-seizomaker select'), label: '製造メーカー' },
@@ -750,7 +758,7 @@
     function isElEmpty(el) { return !el || el.value === null || String(el.value).trim() === ''; }
     /* 必須チェック。mark=true なら未入力欄に .field-error を付ける */
     function validateRowRequired(tr, mark) {
-        if (!tr || !document.body.contains(tr)) return true;
+        if (!tr || (!document.body.contains(tr) && !(parentGrid && tr.hasAttribute('data-parent-index')))) return true;
         var defs = getRequiredDefs(tr);
         if (!defs) return true;
         defs.forEach(function (d) {
@@ -807,7 +815,7 @@
     /* ===== MCM0015U 準拠: 変更有無の判定（「閉じる」の確認ダイアログ用） ===== */
     function hasUnsavedChanges() {
         flushKoseiRender(); // 予約中の子グリッド切り替えを確定してから判定する
-        var changed = false;
+        var changed = !!(parentGrid && parentGrid.hasChanges());
         [atsukaikikiTbody, koseiTbody].forEach(function (tb) {
             if (!tb || changed) return;
             tb.querySelectorAll('tr').forEach(function (tr) {
@@ -965,6 +973,7 @@
         var tb = document.getElementById(tbodyId);
         var rows = [];
         if (!tb) return rows;
+        if (tb === atsukaikikiTbody && parentGrid) return parentGrid.payload();
         tb.querySelectorAll("tr").forEach(function (tr) {
             if (tr.getAttribute("data-is-new") === "true" && isRowContentEmptyTr(tr)) return;
             if (tr.getAttribute("data-is-new") === "true" && isRowContentEmptyTr(tr)) return;
@@ -1014,11 +1023,15 @@
             var invalid = null;
             [atsukaikikiTbody, koseiTbody].forEach(function (tbody) {
                 if (!tbody) return;
-                tbody.querySelectorAll('tr').forEach(function (tr) {
-                    if (!validateRowRequired(tr, true) && !invalid) invalid = tr;
+                eachGridRow(tbody, function (tr) {
+                    if (!validateRowRequired(tr, true) && !invalid) { invalid = tr; return false; }
                 });
             });
             if (invalid) {
+                if (parentGrid && invalid.hasAttribute('data-parent-index')) {
+                    var errorField = invalid.querySelector('.field-error');
+                    if (errorField) focusGridInput(errorField);
+                }
                 customAlert(buildRequiredMsg(getMissingLabelsForRow(invalid)), 'input');
                 return;
             }
@@ -1035,17 +1048,23 @@
             }
             /* ★桁数・文字数チェック（VB CPValidate 相当） */
             var lenErr = null, lenErrInp = null;
-            document.querySelectorAll("#updateForm input.edit-input, #updateForm select.edit-input").forEach(function (inp) {
+            eachGridRow(atsukaikikiTbody, function (tr) {
+                if (lenErr) return false;
+                tr.querySelectorAll('input.edit-input, select.edit-input').forEach(checkLengthForRegistration);
+                if (lenErr) return false;
+            });
+            document.querySelectorAll("#koseiTbody input.edit-input, #koseiTbody select.edit-input").forEach(checkLengthForRegistration);
+            function checkLengthForRegistration(inp) {
                 if (lenErr || !inp.name) return;
                 var tr = inp.closest("tr");
                 var st = tr && tr.querySelector(".row-status-input");
                 if (st && String(st.value || "") === "deleted") return;
                 var msg = checkCellLength(inp);
                 if (msg) { inp.classList.add("field-error"); lenErr = msg; lenErrInp = inp; }
-            });
+            }
             if (lenErr) {
                 customAlert(lenErr, 'input');
-                if (lenErrInp) lenErrInp.focus();
+                focusGridInput(lenErrInp);
                 return;
             }
             /*
@@ -1056,16 +1075,16 @@
              *   先行チェックであり、サーバー側のロジックは変更しない。
              */
             var ctrlErr = null, ctrlErrInp = null;
-            document.querySelectorAll("#atsukaikikiTbody tr").forEach(function (tr) {
-                if (ctrlErr) return;
+            eachGridRow(atsukaikikiTbody, function (tr) {
+                if (ctrlErr) return false;
                 var st = tr.querySelector(".row-status-input");
                 if (st && String(st.value || "") === "deleted") return;
                 var msg2 = checkAtsukaikikiRowConsistency(tr);
-                if (msg2) { ctrlErr = msg2; ctrlErrInp = tr.querySelector('input[name$=".controllerKin"]'); }
+                if (msg2) { ctrlErr = msg2; ctrlErrInp = tr.querySelector('input[name$=".controllerKin"]'); return false; }
             });
             if (ctrlErr) {
                 customAlert(ctrlErr, 'input');
-                if (ctrlErrInp) ctrlErrInp.focus();
+                focusGridInput(ctrlErrInp);
                 return;
             }
             /*
@@ -1188,7 +1207,7 @@
         if (state.selectedAtsukaikikiId && atsukaikikiTbody) {
             var input = atsukaikikiTbody.querySelector(
                 'input[name$=".atsukaikikiId"][value="' + state.selectedAtsukaikikiId + '"]');
-            var tr = input && input.closest('tr');
+            var tr = parentGrid ? parentGrid.byId(state.selectedAtsukaikikiId) : (input && input.closest('tr'));
             if (tr) {
                 /*
                  * A027: CSSクラスの付け替えだけでは、取引先グリッド・__currentParentKey・
@@ -1213,7 +1232,7 @@
         requestAnimationFrame(function () {
             var parentScroller = atsukaikikiTbody && atsukaikikiTbody.closest('.grid-scroll-parent');
             var childScroller = koseiTbody && koseiTbody.closest('.grid-scroll-child');
-            if (parentScroller && typeof state.parentScrollTop === 'number') parentScroller.scrollTop = state.parentScrollTop;
+            if (parentScroller && typeof state.parentScrollTop === 'number') { parentScroller.scrollTop = state.parentScrollTop; if (parentGrid) parentGrid.render(); }
             if (childScroller && typeof state.childScrollTop === 'number') childScroller.scrollTop = state.childScrollTop;
         });
     }
@@ -1257,7 +1276,9 @@
             function doConfirmAndDelete() {
                 customConfirm(confirmMsg, function () {
                     var rs = selected.querySelector('.row-status-input');
-                    if (rs && rs.value === 'added') {
+                    if (parentGrid && tbody === atsukaikikiTbody) {
+                        parentGrid.remove(selected, !!(rs && rs.value === 'added'));
+                    } else if (rs && rs.value === 'added') {
                         selected.remove();
                     } else if (rs) {
                         rs.value = 'deleted';
@@ -1365,7 +1386,7 @@
             window.Mcm0018Performance.markActive(tr);
         });
     }
-    bindRowSelectByMarker(atsukaikikiTbody);
+    // 親表は activateParentRow() で選択・子表更新を1回にまとめる。
     bindRowSelectByMarker(koseiTbody);
 
     /* ===== MCM0015U 準拠: 初期表示時は全入力欄を readonly（2クリックで編集開始） =====

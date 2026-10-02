@@ -1,18 +1,37 @@
 # 56：添付保存先と環境切替
 
-基準：2026-10-01 14:34受領src（536ファイル）。**受領src・配備先・DBは変更していません。**
+2026-10-01 17:49受領の新srcでは、現在の9ファイル版は未反映。対象9ファイルは直前版と内容一致しており、最新srcへの上書き競合なし。55は取り込み済み、56との対象重複0。[最新受領確認](../../検証記録/review_20261001/source-174930/README.md)。その後、共有パスの確定により今回56のapplication.ymlだけを更新した。
+
+基準：2026-10-01 17:49受領src（536ファイル）。**受領src・配備先・DBは変更していません。**
+
+## 今回の更新：検証用共有パス
+
+利用者から共有パス`\\ILCM-SYSDEV\uploadfolder`を受領し、検証用保存先を`//ILCM-SYSDEV/uploadfolder/MCM`へ変更した。共有先の下にMCMフォルダがある前提。最新の確認方針は新規添付の保存・取得であり、既存資料の移行はまだ行わないため、旧ルート読み替えの既定値を空にした。共有へのアクセス権限は現地確認が必要。
+
+```yaml
+upload-path: ${MCM_UPLOAD_PATH://ILCM-SYSDEV/uploadfolder/MCM}
+legacy-roots: ${MCM_LEGACY_ROOTS:}
+```
+
+検証用DBの接続設定と本番用コメントアウトは維持。変更はapplication.ymlのみで、Javaは前回合格版と全一致。[共有パス設定時の24項目合格](../../検証記録/review_20261001/attachment-shared-path/README.md)は旧Fルート指定ありの記録。今回の空指定への整理では設定差分・資料の整合性を確認し、アプリ試験は再実行していない。
+
+直前の既存9ファイル版56を一式反映済みなら、今回の差分はapplication.ymlだけ。設定を上書きしてアプリを再起動する。未反映の場合は下記9ファイルの手順で反映する。
+
+Eclipseに以前の`MCM_UPLOAD_PATH`／`MCM_LEGACY_ROOTS`がある場合はYAMLより優先される。同じ値へそろえるか、個別指定を削除してYAMLの共通値を使う。外部config/application.ymlや起動引数にも古い保存先の指定が残っていないか確認する。
+
+反映後、自分のPCのエクスプローラーで`\\ILCM-SYSDEV\uploadfolder\MCM`を開けることを確認し、検証用契約に小さな確認用ファイルを1件添付する。サーバー側に実ファイルができ、別PCから同じ添付を取得できることを確認する。共有にアクセスできない場合は、パスや権限を確認してから進める。
 
 ## 今回の整理：新規ファイルをなくす
 
 保存ルート、相対パス・旧絶対パスの読み替え、取得時の検査を既存の`FileStorageService.java`へ統合した。6サービスの参照先も変更し、例外は既存の`McmBusinessException`を使う。利用者向けの文言・原因ログ、権限、ロールバック、削除タイミングは維持する。
 
-`AttachmentStorage.java`と`AttachmentStorageException.java`を削除し、**反映対象は既存9ファイル、新規0ファイル**。設定ファイルと起動チェックは前回のコメントアウト方式から変更していない。[今回の検証記録](../../検証記録/review_20261001/attachment-storage-consolidation/README.md)。
+`AttachmentStorage.java`と`AttachmentStorageException.java`を削除し、**反映対象は既存9ファイル、新規0ファイル**。本番コメントアウトと起動チェックを維持し、検証用の保存先だけを冒頭の共有パス設定へ更新した。[統合時の検証記録](../../検証記録/review_20261001/attachment-storage-consolidation/README.md)。
 
 ## 今回の整理：コメントアウトで切替
 
 利用者の指示により、サーバー名による自動判定とlocal/test/prodのプロファイル選択を廃止した。検証用を有効、本番用をコメントアウトで用意する。
 
-- `application.yml`の検証用DBと`F:/uploadfolder/MCM`を現在の設定として使う。
+- `application.yml`の検証用DBと`//ILCM-SYSDEV/uploadfolder/MCM`を現在の設定として使う。
 - 本番は末尾のコメントアウトされたYAML文書にまとめた。`# ---`から最後まで先頭の`# `を外すと、後続文書が検証用DB・保存先・環境区分を上書きする。
 - 本番DB・認証・保存先は未定。空欄のまま有効にすると、通常Bean（DB接続を含む）の生成前に起動を止める。保存先が相対パスの場合も止める。
 - 起動チェックは既存の`McmApplication.java`へ集約した。静的`BeanFactoryPostProcessor`なので、既存のどちらの起動クラスからもコンポーネント検索で読み込まれる。
@@ -47,7 +66,7 @@ Eclipseは「プロジェクト → クリーン」、JAR作成は`mvn clean pac
 
 ### 検証サーバー
 
-Javaが動くサーバー上に`F:/uploadfolder/MCM`があり、Java実行ユーザーで読取・作成・変更・削除できることを確認する。画像のFが別サーバーやRDP利用者だけの割当ドライブの場合は、実際の共有UNCへ変更する。検証DBは従来の`ILCM-SYSDEV:1433 / SYSDEV`を維持。
+開発PC・検証サーバーとも`//ILCM-SYSDEV/uploadfolder/MCM`を使う。Javaを実行するWindowsユーザーで共有とフォルダの読取・作成・変更・削除ができることを確認する。画像のFは共有先の物理配置として参照し、個人PCのFドライブには保存しない。検証DBは従来の`ILCM-SYSDEV:1433 / SYSDEV`を維持。
 
 推奨は、今回のYAMLを配備先の`config/application.yml`へ配置し、検証用を有効にしたまま使うこと。例：`D:/Webアプリ/mcm-web/config/application.yml`。実際の起動設定・外部設定の配置場所は未確認。
 
@@ -61,12 +80,11 @@ java -jar 'jar/実際のJAR名.jar' --spring.config.additional-location=file:./c
 
 ### 開発PC
 
-検証DBを使うPCは、検証サーバーと**同じ実ファイル**を指す共有UNCを設定する。自PCのFドライブや個人フォルダへ保存すると、他PCから開けない。共有名は未定。
+検証DBを使うPCは、検証サーバーと**同じ実ファイル**を指す共有UNCを使う。今回のYAMLに共通値を設定したため、通常はEclipseで個別指定する必要はない。自PCのFドライブや個人フォルダへ保存すると、他PCから開けない。
 
 ```powershell
-# 以下は例。実際に決まったサーバー名・共有名へ置き換える。
-$env:MCM_UPLOAD_PATH = '//保存サーバー/共有名/MCM'
-$env:MCM_LEGACY_ROOTS = 'F:/uploadfolder/MCM'
+# 通常はYAMLの共通値を使う。個別に明示する場合は同じ値へそろえる。
+$env:MCM_UPLOAD_PATH = '//ILCM-SYSDEV/uploadfolder/MCM'
 java -jar '実際のJAR名.jar'
 ```
 
@@ -80,7 +98,9 @@ Eclipseの実行構成の「環境」欄でも指定できる。添付以外の�
 
 本番名・DB・保存先は未定。起動チェックは未設定を検出するが、接続先が本当に本番か、フォルダの存在・権限まで保証するものではない。本番切替は手動であり、設定変更後に再起動する。
 
-## 添付保存・既存資料の移行
+## 添付保存・将来の既存資料の移行
+
+現在の確認対象は新規添付だけで、旧ルート読み替えは無指定。以下の移行説明は、既存資料を扱う時点で必要性を確認してから使う。
 
 - 新規は日本語業務フォルダを使い、取引先は`取引先/契約ID/期間ID/UUID/ファイル名`、店舗は`店舗/見積ID/UUID`、作業予定は`作業予定/登録ID/UUID`へ保存する。
 - 新規DBパスは相対パス。旧フルファイル／フォルダ形式、旧英語フォルダにも対応。取引先添付のファイル名二重連結も修正済み。

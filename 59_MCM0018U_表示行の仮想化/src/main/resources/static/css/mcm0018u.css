@@ -146,3 +146,7 @@
 #atsukaikikiGrid tr { display:grid; grid-template-columns:var(--mcm-column-widths); height:23px; }
 #atsukaikikiGrid tbody > tr { contain:strict; content-visibility:auto; contain-intrinsic-block-size:23px; }
 #atsukaikikiGrid th, #atsukaikikiGrid td { display:block; box-sizing:border-box; width:auto !important; min-width:0; height:23px; }
+
+/* 大量件数は高さだけ全件分確保し、表示行だけ配置する。列幅/23px行高は従来通り。 */
+#atsukaikikiGrid > tbody.virtual-rows { position:relative; overflow-anchor:none; }
+#atsukaikikiGrid > tbody.virtual-rows > tr { position:absolute; left:0; right:0; content-visibility:visible; }
