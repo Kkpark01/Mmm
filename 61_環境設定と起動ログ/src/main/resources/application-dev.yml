@@ -1,0 +1,11 @@
+# 共有添付の確認・検証サーバー用（spring.profiles.active=dev またはSPRING_PROFILES_ACTIVE=dev）。
+# 開発PCのEclipseではVM引数 -Dspring.profiles.active=dev でも指定できる。
+# DB接続先は application.yml の設定（ILCM-SYSDEV）をそのまま使う。
+# 未指定のまま検証サーバーを起動するとlocalになるため、配備先ではdevを必ず指定する。
+# 結合・排他テストは同じ検証サーバーのURL・同じ版を、別PC・別ユーザーで開いて確認する。
+# 起動ログで使用環境=dev、DB接続先、共有保存先を確認する。
+# 添付保存先：旧保存先のフォルダ構成（店舗・取引先 等）を保ったまま移行した共有フォルダ。
+# ※アプリの実行ユーザーにこのフォルダの読み書き・削除権限が必要。
+mcm:
+  file:
+    upload-path: '\\ILCM-SYSDEV\uploadfolder\MCM'

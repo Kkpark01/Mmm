@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: mcm-web
+  profiles:
+    # 【環境切替】通常の個人開発は設定不要（既定local）。localも検証DBへ接続する。
+    #   dev：共有添付の確認・検証サーバー用。検証DB＋共有保存先を使う。
+    #   prod：本番サーバー用。本番DB・保存先は必要な環境変数で指定する。
+    #   spring.profiles.active（またはSPRING_PROFILES_ACTIVE）で環境を明示できる。
+    #   結合・排他テストは、各自のPCではなく同じ検証サーバーのURL・同じ版で実施する。
+    #   環境別の差分はapplication-{プロファイル}.yml。起動ログで有効な設定を確認する。
+    default: local
+  # DB接続先：検証用（ILCM-SYSDEV）。本番は application-prod.yml で上書きする。
+  datasource:
+    url: jdbc:sqlserver://ILCM-SYSDEV:1433;databaseName=SYSDEV;encrypt=true;trustServerCertificate=true
+    username: app_user
+    password: password_1
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        # 【修正】Spring Bootのデフォルト命名戦略(SpringPhysicalNamingStrategy)は
+        #   @Columnで明示指定した物理名も強制的に小文字化してしまう。
+        #   本プロジェクトのDBは大文字カラム名(例: H24, TM_IRAI_ID)を前提としているため、
+        #   @Columnの指定をそのまま使う標準戦略に変更する。
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+        default_schema: mcm
+        # 【修正】show-sql（ハイフン）はHibernateに認識されないプロパティ名だったため、
+        #   正しい show_sql（アンダースコア）に修正した。
+        show_sql: false
+        # 【再修正】spring.jpa.hibernate.naming.physical-strategy が環境によって
+        #   反映されないケースがあったため、Hibernateネイティブのプロパティキー
+        #   (hibernate.physical_naming_strategy) でも同じ設定を明示する（保険）。
+        physical_naming_strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: false
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    mode: HTML
+  session:
+    store-type: none
+  messages:
+    # 【Part 3 / D-05】画面別メッセージ(messages_mcm0022u.properties)を読み込むため追記。
+    #   Spring は messages_xxx を「xxxロケール」と解釈するため、画面別ファイルは
+    #   basename にカンマ区切りで明示列挙が必要（アンダースコアでの自動読込は不可）。
+    basename: messages,messages_mcm0022u,messages_mcm0023u
+    encoding: UTF-8
+logging:
+  level:
+    root: INFO
+    com.daifuku.mcm: DEBUG
+server:
+  port: 8080
+  servlet:
+    context-path: /mcm
+    session:
+      # 【セッションタイムアウト変更】社内向け業務システムのため、無操作状態が
+      #   続いた場合の再ログイン頻度を減らす目的で、Tomcatデフォルト(30分)から
+      #   無操作8時間へ緩和する。
+      timeout: 12h
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  # 【MCM0023U等の大規模グリッド画面対応】
+  #   Tomcatのリクエストパラメータ数上限(デフォルト10000)を拡張する設定は
+  #   Spring Boot 3.3系には server.tomcat.max-parameter-count プロパティが
+  #   存在しないため(3.4以降で追加)、ここでの指定は無視される。
+  #   実際の設定は WebMvcConfig の TomcatConnectorCustomizer で行う。
