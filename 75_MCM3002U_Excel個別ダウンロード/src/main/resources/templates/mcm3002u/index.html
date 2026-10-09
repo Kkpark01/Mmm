@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm3002uScreen.Designer.vb / Mcm3002uScreen.vb
+  MCM3002U — 支払い明細出力指示
+  【デザイン参照】MCM2008U / MCM1011U（紫帯ヘッダー）、MCM2005U（フッター操作帯）
+
+  【レイアウト改修】VB版 Mcm3002uScreen.Designer.vb を正として画面構成を合わせる。
+    VBコントロール                     位置(X,Y)     → Web要素
+    SHIHARAITSUKI      "支払い月"      (3,10)  必須  → label.cond-label.required-label（1行目左）
+    ShiharaiTukiTextBox                (73,7)  W55   → input#shiharaiTsuki（1行目、ラベル右）
+    NenbaraiRadioButton "年払い"        (3,35)  既定  → radio（2行目左）
+    TsukibaraiRadioButton "月払い"      (86,35)       → radio（2行目、年払いの右）
+    OutputButton        "出力"          (1168,880)    → フッター右下 button#outputBtn
+  VB版に存在しない「検索」ボタン・検索結果一覧・件数バー・補足文言は削除した。
+  操作順は VB の TabIndex（支払い月 → 年払い → 月払い → 出力）を優先し、WEB固有の閉じるを最後にする（正のtabindexは使用せず、ラジオの矢印キー操作を維持）。
+  出力ボタンは発注確認書・支払い明細をZIPでダウンロードする（処理内容は変更なし）。
+-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/default}" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf"        th:content="${_csrf != null} ? ${_csrf.token}      : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>支払い明細出力指示（MCM3002U）</title>
+    <style>
+        /* ===== 共通レイアウト (MCM2008U / MCM1003U 準拠) ===== */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px;
+            color: #333; background: #f4f6f7;
+            /* [MCM1003U準拠] 画面外周パディング：ヘッダーを画面端から8px内側に配置する */
+            padding: 8px;
+        }
+        button, .btn-close { cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+        /* 画面全体：ヘッダー / 入力エリア / フッター（VB版の出力ボタン右下配置を再現） */
+        .screen {
+            display: flex; flex-direction: column;
+            position: relative; height: calc(100vh - 16px); min-height: 240px;
+            background: #fff;
+        }
+
+        /* ヘッダー（MCM1003U準拠：帯の太さ40px・文字サイズ18px） */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 40px; min-height: 40px; padding: 0 10px;
+        }
+        .header .header-center { flex: 1; min-width: 0; text-align: center; }
+        .header .header-center h1 {
+            margin: 0; font-size: 18px; font-weight: bold; color: #fff;
+            letter-spacing: 2px; line-height: 30px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .header .header-left, .header .header-right { display: flex; align-items: center; min-width: 90px; }
+        .header .header-right { justify-content: flex-end; }
+        .btn-close {
+            /* 他画面(MCM0010U等)と同一の寸法・書体。ヘッダー帯(40px)の右端に縦中央で重ねる */
+            position: absolute; top: 20px; right: 10px; transform: translateY(-50%);
+            box-sizing: border-box; display: inline-block; padding: 2px 12px; font-size: 12px; font-family: initial; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad; text-decoration: none;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
+        }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .btn-close:active { background-color: #cce4f7; border-color: #569de5; } .btn-close:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+
+        /* 入力フォーム：画面の残り領域を使い、フッターを最下部に固定する */
+        .output-form { flex: 1; display: flex; flex-direction: column; min-height: 0; margin: 0; }
+
+        /* 条件エリア（VB版：左上に 支払い月 / 支払区分ラジオ を2行で配置） */
+        .cond-area { flex: 1; padding: 7px 3px; }
+        .cond-row { display: flex; align-items: center; min-height: 24px; }
+        .cond-row + .cond-row { margin-top: 5px; }
+        /* VB: ラベル X=3 → テキスト X=73（ラベル欄 70px） */
+        .cond-label { flex: 0 0 70px; white-space: nowrap; }
+        /* VB: SHIHARAITSUKI は必須項目ラベル（太字・赤）。Web版の必須表示として踏襲 */
+        .required-label { font-weight: bold; color: #dc2626; }
+        .cond-row input[type="text"] {
+            width: 64px; height: 22px; padding: 0 4px; font-size: 12px; font-family: inherit;
+            border: 1px solid #aaa; border-radius: 2px;
+        }
+        /* VB版に合わせ、支払い月テキストボックスは薄い水色背景（共通の黄色背景を上書き） */
+        .cond-row input[type="text"].field-required { background-color: #e0ffff; }
+        .cond-row input[type="text"]:focus { outline: 1px solid #7eb4ea; border-color: #7eb4ea; }
+        /* VB: 年払い X=3 → 月払い X=86 */
+        .radio-group { display: flex; align-items: center; }
+        .radio-group label { display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; }
+        .radio-group label:first-child { flex: 0 0 83px; }
+        .radio-group input[type="radio"] { margin: 0; accent-color: #453f78; } .radio-group input[type="radio"]:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+
+        /* フッター（MCM2005U detail-footer 準拠）：VB版 OutputButton(1168,880) = 右下 */
+        .footer-bar {
+            display: flex; justify-content: flex-end; align-items: center;
+            padding: 8px 10px; background: #efefef; border-top: 1px solid #d5dbdb;
+        }
+        .btn-output {
+            min-width: 75px; min-height: 26px; padding: 2px 16px;
+            font-family: inherit; font-size: 12px;
+            color: #000; background: #f0f0f0; border: 1px solid #adadad; border-radius: 2px;
+        }
+        .btn-output:hover { background: #e5e5e5; border-color: #8a8a8a; }
+        .btn-output:focus-visible { outline: 2px solid #1a56db; outline-offset: 1px; }
+
+        /* 無効化時も文字・枠・背景を明示して操作可能状態と区別する */
+        .btn-output:disabled { background: #d0d3d6; color: #f0f0f0; border-color: #b0b5ba; cursor: default; }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20261002p60)}"></script>
+</head>
+<body>
+<main layout:fragment="content">
+
+<!-- 共通通知：フラッシュ属性は共通フラグメントから表示する -->
+<th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors}, noticeInfo=${infoMessage})}"></th:block>
+
+<div class="screen">
+
+    <!-- ===== ヘッダー ===== -->
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center"><h1>支払い明細出力指示（MCM3002U）</h1></div>
+        <div class="header-right">
+        </div>
+    </div>
+
+    <!-- ===== 出力条件フォーム ===== -->
+    <!-- ファイル保存ではページ遷移しないため、送信は下部スクリプトのfetchで行う。
+         待機表示（ぐるぐる）は common.js の fetch フックが自動で表示・解除する（MCM3003U同様）。 -->
+    <form th:action="@{/mcm3002u/output}" th:object="${form}" method="post"
+          class="output-form" data-mcm-no-progress>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div class="cond-area">
+            <!-- 1行目：支払い月（VB: SHIHARAITSUKI + ShiharaiTukiTextBox / TabIndex 0） -->
+            <div class="cond-row">
+                <label for="shiharaiTsuki" class="cond-label required-label">支払い月</label>
+                <input type="text" id="shiharaiTsuki" th:field="*{shiharaiTsuki}" onkeydown="if(event.key === 'Enter') event.preventDefault()"
+                       class="field-required" maxlength="7" autofocus placeholder="yyyy/mm"
+                       title="yyyy/mm形式で入力してください"/>
+            </div>
+
+            <!-- 2行目：支払区分（VB: NenbaraiRadioButton TabIndex 1 / TsukibaraiRadioButton TabIndex 2） -->
+            <div class="cond-row">
+                <div class="radio-group" role="radiogroup" aria-label="支払区分">
+                    <label>
+                        <input type="radio" name="siharaiKbn" value="年払"
+                               th:checked="${form.siharaiKbn == '年払'}"/>年払い
+                    </label>
+                    <label>
+                        <input type="radio" name="siharaiKbn" value="月払"
+                               th:checked="${form.siharaiKbn == '月払'}"/>月払い
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== フッター：出力ボタン（VB: OutputButton 右下 / TabIndex 3） ===== -->
+        <div class="footer-bar">
+            <button type="submit" id="outputBtn" class="btn-output">出力</button>
+        </div>
+    </form>
+    <!-- WEB共通の閉じるは視覚的にはヘッダー右、操作順では出力の後 -->
+    <a class="btn-close" th:href="@{/menu}" href="/mcm/menu">閉じる</a>
+</div>
+
+<script>
+// 2つのExcelを同じ画面で取得し、VBと同じ順序で個別保存する。通信中は fetch フックのぐるぐるが表示され、二重送信も防ぐ。
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.querySelector('.output-form');
+    const button = document.getElementById('outputBtn');
+    let pending = false;
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        if (pending) return;
+        const body = new FormData(form);
+        pending = true;
+        button.disabled = true;
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST', body, credentials: 'same-origin', cache: 'no-store',
+                headers: {'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json'}
+            });
+            const type = (response.headers.get('Content-Type') || '').toLowerCase();
+            if (!response.ok || !type.includes('application/json')) {
+                let message = response.redirected && response.url.includes('/login')
+                    ? 'ログインの有効期限が切れました。再度ログインしてください。'
+                    : '帳票を出力できませんでした。';
+                if (type.includes('application/json')) {
+                    const error = await response.json();
+                    if (typeof error.message === 'string' && error.message) message = error.message;
+                }
+                await McmNotifications.error(message);
+                return;
+            }
+            const result = await response.json();
+            if (!Array.isArray(result.reports) || result.reports.length !== 2) {
+                throw new Error('Invalid reports');
+            }
+            // 全ファイルを検査・復号してから保存を開始し、破損応答による片側だけの取得を防ぐ。
+            const reports = result.reports.map(function (report) {
+                if (typeof report.filename !== 'string' || !report.filename.endsWith('.xls')
+                        || typeof report.data !== 'string' || !report.data) {
+                    throw new Error('Invalid report');
+                }
+                const bytes = Uint8Array.from(atob(report.data), ch => ch.charCodeAt(0));
+                if (!bytes.length) throw new Error('Empty report');
+                return {filename: report.filename,
+                    blob: new Blob([bytes], {type: 'application/vnd.ms-excel'})};
+            });
+            for (const report of reports) {
+                const url = URL.createObjectURL(report.blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = report.filename;
+                document.body.appendChild(link);
+                try { link.click(); } finally {
+                    link.remove();
+                    // 保存開始処理が終わる前にURLを破棄しない。
+                    setTimeout(() => URL.revokeObjectURL(url), 60000);
+                }
+            }
+        } catch (error) {
+            await McmNotifications.error('帳票を出力できませんでした。通信状態を確認してください。');
+        } finally {
+            pending = false;
+            button.disabled = false;
+        }
+    });
+});
+</script>
+
+</main>
+</body>
+</html>
