@@ -28,20 +28,66 @@ public class Mcm1005uAttachmentService {
 
     @Transactional(rollbackFor = Exception.class)
     public void delete(BigDecimal contractId, BigDecimal attachmentId, String user) {
+        // 実ファイルを変更する前に、既存の権限・所属・承認状態を検査して契約をロックする。
+        if (!contracts.canUpdate(user)) throw new McmBusinessException("権限がないため実行できません。");
+        var contract = repository.lockKeiyaku(contractId);
         var row = find(contractId, attachmentId, user);
+        if (java.util.Set.of("1", "2", "3").contains(String.valueOf(row.getShoninjotai())))
+            throw new McmBusinessException("承認済みのファイルの為、削除できません。");
+        if (contract == null || !contracts.canEditWithUnlock(contract))
+            throw new McmBusinessException("現在の状態では削除できません。");
+        contracts.checkAttachmentEditable(contract, row.getTkKikanId());
         Path target;
         try { target = file(row); }
         catch (IOException ex) { throw new McmBusinessException("添付ファイルを確認できません。管理者に確認してください。"); }
-        contracts.deleteTenpu(attachmentId, contractId, user);
-        Runnable cleanup = () -> {
-            try { Files.deleteIfExists(target); }
-            catch (IOException ex) { log.error("添付削除後のファイル削除に失敗: {}", attachmentId, ex); }
-        };
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override public void afterCommit() { cleanup.run(); }
-            });
-        } else cleanup.run();
+        Path backup;
+        try { backup = Files.createTempFile(target.getParent(), ".mcm-delete-", ".bak"); }
+        catch (IOException ex) { throw new McmBusinessException("添付ファイルを削除できませんでした。保存先の権限を確認してください。"); }
+        try {
+            Files.copy(target, backup, StandardCopyOption.REPLACE_EXISTING);
+            // VBと同じくファイル削除が成功した場合だけDBの行を削除する。
+            Files.delete(target);
+        } catch (IOException ex) {
+            cleanupDeleteBackup(backup);
+            log.error("添付ファイル削除失敗: {}", attachmentId, ex);
+            throw new McmBusinessException("添付ファイルを削除できませんでした。保存先の権限を確認してください。");
+        }
+        boolean synchronizedTransaction = TransactionSynchronizationManager.isSynchronizationActive();
+        try {
+            if (synchronizedTransaction) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                    @Override public void afterCompletion(int status) {
+                        if (status == STATUS_COMMITTED) cleanupDeleteBackup(backup);
+                        else restoreDeletedFile(target, backup);
+                    }
+                });
+            }
+            contracts.deleteTenpu(attachmentId, contractId, user);
+            if (!synchronizedTransaction) cleanupDeleteBackup(backup);
+        } catch (RuntimeException ex) {
+            restoreDeletedFile(target, backup);
+            throw ex;
+        }
+    }
+
+    private static void cleanupDeleteBackup(Path backup) {
+        try { Files.deleteIfExists(backup); }
+        catch (IOException ex) { log.error("添付削除の一時バックアップ削除失敗: {}", backup, ex); }
+    }
+
+    private static void restoreDeletedFile(Path target, Path backup) {
+        try {
+            if (!Files.exists(backup)) return;
+            // 他の処理で作成された同名ファイルを上書きしない。
+            try { Files.copy(backup, target); }
+            catch (FileAlreadyExistsException ex) {
+                if (Files.mismatch(backup, target) != -1) throw ex;
+            }
+            cleanupDeleteBackup(backup);
+        } catch (IOException ex) {
+            // 復元に失敗した場合は復旧に必要なバックアップを残す。
+            log.error("添付ファイル復元失敗。バックアップを保持: target={}, backup={}", target, backup, ex);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
