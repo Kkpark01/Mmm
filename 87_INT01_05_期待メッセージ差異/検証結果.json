@@ -1,0 +1,1137 @@
+{
+  "checks": {
+    "5タブ124項番": true,
+    "対象番号と一覧全件一致": true,
+    "差異対象に不存在項番なし": true,
+    "VB引用はXMLから取得": true,
+    "入力5全文MD不変": true,
+    "リンク有効": true,
+    "Markdown表の列数一致": true,
+    "確定Web差の文言が受領コードにある": true,
+    "未確定差を確定IDにしない": true
+  },
+  "inventory": [
+    {
+      "id": "INT01-01",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT01-02",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-03",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-04",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-05",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-06",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-07",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-08",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-09",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-10",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT01-11",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-12",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT01-13",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-14",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-15",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-16",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-17",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-18",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT01-19",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT01-20",
+      "tags": [
+        "D01",
+        "D03"
+      ],
+      "status": "D01、D03"
+    },
+    {
+      "id": "INT01-21",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-22",
+      "tags": [
+        "D01",
+        "D04"
+      ],
+      "status": "D01、D04"
+    },
+    {
+      "id": "INT01-23",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-24",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-25",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-26",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-27",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-28",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-29",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT01-30",
+      "tags": [
+        "D01",
+        "D02",
+        "D05"
+      ],
+      "status": "D01、D02、D05"
+    },
+    {
+      "id": "INT01-31",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT01-32",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-01",
+      "tags": [
+        "D02"
+      ],
+      "status": "D02"
+    },
+    {
+      "id": "INT02-02",
+      "tags": [
+        "D02",
+        "D07"
+      ],
+      "status": "D02、D07"
+    },
+    {
+      "id": "INT02-03",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-04",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-05",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-06",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-07",
+      "tags": [
+        "D02"
+      ],
+      "status": "D02"
+    },
+    {
+      "id": "INT02-08",
+      "tags": [
+        "D02",
+        "D07"
+      ],
+      "status": "D02、D07"
+    },
+    {
+      "id": "INT02-09",
+      "tags": [
+        "D02"
+      ],
+      "status": "D02"
+    },
+    {
+      "id": "INT02-10",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-11",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-12",
+      "tags": [
+        "D13"
+      ],
+      "status": "D13"
+    },
+    {
+      "id": "INT02-13",
+      "tags": [
+        "D13"
+      ],
+      "status": "D13"
+    },
+    {
+      "id": "INT02-14",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-15",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-16",
+      "tags": [],
+      "status": "メール関連対象外"
+    },
+    {
+      "id": "INT02-17",
+      "tags": [],
+      "status": "メール関連対象外"
+    },
+    {
+      "id": "INT02-18",
+      "tags": [],
+      "status": "メール関連対象外"
+    },
+    {
+      "id": "INT02-19",
+      "tags": [],
+      "status": "メール関連対象外"
+    },
+    {
+      "id": "INT02-20",
+      "tags": [],
+      "status": "メール関連対象外"
+    },
+    {
+      "id": "INT02-21",
+      "tags": [],
+      "status": "メール関連対象外"
+    },
+    {
+      "id": "INT02-22",
+      "tags": [],
+      "status": "メール関連対象外"
+    },
+    {
+      "id": "INT02-23",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-24",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-25",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT02-26",
+      "tags": [
+        "D06"
+      ],
+      "status": "D06"
+    },
+    {
+      "id": "INT02-27",
+      "tags": [
+        "D06"
+      ],
+      "status": "D06"
+    },
+    {
+      "id": "INT02-28",
+      "tags": [
+        "D06"
+      ],
+      "status": "D06"
+    },
+    {
+      "id": "INT02-29",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT03-01",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT03-02",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT03-03",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT03-04",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT03-05",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT03-06",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT03-07",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT03-08",
+      "tags": [
+        "D12"
+      ],
+      "status": "D12"
+    },
+    {
+      "id": "INT03-09",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT03-10",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT03-11",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT03-12",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT03-13",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT03-14",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT03-15",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT03-16",
+      "tags": [
+        "D12"
+      ],
+      "status": "D12"
+    },
+    {
+      "id": "INT03-17",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT03-18",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT03-19",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-01",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT04-02",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-03",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-04",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-05",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-06",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-07",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-08",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT04-09",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-10",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-11",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-12",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-13",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-14",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-15",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-16",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT04-17",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-18",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-19",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-21",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-22",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-23",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-24",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-25",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT04-26",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-01",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-02",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-03",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-04",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-05",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-06",
+      "tags": [
+        "D08"
+      ],
+      "status": "D08"
+    },
+    {
+      "id": "INT05-07",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT05-08",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT05-09",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT05-10",
+      "tags": [
+        "D10"
+      ],
+      "status": "D10"
+    },
+    {
+      "id": "INT05-11",
+      "tags": [
+        "D09"
+      ],
+      "status": "D09"
+    },
+    {
+      "id": "INT05-12",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-13",
+      "tags": [
+        "D01"
+      ],
+      "status": "D01"
+    },
+    {
+      "id": "INT05-14",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-15",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-16",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    },
+    {
+      "id": "INT05-17",
+      "tags": [
+        "D12"
+      ],
+      "status": "D12"
+    },
+    {
+      "id": "INT05-18",
+      "tags": [
+        "D11"
+      ],
+      "status": "D11"
+    },
+    {
+      "id": "INT05-19",
+      "tags": [],
+      "status": "今回の確定差なし／補足・未確定は元本文参照"
+    }
+  ],
+  "differences": [
+    {
+      "key": "D01",
+      "title": "登録完了文言",
+      "cases": [
+        "INT01-02",
+        "INT01-03",
+        "INT01-04",
+        "INT01-05",
+        "INT01-06",
+        "INT01-07",
+        "INT01-08",
+        "INT01-09",
+        "INT01-11",
+        "INT01-13",
+        "INT01-14",
+        "INT01-15",
+        "INT01-16",
+        "INT01-17",
+        "INT01-20",
+        "INT01-21",
+        "INT01-22",
+        "INT01-23",
+        "INT01-24",
+        "INT01-25",
+        "INT01-26",
+        "INT01-27",
+        "INT01-28",
+        "INT01-29",
+        "INT01-30",
+        "INT03-02",
+        "INT03-03",
+        "INT03-10",
+        "INT03-11",
+        "INT03-19",
+        "INT04-02",
+        "INT04-03",
+        "INT04-04",
+        "INT04-05",
+        "INT04-06",
+        "INT04-07",
+        "INT04-09",
+        "INT04-10",
+        "INT04-11",
+        "INT04-12",
+        "INT04-13",
+        "INT04-14",
+        "INT04-15",
+        "INT04-17",
+        "INT04-18",
+        "INT04-19",
+        "INT04-21",
+        "INT04-22",
+        "INT04-23",
+        "INT04-24",
+        "INT04-25",
+        "INT05-07",
+        "INT05-09",
+        "INT05-13"
+      ],
+      "vb": "MSG_0008G／完了「登録を完了しました。」／OK",
+      "web": "登録が完了しました。",
+      "state": "INT01の共通M3／INT03の期待にWeb文言が残る。INT04とINT05-07・09はVBへ訂正済みだがWeb実装差は残る。INT05-13の「登録確認OK→完了」は具体文言の補足が必要。",
+      "fix": "登録成功後の期待は「登録を完了しました。」。実機のWeb文言は別欄に記録する。保存のDB確認を文言だけで再実行しない。",
+      "refs": [
+        "VB1005Screen.UpdateButton_Click（MSG_0008）",
+        "VB2006Screen.UpdateButton_Click",
+        "Web1005Controller登録処理",
+        "Web2006Controller.save"
+      ]
+    },
+    {
+      "key": "D02",
+      "title": "申請完了文言",
+      "cases": [
+        "INT01-30",
+        "INT02-01",
+        "INT02-02",
+        "INT02-07",
+        "INT02-08",
+        "INT02-09"
+      ],
+      "vb": "MSG_0121G／完了「申請を完了しました。」／OK",
+      "web": "申請が完了しました。",
+      "state": "INT01の共通M5と30、INT02の共通SにWeb文言が残る。",
+      "fix": "共通S／M5を参照する期待は「申請を完了しました。」。登録と申請の完了を混同しない。",
+      "refs": [
+        "VB1005Screen.SinseiButton_Click（MSG_0121）",
+        "Web1005Controller申請処理"
+      ]
+    },
+    {
+      "key": "D03",
+      "title": "過去日の変更確認",
+      "cases": [
+        "INT01-20"
+      ],
+      "vb": "MSG_0117G／確認「開始日に過去日を設定すると、登録後に開始日が編集出来なくなります。」／OK・キャンセル",
+      "web": "過去日を指定すると開始日を変更できなくなります。処理を続行してもよろしいですか？",
+      "state": "INT01の共通M6と20にWeb文言が残る。",
+      "fix": "期待はVB全文。確認OKで変更へ進む。Web文言は内容が似ていても一致としない。",
+      "refs": [
+        "VB1005TabControl.HenkoButton_Click（MSG_0117）",
+        "Web1005画面の変更ボタンJS"
+      ]
+    },
+    {
+      "key": "D04",
+      "title": "未登録の案を変更する確認",
+      "cases": [
+        "INT01-22"
+      ],
+      "vb": "MSG_0118G／確認「未登録タブのため、変更を行うと現在のタブの情報が変更内容に差し変わります。」／OK・キャンセル",
+      "web": "未登録の選定内容を変更します。よろしいですか？",
+      "state": "INT01-22にWebの短縮文言が残る。",
+      "fix": "VBは「現在のタブの情報が変更内容に差し変わります」までを表示する。未登録案の置換確認として全文を記載。",
+      "refs": [
+        "VB1005TabControl.HenkoButton_Click（MSG_0118）",
+        "Web1005画面selectionPendingの確認JS"
+      ]
+    },
+    {
+      "key": "D05",
+      "title": "期間の大小エラー",
+      "cases": [
+        "INT01-30"
+      ],
+      "vb": "MSG_0027E／入力エラー「開始日は終了日よりも前の日付で入力して下さい。」／OK",
+      "web": "期間の終了日は開始日より後の日付を指定してください。",
+      "state": "INT01-30①②は明示的にWebエラーを記載。VB期待とは文言差がある。",
+      "fix": "VB期待とWeb観測値を分ける。点検・支払回数のエラーはMSG_0103E／0104Eで、同じ期間エラーにまとめない。",
+      "refs": [
+        "VB1005Screen登録前チェック（MSG_0027）",
+        "Web1005Service保存前期間チェック"
+      ]
+    },
+    {
+      "key": "D06",
+      "title": "承認申請一覧の承認・差戻し完了",
+      "cases": [
+        "INT02-26",
+        "INT02-27",
+        "INT02-28"
+      ],
+      "vb": "MSG_0090G／完了「審査・承認を完了しました。」／OK<br>MSG_0096G／完了「差戻しを完了しました。」／OK",
+      "web": "1件を承認しました。／1件を差戻しました。",
+      "state": "INT02-26～28はWeb成功案内として記載済み。VB完了全文は別記載が必要。",
+      "fix": "VB3001Uの承認は「審査・承認を完了しました。」、差戻しは「差戻しを完了しました。」。件数案内をVBメッセージと扱わない。",
+      "refs": [
+        "VB3001Screen承認MSG_0094→0090／差戻しMSG_0095→0096",
+        "Web3001Controller.approve／reject"
+      ]
+    },
+    {
+      "key": "D07",
+      "title": "管理者用ロック解除の追加通知",
+      "cases": [
+        "INT02-02",
+        "INT02-08"
+      ],
+      "vb": "VB1005UのLockReleaseButton_Clickは再読込とView。解除専用のDisplayMessage呼出なし。",
+      "web": "管理者用ロックを解除しました。最新の登録内容を表示します。",
+      "state": "INT02-02の「解除通知」はWeb追加通知。08も解除操作を含むため区別が必要。",
+      "fix": "解除そのものと解除後の登録／申請メッセージを分ける。VBにも同じ解除完了文言があるとは記載しない。",
+      "refs": [
+        "VB1005Screen.LockReleaseButton_Click 2185～2198",
+        "Web1005Controller.releaseLock"
+      ]
+    },
+    {
+      "key": "D08",
+      "title": "3007U検索0件",
+      "cases": [
+        "INT05-06"
+      ],
+      "vb": "MSG_0002E／検索エラー「検索結果が1件も存在しません。」／OK",
+      "web": "対象データが存在しません。",
+      "state": "INT05-06の期待欄はWeb文言のまま。",
+      "fix": "VB0件期待は「検索結果が1件も存在しません。」。3段クリアと旧操作不可は機能判定、文言は別判定。",
+      "refs": [
+        "VB3007Screen.Search（MSG_0002）",
+        "Web3007Controller.search"
+      ]
+    },
+    {
+      "key": "D09",
+      "title": "3007Uの過去支払破棄拒否",
+      "cases": [
+        "INT05-11"
+      ],
+      "vb": "MSG_0026E／排他エラー「取引先への支払が発生している為、破棄する事が出来ません。」／OK",
+      "web": "既に支払い明細が存在するため、この取引先契約を破棄できません。",
+      "state": "INT05-11はVB期待とWeb専用文言の差を訂正・明記済み。Web実装差は残る。",
+      "fix": "1009U／1010Uの同条件と3007Uを同じ拒否目的で比較しつつ、文言の一致はVB全文で判定。",
+      "refs": [
+        "VB3007Screen取引先破棄（MSG_0026）",
+        "Web3007Service.discard"
+      ]
+    },
+    {
+      "key": "D10",
+      "title": "契約破棄後のWeb追加通知",
+      "cases": [
+        "INT03-04",
+        "INT03-06",
+        "INT03-07",
+        "INT03-12",
+        "INT03-14",
+        "INT03-15",
+        "INT05-08",
+        "INT05-10"
+      ],
+      "vb": "MSG_0066G／確認「契約を破棄します。よろしいですか？」／OK・キャンセル<br>調査したVB破棄イベントは更新後に再検索する。専用「契約を破棄しました。」の呼出はない。",
+      "web": "契約を破棄しました。",
+      "state": "INT03は確認後の完了として記載。INT05はWeb追加通知と明記済み。",
+      "fix": "MSG_0066Gは確認メッセージ。Webの追加通知はVBの完了メッセージへ対応付けない。追加表示の採否は移行判断とし、勝手に禁止仕様へ変更しない。",
+      "refs": [
+        "VB1009／1010／3007Screenの契約破棄イベント",
+        "Web1009／1010／3007Controller破棄後通知"
+      ]
+    },
+    {
+      "key": "D11",
+      "title": "本人依頼だけを選んだ製番確認の順序",
+      "cases": [
+        "INT05-18"
+      ],
+      "vb": "MSG_0146G／入力エラー「確認する製番が選定されていません。」／OK<br>本人／済を除外→有効対象0なら通知して終了。確認MSG_0147Gは表示しない。",
+      "web": "チェック件数があれば先に確認ダイアログを出し、OK後のServiceで本人を除外して対象なし通知。",
+      "state": "INT05-18はこの順序差を本文に明記済み。文言自体は一致。",
+      "fix": "文言差と順序差を分ける。本人だけの条件でVBと同じ確認順序だと誤判定しない。",
+      "refs": [
+        "VB3008Screen.KAKUNINButton_Click 83～120",
+        "Web3008画面doConfirm／Service.confirm"
+      ]
+    },
+    {
+      "key": "D12",
+      "title": "後発操作の拒否は合意・実機確認待ち",
+      "cases": [
+        "INT03-08",
+        "INT03-16",
+        "INT05-17"
+      ],
+      "vb": "VBの同時操作で表示する全文は、このMDでは確定しない。期待する先行保護と追加拒否の合意を確認する。",
+      "web": "INT03は「対象の契約が存在しないか、他のユーザーにより変更されました。再検索してください。」又は完了。製番後発は更新0件でも完了通知候補。",
+      "state": "実機・共通排他例外の条件が未確定。確定文言差と別管理。",
+      "fix": "推測のVBメッセージIDを割り当てない。先行のDB保護・後発通知・再検索結果を別記録。",
+      "refs": [
+        "INT03 Q-INT03-CONFLICT",
+        "INT05 Q06",
+        "Web3008Repository.confirmSeiban／Service.confirm"
+      ]
+    },
+    {
+      "key": "D13",
+      "title": "捺印失敗・申請更新のWeb専用エラー",
+      "cases": [
+        "INT02-12",
+        "INT02-13"
+      ],
+      "vb": "対応するVBの表示全文・例外経路は未確定。Webの文章をそのままVB期待へ採用しない。",
+      "web": "図形欠落：「添付帳票に捺印用の図形がありません。帳票を確認してください。」<br>読込不能：「添付帳票の捺印に失敗しました。ファイルと保存先を確認してください。」<br>申請更新：「申請が更新されたか、処理できない状態です。再検索してください。」",
+      "state": "INT02はWeb通知として明記。VBとの文言一致とは未確認。",
+      "fix": "異常時の中止・DB／資料の保護は既存ケースで確認し、VB全文は例外経路の追加確認で確定する。",
+      "refs": [
+        "Web1011NatsuinService",
+        "Web1011Service.validateCurrent",
+        "INT02該当本文"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\80_INT01_結合テスト仕様書MD\\INT01_取引先契約_結合テスト仕様書_修正版全文.md",
+      "sha256": "883111a7721a65a8f0125ced4a1b4719da851136873111a47d7a189625c182fd"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\81_INT02_結合テスト仕様書MD\\INT02_審査承認_結合テスト仕様書_修正版全文.md",
+      "sha256": "bacd9405afd44d3e4d142654a585865ec32c36a2d1257f10b5e5002bf95f3d1e"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\82_INT03_結合テスト仕様書MD\\INT03_パック店舗直_結合テスト仕様書_修正版全文.md",
+      "sha256": "7192f8e6e754f1ca82833927208ea060b1d279b7edc0c2d7724ece1fe98bcc9a"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\83_INT04_結合テスト仕様書MD\\INT04_ユーザー契約_結合テスト仕様書_修正版全文.md",
+      "sha256": "8d02089fbfc2693a15b48f3057bfe15941198161d4504f919bca607e753e8dd2"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\84_INT05_結合テスト仕様書MD\\INT05_製番契約解約_結合テスト仕様書_修正版全文.md",
+      "sha256": "f2e352e532e24f18cad9cf4774808b457af20528f7af9c36c4e5ca13211b143d"
+    }
+  ],
+  "message_source": {
+    "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\10_FRAMEWORK\\CPMessage.xml",
+    "sha256": "cbc5dca4f56bea1d552050aee26d384ca4b3707ef29ab0792883c2c63085d797"
+  },
+  "web_evidence": [
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\controller\\Mcm1005uController.java",
+      "sha256": "94317c716a10d23b124fb0115c00a86e1b8bae312b02a59d1e121f911b5afd5b"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\controller\\Mcm2006uController.java",
+      "sha256": "c13f12238ee65430fc3c699129051ea0be00057640a85a26a0e8df1e72469dbe"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\controller\\Mcm3001uController.java",
+      "sha256": "c171c63e2ddc112679854e3eb8bfa36facaa359154db69684ecb662abfac01c5"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\controller\\Mcm3007uController.java",
+      "sha256": "538ce4fdc03022b8900be29b907a6fcba1801e7956cc54d27680059aaf3bcc87"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\service\\Mcm3007uService.java",
+      "sha256": "28d6397cc0a3166b5c8efe80c0b230e3c46ba9b7b423c51f464e8c857ed6f61e"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\resources\\templates\\mcm1005u\\index.html",
+      "sha256": "61e41a94427ac851037d92beb07be2e2c27ffecf3c5c9e824a39db27505ce6d0"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\resources\\templates\\mcm3008u\\index.html",
+      "sha256": "2f04a24e6a6c955c3f4f0fde55d436f3932c35fa1af3e7e23eb26382980d9f38"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\service\\Mcm3008uService.java",
+      "sha256": "d87200cdf0f0feeeb93773f7ea7af7bceb8565569f64b25c13f3308e27449908"
+    }
+  ],
+  "not_verified": [
+    "VB実機",
+    "Web実機と配備版",
+    "独立した人のレビュー",
+    "共通排他・捺印失敗のVB全文"
+  ],
+  "output_sha256": "3d6fc8a81334f2d5ffc4044723f4eb610b8b39cc513f330efdac0fe0d8a24ce8",
+  "broken_links": []
+}
