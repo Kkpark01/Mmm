@@ -1,0 +1,182 @@
+{
+  "日付": "2026-10-16",
+  "対象": "INT02手順整合修正案4項目",
+  "項番別検査": [
+    {
+      "項番": "INT02-08",
+      "元Excel行": 17,
+      "分類": "正常系",
+      "操作手順数": 9,
+      "構造・手順参照": "合格",
+      "元実績": "未実施を維持"
+    },
+    {
+      "項番": "INT02-12",
+      "元Excel行": 21,
+      "分類": "異常系",
+      "操作手順数": 7,
+      "構造・手順参照": "合格",
+      "元実績": "未実施を維持"
+    },
+    {
+      "項番": "INT02-15",
+      "元Excel行": 24,
+      "分類": "正常系",
+      "操作手順数": 8,
+      "構造・手順参照": "合格",
+      "元実績": "未実施を維持"
+    },
+    {
+      "項番": "INT02-28",
+      "元Excel行": 37,
+      "分類": "正常系",
+      "操作手順数": 7,
+      "構造・手順参照": "合格",
+      "元実績": "未実施を維持"
+    }
+  ],
+  "内容の静的確認": [
+    {
+      "項番": "INT02-08",
+      "確認": "Bのメニュー起動・サポートID入力後に審査中検索、Cが承認中検索。差戻し前後と再申請後のDB期待をVBへ照合。"
+    },
+    {
+      "項番": "INT02-12",
+      "確認": "失敗資料1件に限定し、承認中検索後に審査中へ戻して取得。図形参照例外と保存Falseを区別し、Web案内文をVB同一としない。旧12-Cは未確認。"
+    },
+    {
+      "項番": "INT02-15",
+      "確認": "審査・承認の上限同額/1円超過の4条件。選択可否確認後に処理し、各処理後に状態を含めて再検索。VBの超過比較と画面の活性条件へ照合。"
+    },
+    {
+      "項番": "INT02-28",
+      "確認": "審査中からの差戻し1条件に統一。NO列とメニュー名をWebへ、状態4・期間0と確認/完了IDをVB差戻し処理へ照合。"
+    }
+  ],
+  "VBメッセージ定義照合": [
+    "MSG_0007G",
+    "MSG_0090G",
+    "MSG_0094G",
+    "MSG_0095G",
+    "MSG_0096G",
+    "MSG_0120G",
+    "MSG_0121G"
+  ],
+  "画面名称確認": "MenuService・1011U/3001U/1005U/3006U画面定義へ照合",
+  "元資料不変": [
+    {
+      "path": "C:\\Users\\teras\\.codex\\codex-remote-attachments\\01a143f5-44d6-76c0-be3b-e8bf5b38c833\\BABEBF3B-AF7B-408D-BA95-3FCDF1859151\\1-MCM契-解約機能_結合テスト仕様書-261009版-1-.xlsx",
+      "sha256": "9f09dd61de3dc6a97de7a0df525004adf884512e306872a02086763ee966c5ab",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\81_INT02_結合テスト仕様書MD\\INT02_審査承認_結合テスト仕様書_修正版全文.md",
+      "sha256": "bacd9405afd44d3e4d142654a585865ec32c36a2d1257f10b5e5002bf95f3d1e",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\81_INT02_結合テスト仕様書MD\\README.md",
+      "sha256": "6a201a8478e0405b84ce1b2f8394d2a0ff01feef59660f996b3499e4fcbfb5dd",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\90_INT02_5項目_簡潔化修正案\\INT02_03_06_07_10_11_修正案.md",
+      "sha256": "ba89f1f99e8676d2a5313b862ad8fe4dd41603f26555904fa28d072e47fd5f84",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\90_INT02_5項目_簡潔化修正案\\README.md",
+      "sha256": "3d1d8412ed7f6804fb73aa14d58c4d5e0259a75cd30cd2c92bcb68a6be17d0fe",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\90_INT02_5項目_簡潔化修正案\\検証結果.json",
+      "sha256": "2d988b74143dca1edfce036928635866fb1ef6c481ae11a089f0ac4a7fe96572",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\30_APPLICATION\\20_CONSUMER\\MCM1011U\\Mcm1011uScreen.vb",
+      "sha256": "55606ae59f5e2dc1ba74ca5298d92685f4cc75e2b6692311972fd7a637e173de",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\30_APPLICATION\\20_CONSUMER\\MCM1011U\\Mcm1011uExcel.vb",
+      "sha256": "c46b9c5b89ecab7f8cbf7c8461191673f782d33fc62de74f1f479b577c3e391f",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\30_APPLICATION\\20_CONSUMER\\MCM1005U\\Mcm1005uScreen.vb",
+      "sha256": "e50175e2bda78010d661bcb40b984f796b2d651c2aae2ec2b3aef4ec66d35abd",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\30_APPLICATION\\40_ETC\\MCM3001U\\Mcm3001uScreen.vb",
+      "sha256": "46c82deaf0227a7c51c00499cae2d27a4bca475c706a2371efa828b889798ab0",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\10_FRAMEWORK\\EXCEL\\CPExcelManager.vb",
+      "sha256": "0a285f9107c6738feb13d5be41aee287e6a0a91173d51ca690e3dc2c5455ed4b",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\10_FRAMEWORK\\COMPONENT\\CPButton.vb",
+      "sha256": "0b24bc3afe077f7f2f25b9e7ceb4e8c5bd6da8904a545797d763cd735d9943ad",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\MCM_javaコンバート用\\MCM_作業用\\MCM_作業用\\10_FRAMEWORK\\CPMessage.xml",
+      "sha256": "cbc5dca4f56bea1d552050aee26d384ca4b3707ef29ab0792883c2c63085d797",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\resources\\templates\\mcm1011u\\index.html",
+      "sha256": "b51f917e05423d4375806c9824bf8a2cc67708ea8ca9251e75a6164ce6d7a23e",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\resources\\templates\\mcm3001u\\index.html",
+      "sha256": "ce5faf184a1e9dc1aa4b78b7e3f277c537be73f7bce989a4238894b6d2380fbf",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\resources\\templates\\mcm1005u\\index.html",
+      "sha256": "61e41a94427ac851037d92beb07be2e2c27ffecf3c5c9e824a39db27505ce6d0",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\resources\\templates\\mcm3006u\\index.html",
+      "sha256": "40cba62c47e7d4c90454cfd12f4c8197b724f7e273fcecfaf28bb96bb43bc8da",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\service\\MenuService.java",
+      "sha256": "25c63d0404b264fd73baf6ad2ba4a18298aa8e7c1b5950155fde44f916395f1e",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\service\\Mcm1011uService.java",
+      "sha256": "043f97b8fd73b5275ffa6680f60ade216e37816bbfd9543fcb0bdee539247474",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\service\\Mcm1011uNatsuinService.java",
+      "sha256": "7f89a7c958090ca34e49a41fb99ccd2e6f1ca3c91a47e685ea7fb56ae4b74d3b",
+      "不変": true
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\mcm-web\\src\\main\\java\\com\\daifuku\\mcm\\repository\\Mcm3001uRepository.java",
+      "sha256": "2257ba14412409eac4399d257035b8462b53f14aa623e698e628473066178750",
+      "不変": true
+    }
+  ],
+  "未確認": [
+    "VB・Webの実機操作",
+    "実DB",
+    "Officeでの異常資料・押印表示",
+    "旧12-Cの先行資料復元範囲",
+    "3001Uの承認中からの差戻し",
+    "Excel反映・印刷"
+  ],
+  "変更範囲": "91フォルダのMarkdown2件・検証結果JSONのみ"
+}
