@@ -1,0 +1,24 @@
+{
+  "status": "保存失敗部分の差替案作成。対象原文・手順6以降確認待ち。ケース全文とExcelは未確定・未反映。",
+  "checks": {
+    "保存失敗通知を必須にしない": true,
+    "エラー非表示を要求しない": true,
+    "状態と審査情報とDBを照合": true,
+    "サーバー実体の比較": true,
+    "保存の失敗と前段エラーを分離": true,
+    "成功後に失敗の証拠を採らない": true,
+    "原文不一致の適用保留": true,
+    "成功手順を捏造しない": true,
+    "実装を変えない": true,
+    "原本Excel不変": true
+  },
+  "baseline_workbook": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\109_INT04_修正反映Excel\\MCM契・解約機能_結合テスト仕様書(261009版)_INT02～INT06修正版.xlsx",
+  "baseline_sha256": "b9305485535620954f45d6b5f3b59d52f0d2aab5f32e8098327c1c15a4b46c86",
+  "baseline_case": {
+    "id": "INT02-05",
+    "row": 14,
+    "title": "MCM1011U(審査・承認（取引先契約）)→MCM1005U(取引先契約内容)：最終承認で、契約と対象の添付が承認済になり、期間が有効になること"
+  },
+  "app_modified": false,
+  "runtime_tested": false
+}
