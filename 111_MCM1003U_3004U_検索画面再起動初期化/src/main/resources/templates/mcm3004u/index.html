@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<!--
+  【変換元】Mcm3004uScreen.Designer.vb / Mcm3004uScreen.vb
+  MCM3004U — 作業予定検索
+  【デザイン参照】VB版 実画面キャプチャ ＋ Mcm3004uScreen.Designer.vb の座標
+                  ／ MCM1003U（紫帯ヘッダー）／ MCM3003U（閉じるボタン配置）
+
+  ■ VB版レイアウト（TabPage1 を代表例として座標を記載。他タブも同一構造）
+    VBコントロール                位置(X,Y)    Size    → Web要素
+    tab                           (3,3)      1240x900 → div.tab-bar + div.tab-body
+    STANDARD_MONTHTextBox1        (6,8)        55x19  → input.field-month（LightCyan＝必須）
+    FromLabel1   "から"           (67,11)             → span.from-label（MS UI Gothic 9pt Bold / 赤）
+    TARGET_PERIODTextBox1         (96,8)       25x19  → input.field-period（右寄せ / MaxLength=2）
+    ContractLabel1 "ヶ月以内に…"  (127,11)            → span.cond-note
+    SearchButton1  "検索"         (1151,6)     75x23  → button.btn-action（条件行の右端）
+
+  ■ 選択肢（ラジオ／チェック）の位置：いずれも条件入力の右側 X=369 に配置される
+    TabPage2 JokenRadioButton1  (369, 5) "全て"（既定ON）
+             JokenRadioButton2  (369,23) "通常契約"
+             JokenRadioButton3  (369,42) "パック契約"          → div.choice-group（縦3段）
+    TabPage5 FusokuRadioButton1 (369, 6) "ユーザ契約を基準に…"（既定ON）
+             FusokuRadioButton2 (369,24) "取引先契約を基準に…" → div.choice-group（縦2段）
+    TabPage8 KanryoCheckBox     (369, 9) "完了したものも含む"  → label.check-label（条件と同じ行）
+    ※ Web版は基準月テキスト(X=6)から 363px の固定幅ブロック(.cond-main)を置くことで
+      選択肢の開始 x を VB版と一致させている。
+
+  ■ TabPage9（取引先契約確認）は他タブと入力構造が異なり2行構成
+    KAISI_DTLabel  "日付"        (6,8)    赤太字 → span.cond-label.required-label（ラベル欄84px）
+    KAISI_DTTextBox              (90,5)   75x19  → input.field-date（LightCyan＝必須）
+    SearchButton9  "検索"        (1151,6) 75x23  → button.btn-action（1行目の右端）
+    TorihikisakiCdLabel  "取引先コード" (6,33)   → span.cond-label
+    TorihikisakiCdTextBox        (90,30)  84x19  → input.field-code（White＝任意）
+    TorihikisakimeiLabel "取引先名"     (205,33) → span.cond-label-mei
+    TorihikisakimeiTextBox       (274,30) 448x19 → input.field-name（White＝任意）
+    ExcelOutputButton1 "Excel出力"(1151,846)   75x23  → button.btn-action（画面右下）
+    MCM_ALERT1_VDataGridView                          → table.data-grid
+
+  ■ タブ（VB: tab.Controls.Add の順＝画面上の表示順）
+    1 ユーザ契約終息確認        (TabPage1 / MCM_ALERT1_V)
+    2 取引先契約終息確認        (TabPage2 / MCM_ALERT2_V)     ＋ 全て/通常契約/パック契約
+    3 個体終息確認（通常更新）  (TabPage3 / MCM_ALERT3_V)
+    4 個体終息確認（契約完了）  (TabPage4 / MCM_ALERT4_V)
+    5 契約差異確認              (TabPage5 / MCM_ALERT5_V)     ＋ UKA基準/TKA基準
+    6 不足製番確認              (TabPage7 / MCM_ALERT6_V)     対象期間の初期値は13
+    7 予定登録検索              (TabPage8 / MCM_MO_SAGYOYOTEI) ＋ 完了したものも含む
+    8 バッテリー交換            (TabPage6 / MCM_ALERT8_V)
+    9 取引先契約確認            (TabPage9 / MCM_ALERT9_V)     日付/取引先コード/取引先名
+
+  ■ Web版での扱い
+    ・VB版はタブを切り替えても各タブの DataGridView の内容が保持されるため、
+      9タブ分のグリッドをすべて出力し JavaScript で表示切替する（サーバ通信なし）。
+    ・検索／Excel出力は activeTab を hidden で送信し、サーバ側で対応するタブの
+      処理へ振り分ける（VB: SearchButtonN_Click / ExcelOutputButtonN_Click）。
+    ・各グリッドの先頭には VB版 DataGridView の行ヘッダー列（RowHeadersVisible は既定の
+      True、既定幅41px、横スクロール時も固定）を再現した th/td.row-header を出力する。
+      9グリッドすべて RowNumberDisplay = True のため、CPDataGridView.RowPostPaint と同様に
+      1始まりの行番号を右詰で表示し、選択行には WinForms の現在行マーカー ▶ を表示する。
+    ・タブ7「登録ID」列は CPDataGridLinkColumn（リンク列）。押下で MCM3005U へ遷移する。
+    ・タブ9の金額4列は利用権限区分3が0以下のとき非表示（VB: Mcm3004uScreen_Load）。
+-->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}" lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="_csrf"        th:content="${_csrf != null} ? ${_csrf.token}      : ''"/>
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''"/>
+    <title>作業予定検索（MCM3004U）</title>
+    <style>
+        /* ===== 共通レイアウト（MCM1003U / MCM3003U 準拠） ===== */
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0; font-family: "Segoe UI","Yu Gothic UI","Meiryo",sans-serif; font-size: 12px;
+            color: #333; background: #f4f6f7;
+            /* [MCM1003U準拠] 画面外周パディング：ヘッダーを画面端から8px内側に配置する */
+            padding: 8px;
+        }
+        button, .btn-close { cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+        .screen {
+            display: flex; flex-direction: column;
+            position: relative; height: calc(100vh - 16px); min-height: 320px;
+            background: #f0f0f0; border: 1px solid #d5dbdb;
+        }
+
+        /* ヘッダー（MCM1003U準拠：帯の太さ40px・文字サイズ18px） */
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            background-color: #453f78; color: #fff;
+            height: 40px; min-height: 40px; padding: 0 10px;
+        }
+        .header .header-center { flex: 1; min-width: 0; text-align: center; }
+        .header .header-center h1 {
+            margin: 0; font-size: 18px; font-weight: bold; color: #fff;
+            letter-spacing: 2px; line-height: 30px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .header .header-left, .header .header-right { display: flex; align-items: center; min-width: 90px; }
+        .btn-close {
+            position: absolute; top: 7px; right: 10px; display: inline-block;
+            padding: 2px 12px; font-size: 12px; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad; text-decoration: none;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
+        }
+        .btn-close:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .btn-close:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+
+        /* ===== タブ（VB: CPTabControl） ===== */
+        .tab-bar {
+            display: flex; align-items: flex-end; gap: 0;
+            padding: 3px 3px 0; background: #f0f0f0;
+            border-bottom: 1px solid #a0a0a0; overflow-x: auto;
+            /* 【不具合修正】overflow-x:auto だけを指定すると overflow-y も auto 扱いになり、
+               選択中タブの margin-bottom:-1px（下線との重ね）で1px溢れた分、
+               タブ帯の右端（閉じるボタンの下）に不要な縦スクロールバーが表示されていた。
+               タブ帯は1行固定（VB: Multiline=False）のため縦方向は常に非表示にする。 */
+            overflow-y: hidden;
+        }
+        .tab-btn {
+            padding: 3px 8px; font-family: inherit; font-size: 12px; color: #000;
+            background: #f0f0f0; border: 1px solid #a0a0a0; border-bottom: none;
+            border-radius: 0; margin-right: -1px; white-space: nowrap; line-height: 1.5;
+        }
+        .tab-btn:hover:not(.active) { background: #e5f1fb; }
+        .tab-btn.active {
+            background: #fff; font-weight: bold;
+            position: relative; z-index: 1; padding-bottom: 4px; margin-bottom: -1px;
+        }
+        .tab-btn:focus-visible { outline: 2px solid #1a56db; outline-offset: -3px; }
+
+        /* タブ本体（VB: TabPage） */
+        .tab-body { flex: 1; display: flex; flex-direction: column; min-height: 0; background: #f0f0f0; }
+
+        /* ===== 検索条件エリア ===== */
+        .cond-pane { display: none; padding: 6px; }
+        .cond-pane.active { display: block; }
+        .cond-row { display: flex; align-items: center; min-height: 25px; }
+        .cond-row + .cond-row { margin-top: 4px; }
+        /* 選択肢（ラジオ／チェック）を伴う行は、VB版どおり上端そろえにする
+           （VB: SearchButton Y=6 / JokenRadioButton1 Y=5 / FusokuRadioButton1 Y=6 / KanryoCheckBox Y=9） */
+        .cond-row.has-choice { align-items: flex-start; }
+        /* VB: 基準月テキスト X=6 → 選択肢 X=369（差 363px）。
+           選択肢の開始位置をVB版と同じ x に固定するため左ブロックの幅を固定する。 */
+        .cond-main { display: flex; align-items: center; flex: 0 0 363px; min-height: 25px; }
+        /* VB: 選択肢は X=369 に縦積み（Y=5/23/42 ＝ 約18〜19px間隔） */
+        .choice-group { display: flex; flex-direction: column; padding-top: 3px; }
+        .choice-group > label { min-height: 18px; margin-right: 0; }
+        .cond-row input[type="text"] {
+            height: 21px; padding: 0 3px; font-family: inherit; font-size: 12px;
+            border: 1px solid #7a7a7a; border-radius: 0;
+        }
+        .cond-row input[type="text"]:focus { outline: 1px solid #7eb4ea; border-color: #7eb4ea; }
+        /* VB: STANDARD_MONTHTextBox（W55 / BackColor=LightCyan / Required=True） */
+        .field-month { width: 62px; background: #e0ffff; }
+        /* VB: TARGET_PERIODTextBox（W25 / 右寄せ / MaxLength=2 / BackColor=LightCyan） */
+        .field-period { width: 32px; background: #e0ffff; text-align: right; }
+        /* VB: KAISI_DTTextBox (90,5) W75 / BackColor=LightCyan / Required=True */
+        .field-date { width: 80px; background: #e0ffff; }
+        /* VB: TorihikisakiCdTextBox (90,30) W84 / BackColor=White（任意項目） */
+        .field-code { width: 90px; background: #fff; }
+        /* VB: TorihikisakimeiTextBox (274,30) W448 / BackColor=White（任意項目） */
+        .field-name { width: 448px; background: #fff; }
+        /* VB: FromLabel（MS UI Gothic 9pt Bold / ForeColor=Red） */
+        .from-label { margin: 0 6px; font-weight: bold; color: #f00; white-space: nowrap; }
+        .cond-note { margin-left: 6px; white-space: nowrap; }
+        /* タブ9のラベル列（VB: ラベル X=6 → テキスト X=90 ＝ ラベル欄 84px）
+           KAISI_DTLabel は MS UI Gothic 9pt Bold / ForeColor=Red の必須項目ラベル */
+        .cond-label { flex: 0 0 84px; white-space: nowrap; }
+        .cond-label.required-label { font-weight: bold; color: #f00; }
+        /* VB: TorihikisakimeiLabel X=205（取引先コード欄の右端 174 から 31px）→ テキスト X=274 */
+        .cond-label-mei { flex: 0 0 69px; margin-left: 31px; white-space: nowrap; }
+        .radio-label { display: flex; align-items: center; gap: 3px; margin-right: 16px; cursor: pointer; white-space: nowrap; }
+        .radio-label input { margin: 0; accent-color: #453f78; }
+        .check-label { display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; }
+        .check-label input { margin: 0; accent-color: #453f78; }
+        /* VB: SearchButton（X=1151 → 条件行の右端） */
+        .cond-row .spacer { flex: 1; min-width: 12px; }
+
+        /* VB: CPButton（WinForms標準 / Size = 75 x 23） */
+        .btn-action {
+            width: 84px; height: 23px; padding: 0 4px;
+            font-family: inherit; font-size: 12px; color: #000;
+            background-color: #f0f0f0; border: 1px solid #adadad;
+            border-radius: 2px; box-shadow: inset 0 1px 0 #fff; line-height: 1.6;
+        }
+        .btn-action:hover { background-color: #e5f1fb; border-color: #7eb4ea; }
+        .btn-action:active { background-color: #cce4f7; border-color: #005499; }
+        .btn-action:focus-visible { outline: 2px solid #1a56db; outline-offset: 1px; }
+
+        /* ===== グリッド（VB: CPDataGridView） ===== */
+        .grid-area { flex: 1; min-height: 0; padding: 0 6px; }
+        /* 【共通仕様5.9】背景色は common.css の .mcm-grid で管理する
+           （行の無い空き領域＝--color-grid-empty-bg、表示専用セル＝--color-readonly-bg、選択行＝--color-grid-selected） */
+        .grid-wrap { height: 100%; overflow: auto; border: 1px solid #a0a0a0; }
+        .grid-pane { display: none; }
+        .grid-pane.active { display: block; }
+        .data-grid {
+            border-collapse: separate; border-spacing: 0; table-layout: fixed;
+            font-size: 11px; white-space: nowrap; width: max-content; min-width: 100%;
+        }
+        .data-grid thead th {
+            position: sticky; top: 0; z-index: 5; background: #eef2f5;
+            border-right: 1px solid #b0bec5; border-bottom: 2px solid #b0bec5;
+            padding: 4px 6px; text-align: left; font-size: 11px; font-weight: normal;
+        }
+        .data-grid th:first-child, .data-grid td:first-child { border-left: 1px solid #d5dbdb; }
+        .data-grid td {
+            border-right: 1px solid #d5dbdb; border-bottom: 1px solid #d5dbdb;
+            padding: 2px 6px; vertical-align: middle; height: 22px; line-height: 18px;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        /* VB版 DataGridView は行ホバーで色が変わらないため、common.css の .mcm-grid ホバー色を打ち消す
+           （選択行は対象外。MCM0010U と同じ方式） */
+        .mcm-grid .data-grid tbody tr:hover:not(.selected) > td:not(.row-header) { background-color: var(--color-readonly-bg) !important; }
+        /* 表示専用のチェックボックスのみを含むセルも、他の表示専用セルと同じ背景色にする */
+        .mcm-grid tbody tr > td:where(:has(> input.grid-check)) { background-color: var(--color-readonly-bg) !important; }
+        /* 表示専用チェックボックス（VB: DataGridViewCheckBoxColumn ReadOnly）
+           disabled にするとブラウザがチェックを灰色で描画するため、disabled は使わず
+           操作だけを無効化し（pointer-events / onclick）、VB版と同じ青色のチェックで表示する。
+           【共通仕様5.10】行の高さが変わらないよう block 配置・左右中央にする。 */
+        .data-grid input.grid-check {
+            display: block; margin: 0 auto; accent-color: #0078d7;
+            pointer-events: none; cursor: default;
+        }
+        /* 行ヘッダー列
+           【変換元】CPDataGridView.vb CPDataGridView_RowPostPaint
+             RowNumberDisplay=True のとき、行ヘッダー領域に (RowIndex + 1) を
+             「縦方向中央・右詰（右端に4ドットのすき間）」で描画する。
+             MCM3004U の9グリッドすべてで RowNumberDisplay = True。
+           RowHeadersVisible は既定の True・既定幅41px で、横スクロールしても固定される。
+           選択行には WinForms 標準の現在行マーカー ▶ を左端に表示する。 */
+        .data-grid col.col-rowheader { width: 41px; }
+        .data-grid th.row-header, .data-grid td.row-header {
+            position: sticky; left: 0; z-index: 6;
+            width: 41px; padding: 2px 4px; text-align: right;
+            background: #eef2f5; border-right: 1px solid #b0bec5; color: #555;
+        }
+        .data-grid thead th.row-header { z-index: 7; }
+        /* 行ヘッダー（行番号）は表示専用セル・選択行の色を適用せず、見出しと同じ色のままにする */
+        .mcm-grid .data-grid tbody tr > td.row-header { background-color: #eef2f5 !important; }
+        .data-grid tbody tr.row-selected td.row-header::before {
+            content: '\25B6'; float: left; font-size: 9px; line-height: 18px;
+        }
+        .data-grid td.num { text-align: right; }
+        .data-grid td.center { text-align: center; }
+        .data-grid td.empty { text-align: center; color: #888; padding: 12px; }
+        /* VB: CPDataGridLinkColumn */
+        .grid-link { color: #0066cc; text-decoration: underline; }
+        .grid-link:visited { color: #551a8b; }
+
+        /* ===== フッター（VB: ExcelOutputButton は Y=846＝画面下部） ===== */
+        .footer-bar { display: flex; justify-content: flex-end; align-items: center; padding: 8px 6px; }
+    </style>
+    <link rel="stylesheet" th:href="@{/css/mcm-notifications.css(v=20260910)}"/>
+    <script defer th:src="@{/js/mcm-notifications.js(v=20260910)}"></script>
+</head>
+<body>
+<main layout:fragment="content">
+
+<!-- 共通通知：MSG_0002E（検索結果0件）・入力エラーはここから表示する -->
+<th:block th:replace="~{fragments/mcm-notifications :: messages(noticeMessage=${message}, noticeError=${error}, noticeErrors=${errors}, noticeInfo=${infoMessage})}"></th:block>
+
+<div class="screen">
+
+    <!-- ===== ヘッダー ===== -->
+    <div class="header">
+        <div class="header-left"></div>
+        <div class="header-center"><h1>作業予定検索（MCM3004U）</h1></div>
+        <div class="header-right"></div>
+    </div>
+
+    <!-- ===== タブバー（VB: tab.Controls.Add の順） ===== -->
+    <div class="tab-bar" role="tablist">
+        <button type="button" class="tab-btn" role="tab" th:each="n : ${#numbers.sequence(1, 9)}"
+                th:classappend="${form.activeTab == n} ? ' active'"
+                th:attr="data-tab=${n},aria-selected=${form.activeTab == n}"
+                th:text="${tabNames[n]}"
+                onclick="mcm3004uSwitchTab(this.getAttribute('data-tab'))">タブ</button>
+    </div>
+
+    <!-- 検索条件・Excel出力は同一フォーム。formaction で送信先を切り替える。
+         data-mcm-ignore-dirty: 検索条件の入力は未保存データではないため離脱確認の対象外
+         data-mcm-no-progress : Excel出力はファイルダウンロードでページ遷移しないため、
+                                共通プログレス表示（common.js）が消えなくなるのを防ぐ -->
+    <form th:action="@{/mcm3004u/search}" th:object="${form}" method="post"
+          class="tab-body" data-mcm-ignore-dirty data-mcm-no-progress>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" id="activeTabInput" name="activeTab" th:value="${form.activeTab}"/>
+
+        <!-- ================= タブ1 ユーザ契約終息確認 ================= -->
+        <div class="cond-pane" id="cond1" th:classappend="${form.activeTab == 1} ? ' active'">
+            <div class="cond-row">
+                <input type="text" th:field="*{kijunZuki1}" class="field-month" data-leave-check="month-search" maxlength="7"
+                       title="基準月をyyyy/MM形式で入力してください"/>
+                <span class="from-label">から</span>
+                <input type="text" th:field="*{taishoPeriod1}" class="field-period" data-leave-check="period" maxlength="2"
+                       title="対象期間（月数）を入力してください"/>
+                <span class="cond-note">ヶ月以内に満了となる契約</span>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ2 取引先契約終息確認 ================= -->
+        <div class="cond-pane" id="cond2" th:classappend="${form.activeTab == 2} ? ' active'">
+            <div class="cond-row has-choice">
+                <div class="cond-main">
+                    <input type="text" th:field="*{kijunZuki2}" class="field-month" data-leave-check="month-search" maxlength="7"/>
+                    <span class="from-label">から</span>
+                    <input type="text" th:field="*{taishoPeriod2}" class="field-period" data-leave-check="period" maxlength="2"/>
+                    <span class="cond-note">ヶ月以内に満了となる契約</span>
+                </div>
+                <!-- VB: JokenRadioButton1 (369,5) 全て・既定ON / 2 (369,23) 通常契約 / 3 (369,42) パック契約
+                     ＝ 条件入力の右側に縦3段で並ぶ -->
+                <div class="choice-group">
+                    <label class="radio-label"><input type="radio" th:field="*{jokenKbn2}" value="1"/>全て</label>
+                    <label class="radio-label"><input type="radio" th:field="*{jokenKbn2}" value="2"/>通常契約</label>
+                    <label class="radio-label"><input type="radio" th:field="*{jokenKbn2}" value="3"/>パック契約</label>
+                </div>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ3 個体終息確認（通常更新） ================= -->
+        <div class="cond-pane" id="cond3" th:classappend="${form.activeTab == 3} ? ' active'">
+            <div class="cond-row">
+                <input type="text" th:field="*{kijunZuki3}" class="field-month" data-leave-check="month" maxlength="7"/>
+                <span class="from-label">から</span>
+                <input type="text" th:field="*{taishoPeriod3}" class="field-period" data-leave-check="period" maxlength="2"/>
+                <span class="cond-note">ヶ月以内に自動更新となる個体</span>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ4 個体終息確認（契約完了） ================= -->
+        <div class="cond-pane" id="cond4" th:classappend="${form.activeTab == 4} ? ' active'">
+            <div class="cond-row">
+                <input type="text" th:field="*{kijunZuki4}" class="field-month" data-leave-check="month" maxlength="7"/>
+                <span class="from-label">から</span>
+                <input type="text" th:field="*{taishoPeriod4}" class="field-period" data-leave-check="period" maxlength="2"/>
+                <span class="cond-note">ヶ月以内に契約満了となる個体</span>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ5 契約差異確認 ================= -->
+        <div class="cond-pane" id="cond5" th:classappend="${form.activeTab == 5} ? ' active'">
+            <div class="cond-row has-choice">
+                <div class="cond-main">
+                    <input type="text" th:field="*{kijunZuki5}" class="field-month" data-leave-check="month" maxlength="7"/>
+                    <span class="from-label">から</span>
+                    <input type="text" th:field="*{taishoPeriod5}" class="field-period" data-leave-check="period" maxlength="2"/>
+                    <span class="cond-note">ヶ月以内に自動更新となる契約</span>
+                </div>
+                <!-- VB: FusokuRadioButton1 (369,6) 既定ON / FusokuRadioButton2 (369,24)
+                     ＝ 条件入力の右側に縦2段で並ぶ -->
+                <div class="choice-group">
+                    <label class="radio-label"><input type="radio" th:field="*{fusokuKbn5}" value="1"/>ユーザ契約を基準に取引先契約が不足しているもの</label>
+                    <label class="radio-label"><input type="radio" th:field="*{fusokuKbn5}" value="2"/>取引先契約を基準にユーザ契約が不足しているもの</label>
+                </div>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ6 不足製番確認 ================= -->
+        <div class="cond-pane" id="cond6" th:classappend="${form.activeTab == 6} ? ' active'">
+            <div class="cond-row">
+                <input type="text" th:field="*{kijunZuki6}" class="field-month" data-leave-check="month" maxlength="7"/>
+                <span class="from-label">から</span>
+                <input type="text" th:field="*{taishoPeriod6}" class="field-period" data-leave-check="period" maxlength="2"/>
+                <span class="cond-note">ヶ月以内に支払製番が不足する契約</span>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ7 予定登録検索 ================= -->
+        <div class="cond-pane" id="cond7" th:classappend="${form.activeTab == 7} ? ' active'">
+            <div class="cond-row">
+                <div class="cond-main">
+                    <input type="text" th:field="*{kijunZuki7}" class="field-month" data-leave-check="month" maxlength="7"/>
+                    <span class="from-label">から</span>
+                    <input type="text" th:field="*{taishoPeriod7}" class="field-period" data-leave-check="period" maxlength="2"/>
+                    <span class="cond-note">ヶ月以内の備忘録</span>
+                </div>
+                <!-- VB: KanryoCheckBox (369,9) 既定OFF ＝ 条件入力と同じ行の右側 -->
+                <label class="check-label"><input type="checkbox" th:field="*{kanryo7}"/>完了したものも含む</label>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ8 バッテリー交換 ================= -->
+        <div class="cond-pane" id="cond8" th:classappend="${form.activeTab == 8} ? ' active'">
+            <div class="cond-row">
+                <input type="text" th:field="*{kijunZuki8}" class="field-month" data-leave-check="month" maxlength="7"/>
+                <span class="from-label">から</span>
+                <input type="text" th:field="*{taishoPeriod8}" class="field-period" data-leave-check="period" maxlength="2"/>
+                <span class="cond-note">ヶ月以内にバッテリー交換が必要となる機器</span>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+        </div>
+
+        <!-- ================= タブ9 取引先契約確認 ================= -->
+        <div class="cond-pane" id="cond9" th:classappend="${form.activeTab == 9} ? ' active'">
+            <!-- 1行目 VB: KAISI_DTLabel (6,8) 赤太字 ／ KAISI_DTTextBox (90,5) ／ SearchButton9 (1151,6) -->
+            <div class="cond-row">
+                <span class="cond-label required-label">日付</span>
+                <input type="text" th:field="*{kaisiDt9}" class="field-date" data-leave-check="date-search" maxlength="10"
+                       title="日付をyyyy/MM/dd形式で入力してください"/>
+                <span class="spacer"></span>
+                <button type="submit" class="btn-action">検索</button>
+            </div>
+            <!-- 2行目 VB: TorihikisakiCdLabel (6,33) ／ TorihikisakiCdTextBox (90,30) W84
+                      ／ TorihikisakimeiLabel (205,33) ／ TorihikisakimeiTextBox (274,30) W448 -->
+            <div class="cond-row">
+                <span class="cond-label">取引先コード</span>
+                <input type="text" th:field="*{torihikisakiCd9}" class="field-code" maxlength="20"/>
+                <span class="cond-label-mei">取引先名</span>
+                <input type="text" th:field="*{torihikisakimei9}" class="field-name" maxlength="80"/>
+            </div>
+        </div>
+
+        <!-- ===================== グリッド ===================== -->
+        <div class="grid-area">
+            <div class="grid-wrap mcm-grid">
+
+            <!-- ---------- タブ1 MCM_ALERT1_V ---------- -->
+            <div class="grid-pane" id="grid1" th:classappend="${form.activeTab == 1} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:110px;"/><col style="width:90px;"/><col style="width:90px;"/>
+                    <col style="width:200px;"/><col style="width:80px;"/><col style="width:140px;"/>
+                    <col style="width:110px;"/><col style="width:85px;"/><col style="width:85px;"/>
+                    <col style="width:90px;"/><col style="width:110px;"/><col style="width:90px;"/>
+                    <col style="width:100px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>店舗</th><th>担当者</th><th>納入先コード</th><th>納入先名</th><th>サポートID</th>
+                    <th>プラント名</th><th>契約番号</th><th>契約日</th><th>解約日</th>
+                    <th>契約満了日</th><th>延長契約満了日</th><th>保守方法</th><th>保守契約時間帯</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab1Rows)}"><td class="empty" colspan="14">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab1Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.marTenporyakuNk}" th:title="${row.marTenporyakuNk}"></td>
+                    <td th:text="${row.marTantoNk}"></td>
+                    <td th:text="${row.nonyusakiCd}"></td>
+                    <td th:text="${row.nonyusakiNk}" th:title="${row.nonyusakiNk}"></td>
+                    <td th:text="${row.supportId}"></td>
+                    <td th:text="${row.plantNk}" th:title="${row.plantNk}"></td>
+                    <td th:text="${row.keiyakuNo}"></td>
+                    <td th:text="${row.keiyakuDt}"></td>
+                    <td th:text="${row.kaiyakuDt}"></td>
+                    <td th:text="${row.keiyakumanryoDt}"></td>
+                    <td th:text="${row.entyokeiyakumanryoDt}"></td>
+                    <td th:text="${row.hosyuhohoNk}"></td>
+                    <td class="num" th:text="${row.keiyakujikantai}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ2 MCM_ALERT2_V ---------- -->
+            <div class="grid-pane" id="grid2" th:classappend="${form.activeTab == 2} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:90px;"/><col style="width:180px;"/><col style="width:90px;"/>
+                    <col style="width:200px;"/><col style="width:80px;"/><col style="width:140px;"/>
+                    <col style="width:50px;"/><col style="width:110px;"/><col style="width:160px;"/>
+                    <col style="width:85px;"/><col style="width:85px;"/><col style="width:90px;"/>
+                    <col style="width:110px;"/><col style="width:90px;"/><col style="width:100px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>取引先コード</th><th>取引先名</th><th>納入先コード</th><th>納入先名</th>
+                    <th>サポートID</th><th>プラント名</th><th>パック</th><th>契約番号</th><th>契約内容</th>
+                    <th>契約日</th><th>解約日</th><th>契約満了日</th><th>延長契約満了日</th>
+                    <th>保守方法</th><th>保守契約時間帯</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab2Rows)}"><td class="empty" colspan="16">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab2Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.torihikisakiCd}"></td>
+                    <td th:text="${row.torihikisakiNk}" th:title="${row.torihikisakiNk}"></td>
+                    <td th:text="${row.nonyusakiCd}"></td>
+                    <td th:text="${row.nonyusakiNk}" th:title="${row.nonyusakiNk}"></td>
+                    <td th:text="${row.supportId}"></td>
+                    <td th:text="${row.plantNk}" th:title="${row.plantNk}"></td>
+                    <td class="center"><input type="checkbox" class="grid-check" tabindex="-1" aria-readonly="true" aria-label="パック" onclick="return false;" th:checked="${row.pack}"/></td>
+                    <td th:text="${row.keiyakuNo}"></td>
+                    <td th:text="${row.packkeiyakunaiyo}" th:title="${row.packkeiyakunaiyo}"></td>
+                    <td th:text="${row.keiyakuDt}"></td>
+                    <td th:text="${row.kaiyakuDt}"></td>
+                    <td th:text="${row.keiyakumanryoDt}"></td>
+                    <td th:text="${row.entyokeiyakumanryoDt}"></td>
+                    <td th:text="${row.hosyuhohoNk}"></td>
+                    <td class="num" th:text="${row.keiyakujikantai}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ3 MCM_ALERT3_V ---------- -->
+            <div class="grid-pane" id="grid3" th:classappend="${form.activeTab == 3} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:50px;"/><col style="width:110px;"/><col style="width:80px;"/>
+                    <col style="width:200px;"/><col style="width:140px;"/><col style="width:110px;"/>
+                    <col style="width:110px;"/><col style="width:160px;"/><col style="width:120px;"/>
+                    <col style="width:60px;"/><col style="width:90px;"/><col style="width:100px;"/>
+                    <col style="width:110px;"/><col style="width:90px;"/><col style="width:80px;"/>
+                    <col style="width:80px;"/><col style="width:90px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>CD</th><th>店舗</th><th>サポートID</th><th>ユーザ名</th><th>部署名</th>
+                    <th>ブランド</th><th>メーカー</th><th>品名</th><th>型式</th>
+                    <th>数量</th><th>単価</th><th>合計金額</th>
+                    <th>契約番号</th><th>契約期限</th><th>契約期間</th><th>見積取得</th><th>見積期限</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab3Rows)}"><td class="empty" colspan="18">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab3Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.marHyojijun}"></td>
+                    <td th:text="${row.marTenporyakuNk}" th:title="${row.marTenporyakuNk}"></td>
+                    <td th:text="${row.tkbSupportId}"></td>
+                    <td th:text="${row.tkbNonyusakiNk}" th:title="${row.tkbNonyusakiNk}"></td>
+                    <td th:text="${row.tkbNonyubusyoNk}" th:title="${row.tkbNonyubusyoNk}"></td>
+                    <td th:text="${row.tkeBrandNk}"></td>
+                    <td th:text="${row.tkdSeizomakerNk}"></td>
+                    <td th:text="${row.tkdKikihinmeiNk}" th:title="${row.tkdKikihinmeiNk}"></td>
+                    <td th:text="${row.tkdKikikatashiki}"></td>
+                    <td class="num" th:text="${row.suryoNm == null ? '' : #numbers.formatInteger(row.suryoNm, 1, 'COMMA')}"></td>
+                    <td class="num" th:text="${row.tankaKin == null ? '' : '¥' + #numbers.formatInteger(row.tankaKin, 1, 'COMMA')}"></td>
+                    <td class="num" th:text="${row.totalKin == null ? '' : '¥' + #numbers.formatInteger(row.totalKin, 1, 'COMMA')}"></td>
+                    <td th:text="${row.tkaKeiyakuNo}"></td>
+                    <td th:text="${row.keiyakumanryoDt}"></td>
+                    <td th:text="${row.keiyakuKikan}"></td>
+                    <td th:text="${row.mitsumoriWork}"></td>
+                    <td th:text="${row.mitsumoriEndDt}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ4 MCM_ALERT4_V ---------- -->
+            <div class="grid-pane" id="grid4" th:classappend="${form.activeTab == 4} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:50px;"/><col style="width:110px;"/><col style="width:80px;"/>
+                    <col style="width:200px;"/><col style="width:140px;"/><col style="width:110px;"/>
+                    <col style="width:110px;"/><col style="width:160px;"/><col style="width:120px;"/>
+                    <col style="width:60px;"/><col style="width:90px;"/><col style="width:100px;"/>
+                    <col style="width:110px;"/><col style="width:90px;"/><col style="width:80px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>CD</th><th>店舗</th><th>サポートID</th><th>ユーザ名</th><th>部署名</th>
+                    <th>ブランド</th><th>メーカー</th><th>品名</th><th>型式</th>
+                    <th>数量</th><th>単価</th><th>合計金額</th>
+                    <th>契約番号</th><th>契約期限</th><th>契約期間</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab4Rows)}"><td class="empty" colspan="16">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab4Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.marHyojijun}"></td>
+                    <td th:text="${row.marTenporyakuNk}" th:title="${row.marTenporyakuNk}"></td>
+                    <td th:text="${row.tkbSupportId}"></td>
+                    <td th:text="${row.tkbNonyusakiNk}" th:title="${row.tkbNonyusakiNk}"></td>
+                    <td th:text="${row.tkbNonyubusyoNk}" th:title="${row.tkbNonyubusyoNk}"></td>
+                    <td th:text="${row.tkeBrandNk}"></td>
+                    <td th:text="${row.tkdSeizomakerNk}"></td>
+                    <td th:text="${row.tkdKikihinmeiNk}" th:title="${row.tkdKikihinmeiNk}"></td>
+                    <td th:text="${row.tkdKikikatashiki}"></td>
+                    <td class="num" th:text="${row.suryoNm == null ? '' : #numbers.formatInteger(row.suryoNm, 1, 'COMMA')}"></td>
+                    <td class="num" th:text="${row.tankaKin == null ? '' : '¥' + #numbers.formatInteger(row.tankaKin, 1, 'COMMA')}"></td>
+                    <td class="num" th:text="${row.totalKin == null ? '' : '¥' + #numbers.formatInteger(row.totalKin, 1, 'COMMA')}"></td>
+                    <td th:text="${row.tkaKeiyakuNo}"></td>
+                    <td th:text="${row.keiyakumanryoDt}"></td>
+                    <td th:text="${row.keiyakuKikan}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ5 MCM_ALERT5_V ----------
+                 前半3列が取引先契約(TKA)、後半3列がユーザ契約(UKA)の契約情報。
+                 VB版も同名の見出しが2組並ぶ（Designer.vb の HeaderText どおり）。 -->
+            <div class="grid-pane" id="grid5" th:classappend="${form.activeTab == 5} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:90px;"/><col style="width:200px;"/><col style="width:80px;"/>
+                    <col style="width:140px;"/><col style="width:110px;"/><col style="width:90px;"/>
+                    <col style="width:110px;"/><col style="width:90px;"/><col style="width:180px;"/>
+                    <col style="width:110px;"/><col style="width:90px;"/><col style="width:110px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>納入先コード</th><th>納入先名</th><th>サポートID</th><th>プラント名</th>
+                    <th title="取引先契約">契約番号</th><th title="取引先契約">契約満了日</th>
+                    <th title="取引先契約">延長契約満了日</th>
+                    <th>取引先コード</th><th>取引先名</th>
+                    <th title="ユーザ契約">契約番号</th><th title="ユーザ契約">契約満了日</th>
+                    <th title="ユーザ契約">延長契約満了日</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab5Rows)}"><td class="empty" colspan="13">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab5Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.nonyusakiCd}"></td>
+                    <td th:text="${row.nonyusakiNk}" th:title="${row.nonyusakiNk}"></td>
+                    <td th:text="${row.supportId}"></td>
+                    <td th:text="${row.plantNk}" th:title="${row.plantNk}"></td>
+                    <td th:text="${row.tkaKeiyakuNo}"></td>
+                    <td th:text="${row.tkaKeiyakumanryoDt}"></td>
+                    <td th:text="${row.tkaEntyokeiyakumanryoDt}"></td>
+                    <td th:text="${row.tkbTorihikisakiCd}"></td>
+                    <td th:text="${row.tkbTorihikisakiNk}" th:title="${row.tkbTorihikisakiNk}"></td>
+                    <td th:text="${row.ukaKeiyakuNo}"></td>
+                    <td th:text="${row.ukaKeiyakumanryoDt}"></td>
+                    <td th:text="${row.ukaEntyokeiyakumanryoDt}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ6 MCM_ALERT6_V ---------- -->
+            <div class="grid-pane" id="grid6" th:classappend="${form.activeTab == 6} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:110px;"/><col style="width:80px;"/><col style="width:200px;"/>
+                    <col style="width:140px;"/><col style="width:100px;"/><col style="width:90px;"/>
+                    <col style="width:140px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>店舗</th><th>サポートID</th><th>納入先名</th><th>プラント名</th>
+                    <th>保守金額</th><th>最終年月</th><th>最終製番</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab6Rows)}"><td class="empty" colspan="8">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab6Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.marTenporyakuNk}" th:title="${row.marTenporyakuNk}"></td>
+                    <td th:text="${row.ukbSupportId}"></td>
+                    <td th:text="${row.ukbNonyusakiNk}" th:title="${row.ukbNonyusakiNk}"></td>
+                    <td th:text="${row.ukbPlantNk}" th:title="${row.ukbPlantNk}"></td>
+                    <td class="num" th:text="${row.ukbHosyuGkin == null ? '' : '¥' + #numbers.formatInteger(row.ukbHosyuGkin, 1, 'COMMA')}"></td>
+                    <td th:text="${row.syuryoDt}"></td>
+                    <td th:text="${row.hardSeiban}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ7 MCM_MO_SAGYOYOTEI（登録IDはMCM3005Uへのリンク） ---------- -->
+            <div class="grid-pane" id="grid7" th:classappend="${form.activeTab == 7} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:70px;"/><col style="width:90px;"/><col style="width:50px;"/>
+                    <col style="width:360px;"/><col style="width:260px;"/>
+                    <col style="width:140px;"/><col style="width:110px;"/>
+                    <col style="width:140px;"/><col style="width:110px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>登録ID</th><th>予定日</th><th>完了</th><th>内容</th><th>備考</th>
+                    <th>登録日時</th><th>登録者</th><th>更新日時</th><th>更新者</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab7Rows)}"><td class="empty" colspan="10">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab7Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td>
+                        <a class="grid-link"
+                           th:href="@{/mcm3004u/link/mcm3005u(torokuId=${row.torokuId})}"
+                           th:text="${row.torokuId}"></a>
+                    </td>
+                    <td th:text="${row.yoteiDt}"></td>
+                    <td class="center"><input type="checkbox" class="grid-check" tabindex="-1" aria-readonly="true" aria-label="完了" onclick="return false;" th:checked="${row.kanryo}"/></td>
+                    <td th:text="${row.naiyo}" th:title="${row.naiyo}"></td>
+                    <td th:text="${row.biko}" th:title="${row.biko}"></td>
+                    <td th:text="${row.createdDt}"></td>
+                    <td th:text="${row.createdBy}"></td>
+                    <td th:text="${row.lastupdateDt}"></td>
+                    <td th:text="${row.lastupdateBy}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ8 MCM_ALERT8_V ---------- -->
+            <div class="grid-pane" id="grid8" th:classappend="${form.activeTab == 8} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:80px;"/><col style="width:200px;"/><col style="width:110px;"/>
+                    <col style="width:140px;"/><col style="width:110px;"/><col style="width:80px;"/>
+                    <col style="width:90px;"/><col style="width:80px;"/><col style="width:60px;"/>
+                    <col style="width:110px;"/><col style="width:120px;"/><col style="width:130px;"/>
+                    <col style="width:95px;"/><col style="width:95px;"/><col style="width:80px;"/>
+                    <col style="width:80px;"/><col style="width:120px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>サポートID</th><th>お客様名</th><th>サービス店舗</th><th>システム名</th>
+                    <th>ブランド名</th><th>PC点検月</th><th>電池種類</th><th>種類</th><th>号機</th>
+                    <th>メーカー</th><th>装置型式</th><th>バッテリー型式</th>
+                    <th>納入年月日</th><th>期待寿命日</th><th>保守契約</th><th>MC契約</th><th>コントローラ契約</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab8Rows)}"><td class="empty" colspan="18">検索条件を指定して検索してください。</td></tr>
+                <tr th:each="row,st : ${form.tab8Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.supportId}"></td>
+                    <td th:text="${row.nonyusakiNk}" th:title="${row.nonyusakiNk}"></td>
+                    <td th:text="${row.tenporyakuNk}"></td>
+                    <td th:text="${row.plantNk}" th:title="${row.plantNk}"></td>
+                    <td th:text="${row.brandNk}"></td>
+                    <td th:text="${row.pcTenken}"></td>
+                    <td th:text="${row.dentiSyurui}"></td>
+                    <td th:text="${row.syurui}"></td>
+                    <td th:text="${row.gouki}"></td>
+                    <td th:text="${row.seizomakerNk}"></td>
+                    <td th:text="${row.katashiki}"></td>
+                    <td th:text="${row.batteryKatashiki}"></td>
+                    <td th:text="${row.itijinonyuDt}"></td>
+                    <td th:text="${row.nextDt}"></td>
+                    <td th:text="${row.ukKeiyaku}"></td>
+                    <td th:text="${row.tkKeiyaku}"></td>
+                    <td th:text="${row.ctKeiyaku}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <!-- ---------- タブ9 MCM_ALERT9_V（金額4列は利用権限区分3>0のみ表示） ---------- -->
+            <div class="grid-pane" id="grid9" th:classappend="${form.activeTab == 9} ? ' active'">
+            <table class="data-grid">
+                <colgroup>
+                    <col class="col-rowheader"/>
+                    <col style="width:90px;"/><col style="width:180px;"/><col style="width:90px;"/>
+                    <col style="width:200px;"/><col style="width:80px;"/><col style="width:140px;"/>
+                    <col style="width:50px;"/><col style="width:110px;"/><col style="width:160px;"/>
+                    <col style="width:160px;"/><col style="width:85px;"/><col style="width:85px;"/>
+                    <col style="width:90px;"/><col style="width:110px;"/><col style="width:85px;"/>
+                    <col style="width:85px;"/><col style="width:90px;"/><col style="width:100px;"/>
+                    <col th:if="${form.tab9KingakuVisible}" style="width:110px;"/>
+                    <col th:if="${form.tab9KingakuVisible}" style="width:110px;"/>
+                    <col th:if="${form.tab9KingakuVisible}" style="width:100px;"/>
+                    <col th:if="${form.tab9KingakuVisible}" style="width:110px;"/>
+                </colgroup>
+                <thead><tr>
+                    <th class="row-header"></th>
+                    <th>取引先コード</th><th>取引先名</th><th>納入先コード</th><th>納入先名</th>
+                    <th>サポートID</th><th>プラント名</th><th>パック</th><th>契約番号</th>
+                    <th>契約内容</th><th>備考</th><th>契約日</th><th>解約日</th><th>契約満了日</th>
+                    <th>延長契約満了日</th><th>開始日</th><th>終了日</th><th>保守方法</th><th>保守契約時間帯</th>
+                    <th th:if="${form.tab9KingakuVisible}">標準価格合計</th>
+                    <th th:if="${form.tab9KingakuVisible}">仕切り価格小計</th>
+                    <th th:if="${form.tab9KingakuVisible}">出精値引き</th>
+                    <th th:if="${form.tab9KingakuVisible}">仕切り価格合計</th>
+                </tr></thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(form.tab9Rows)}">
+                    <td class="empty" th:attr="colspan=${form.tab9KingakuVisible} ? 23 : 19">検索条件を指定して検索してください。</td>
+                </tr>
+                <tr th:each="row,st : ${form.tab9Rows}" onclick="mcm3004uSelectRow(this)">
+                    <td class="row-header" th:text="${st.count}"></td>
+                    <td th:text="${row.torihikisakiCd}"></td>
+                    <td th:text="${row.torihikisakiNk}" th:title="${row.torihikisakiNk}"></td>
+                    <td th:text="${row.nonyusakiCd}"></td>
+                    <td th:text="${row.nonyusakiNk}" th:title="${row.nonyusakiNk}"></td>
+                    <td th:text="${row.supportId}"></td>
+                    <td th:text="${row.plantNk}" th:title="${row.plantNk}"></td>
+                    <td class="center"><input type="checkbox" class="grid-check" tabindex="-1" aria-readonly="true" aria-label="パック" onclick="return false;" th:checked="${row.pack}"/></td>
+                    <td th:text="${row.keiyakuNo}"></td>
+                    <td th:text="${row.packkeiyakunaiyo}" th:title="${row.packkeiyakunaiyo}"></td>
+                    <td th:text="${row.biko}" th:title="${row.biko}"></td>
+                    <td th:text="${row.keiyakuDt}"></td>
+                    <td th:text="${row.kaiyakuDt}"></td>
+                    <td th:text="${row.keiyakumanryoDt}"></td>
+                    <td th:text="${row.entyokeiyakumanryoDt}"></td>
+                    <td th:text="${row.kaisiDt}"></td>
+                    <td th:text="${row.syuryoDt}"></td>
+                    <td th:text="${row.hosyuhohoNk}"></td>
+                    <td class="num" th:text="${row.keiyakujikantai}"></td>
+                    <td class="num" th:if="${form.tab9KingakuVisible}"
+                        th:text="${row.hyojungokeiKin == null ? '' : '¥' + #numbers.formatInteger(row.hyojungokeiKin, 1, 'COMMA')}"></td>
+                    <td class="num" th:if="${form.tab9KingakuVisible}"
+                        th:text="${row.sikirisyokeiKin == null ? '' : '¥' + #numbers.formatInteger(row.sikirisyokeiKin, 1, 'COMMA')}"></td>
+                    <td class="num" th:if="${form.tab9KingakuVisible}"
+                        th:text="${row.syusseinebikiKin == null ? '' : '¥' + #numbers.formatInteger(row.syusseinebikiKin, 1, 'COMMA')}"></td>
+                    <td class="num" th:if="${form.tab9KingakuVisible}"
+                        th:text="${row.sikirigokeiKin == null ? '' : '¥' + #numbers.formatInteger(row.sikirigokeiKin, 1, 'COMMA')}"></td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+
+            </div><!-- /grid-wrap -->
+        </div><!-- /grid-area -->
+
+        <!-- ===== Excel出力（VB: ExcelOutputButtonN / 画面右下） ===== -->
+        <!-- ファイル保存ではページ遷移しないため共通の遷移待ち表示は使用しない -->
+        <div class="footer-bar">
+            <button type="submit" class="btn-action"
+                    th:formaction="@{/mcm3004u/excel}">Excel出力</button>
+        </div>
+    </form>
+
+    <!-- WEB共通の「閉じる」は視覚的にヘッダー右、操作順では最後 -->
+    <a class="btn-close" th:href="@{/mcm3004u/close}" href="/mcm/mcm3004u/close">閉じる</a>
+</div>
+
+<script>
+    /**
+     * タブ切替。
+     * 【変換元】Mcm3004uScreen.vb tab_SelectedIndexChanged
+     *   VB版はタブ選択時に各タブの検索ボタンを AcceptButton（Enter）に設定し直すだけで、
+     *   検索結果はタブごとに保持される。Web版も全タブのグリッドを出力済みのため
+     *   表示切替のみを行い、サーバ通信は発生させない。
+     */
+    function mcm3004uSwitchTab(tabNo) {
+        var n = String(tabNo);
+        document.getElementById('activeTabInput').value = n;
+        document.querySelectorAll('.tab-btn').forEach(function (b) {
+            var on = b.getAttribute('data-tab') === n;
+            b.classList.toggle('active', on);
+            b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        document.querySelectorAll('.cond-pane').forEach(function (p) {
+            p.classList.toggle('active', p.id === 'cond' + n);
+        });
+        document.querySelectorAll('.grid-pane').forEach(function (p) {
+            p.classList.toggle('active', p.id === 'grid' + n);
+        });
+    }
+
+    /** 行選択（VB: DataGridView の行選択表示） */
+    function mcm3004uSelectRow(tr) {
+        // row-selected：▶マーカー表示用 ／ selected：common.css .mcm-grid の選択行色
+        tr.closest('tbody').querySelectorAll('tr').forEach(function (r) {
+            r.classList.remove('row-selected', 'selected');
+        });
+        tr.classList.add('row-selected', 'selected');
+    }
+
+    /* リンク列の押下で行選択のクリックイベントを巻き込まないようにする */
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.grid-link').forEach(function (a) {
+            a.addEventListener('click', function (e) { e.stopPropagation(); });
+        });
+    });
+
+    /**
+     * 検索条件のフォーカス移動時の入力チェック。
+     * 【変換元】CPTextBox_Enter / CPTextBox_Leave → CPValidateUtilty.IsErrorCell(False, ValidateKey, Text, Nothing)
+     *   ・フォーカス取得時の値を BackupValue として保持する。
+     *   ・フォーカス喪失時、値が BackupValue から変わっていれば CPValidate.xml の定義でチェックし、
+     *     エラーならメッセージを表示して BackupValue（直前の正常な入力値）へ戻す。
+     *   ・必須フラグは False で呼ばれるため、空欄はエラーにしない（検索時の HissuError で判定）。
+     *
+     *   ■ タブ3〜8（Designer: Immediate = False → VB版でも移動時チェックあり）
+     *     項目名は RelationLabel／Tag が未設定のため CPValidate.xml の name、
+     *     書式は validate.Mask.ToUpper のため大文字表記になる。
+     *       基準月  STANDARD_MONTH  DateTime yyyy/MM   → FWM_0006「基準月はYYYY/MMの書式で…」  (data-leave-check="month")
+     *       対象期間 TARGET_PERIOD  Decimal  length=2  → FWM_0003「対象期間は数値で…」          (data-leave-check="period")
+     *
+     *   ■ タブ1・2・9（Designer: Immediate = True → VB版は移動時チェックなし）
+     *     VB版でエラーが表示されるのは検索時の HissuError / HissuError2 のみのため、
+     *     Web版の移動時チェックも検索時と同じ判定・同じ文言にそろえる（要望により移動時にも表示）。
+     *       基準月（タブ1・2） IsDate(月 & "/01")   → FWM_0006「基準月はyyyy/MMの書式で…」     (data-leave-check="month-search")
+     *       対象期間（タブ1・2）IsNumeric           → FWM_0003「対象期間は数値で…」           (data-leave-check="period")
+     *       日付（タブ9）      IsDate(日付)         → FWM_0006「基準月はyyyy/MM/ddの書式で…」  (data-leave-check="date-search")
+     *     判定はサーバー側 Mcm3004uService（uuuu/M、uuuu/M/d の厳密解決）と同じにする。
+     */
+    (function () {
+        /** FWM_0003 {0}は数値で入力してください。 */
+        function msgNotNumeric(item) { return item + 'は数値で入力してください。'; }
+        /** FWM_0002 {0}は{1}桁以下で入力してください。 */
+        function msgMaxLength(item, len) { return item + 'は' + len + '桁以下で入力してください。'; }
+        /** FWM_0006 {0}は{1}の書式で入力してください。 */
+        function msgBadFormat(item, format) { return item + 'は' + format + 'の書式で入力してください。'; }
+
+        /** DateTime.ParseExact(value, "yyyy/MM") 相当（年4桁・月2桁、実在する月のみ） */
+        function isYearMonth(v) {
+            var m = /^(\d{4})\/(\d{2})$/.exec(v);
+            if (!m) return false;
+            var mm = Number(m[2]);
+            return Number(m[1]) >= 1 && mm >= 1 && mm <= 12;
+        }
+        /** 検索時チェック（Mcm3004uService の uuuu/M）と同じ判定：年4桁・月1〜2桁 */
+        function isYearMonthLoose(v) {
+            var m = /^(\d{4})\/(\d{1,2})$/.exec(v.trim());
+            if (!m) return false;
+            var mm = Number(m[2]);
+            return Number(m[1]) >= 1 && mm >= 1 && mm <= 12;
+        }
+        /** 検索時チェック（Mcm3004uService の uuuu/M/d）と同じ判定：月・日1〜2桁、実在する日付のみ */
+        function isYearMonthDayLoose(v) {
+            var m = /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/.exec(v.trim());
+            if (!m) return false;
+            var y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+            if (y < 1) return false;
+            var dt = new Date(y, mo - 1, d);
+            dt.setFullYear(y);
+            return dt.getFullYear() === y && dt.getMonth() === mo - 1 && dt.getDate() === d;
+        }
+        /** VB IsNumeric 相当（前後空白・符号・小数点を許可） */
+        function isNumeric(v) {
+            return /^\s*[+-]?(\d+\.?\d*|\.\d+)\s*$/.test(v);
+        }
+
+        /** エラー文言を返す（正常なら null）。空欄は IsErrorCell(isRequiredFlag=False) と同様に正常扱い。 */
+        function validate(kind, value) {
+            if (value.trim() === '') return null;
+            switch (kind) {
+                case 'month':
+                    return isYearMonth(value) ? null : msgBadFormat('基準月', 'YYYY/MM');
+                case 'period':
+                    if (!isNumeric(value)) return msgNotNumeric('対象期間');
+                    return value.length > 2 ? msgMaxLength('対象期間', 2) : null;
+                case 'month-search':
+                    // VB: HissuError → FWM_0006(KIJUNZUKI_NK, CPConstant.FORMAT_YYYYMM)
+                    return isYearMonthLoose(value) ? null : msgBadFormat('基準月', 'yyyy/MM');
+                case 'date-search':
+                    // VB: HissuError2 → FWM_0006(KIJUNZUKI_NK, CPConstant.FORMAT_YYYYMMDD)
+                    return isYearMonthDayLoose(value) ? null : msgBadFormat('基準月', 'yyyy/MM/dd');
+                default:
+                    return null;
+            }
+        }
+
+        /** 移動時エラーのダイアログ表示中は検索・Excel出力を送信させない */
+        var showingError = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var fields = document.querySelectorAll('input[data-leave-check]');
+            fields.forEach(function (input) {
+                // VB: CPTextBox_Enter → BackupValue = Me.Text
+                input.dataset.backup = input.value;
+                input.addEventListener('focus', function () {
+                    input.dataset.backup = input.value;
+                });
+                // VB: CPTextBox_Leave
+                input.addEventListener('blur', function () {
+                    var backup = input.dataset.backup || '';
+                    if (input.value === backup) return;   // VB: CompareTo(BackupValue, Text)
+                    var error = validate(input.dataset.leaveCheck, input.value);
+                    if (!error) {
+                        input.dataset.backup = input.value;
+                        return;
+                    }
+                    // VB: Me.Text = Me.BackupValue（直前の正常な入力値へ戻す）
+                    input.value = backup;
+                    showingError = true;
+                    var shown = window.McmNotifications
+                        ? window.McmNotifications.error(error)
+                        : Promise.resolve(window.alert(error));
+                    shown.then(function () { showingError = false; });
+                });
+            });
+
+            var form = fields.length ? fields[0].form : null;
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    if (showingError) e.preventDefault();
+                }, true);
+            }
+        });
+    })();
+</script>
+
+</main>
+</body>
+</html>
