@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+    <Platform Condition="'$(Platform)' == ''">x86</Platform>
+    <ProjectGuid>{C08E9125-66CA-4C29-9F45-517CA614CD01}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>McmMaintenanceReport</RootNamespace>
+    <AssemblyName>保守状況報告データ抽出</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" /><Reference Include="System.Core" /><Reference Include="System.Configuration" />
+    <Reference Include="System.Data" /><Reference Include="System.Drawing" /><Reference Include="System.Windows.Forms" />
+    <Reference Include="Microsoft.CSharp" />
+    <Compile Include="Program.cs" /><Compile Include="ReportData.cs" /><Compile Include="ExcelReport.cs" />
+    <EmbeddedResource Include="Report.sql"><LogicalName>McmMaintenanceReport.Report.sql</LogicalName></EmbeddedResource>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
