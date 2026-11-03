@@ -1,0 +1,105 @@
+{
+  "caseId": "TL02-001",
+  "source": "131配布版",
+  "scope": "ダミーデータを使用した部分確認",
+  "officialResult": "未実施",
+  "databaseAccess": false,
+  "actualUiOperation": false,
+  "actualDialogDisplayed": false,
+  "checks": [
+    {
+      "case": "共通",
+      "item": "データ件数",
+      "expected": 3,
+      "actual": 3,
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E2",
+      "expected": "SIM-A",
+      "actual": "SIM-A",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E3",
+      "expected": "SIM-B",
+      "actual": "SIM-B",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E4",
+      "expected": "SIM-C",
+      "actual": "SIM-C",
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "最初の月（100000円÷12、余り4円加算）",
+      "expected": 8337.0,
+      "actual": 8337.0,
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "2か月目（100000円÷12）",
+      "expected": 8333.0,
+      "actual": 8333.0,
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "支払回数 G2",
+      "expected": 12.0,
+      "actual": 12.0,
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "CS番号 B2",
+      "expected": "P28-02381",
+      "actual": "P28-02381",
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "支払月 H2",
+      "expected": "2026年10月",
+      "actual": "2026年10月",
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "支払回数 G3",
+      "expected": 12.0,
+      "actual": 12.0,
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "CS番号 B3",
+      "expected": "P28-02381",
+      "actual": "P28-02381",
+      "pass": true
+    },
+    {
+      "case": "TL02-001",
+      "item": "支払月 H3",
+      "expected": "2026年10月",
+      "actual": "2026年10月",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "取得完了通知文",
+      "expected": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "actual": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "pass": true
+    }
+  ],
+  "status": "模擬範囲は合格",
+  "matched": 13,
+  "mismatched": 0
+}

@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "item": "使い方.md",
+      "before": "23006C35D8CBDEA937A3CACA8F67549ACCD53356713DB4F7BDC566078B8E2CEF",
+      "after": "23006C35D8CBDEA937A3CACA8F67549ACCD53356713DB4F7BDC566078B8E2CEF",
+      "pass": true
+    },
+    {
+      "item": "保守契約情報報告（月別）デフォルトフォーム.xls",
+      "before": "F58E5AE953266AF4B17595050D97E93C5D13D308EC2DBE6DB895A582479BD185",
+      "after": "F58E5AE953266AF4B17595050D97E93C5D13D308EC2DBE6DB895A582479BD185",
+      "pass": true
+    },
+    {
+      "item": "保守状況報告データ抽出.exe",
+      "before": "F7126149F3428A3BF5DC81E9D9D2E6889AC4668D5C35B34C399757FA8E993524",
+      "after": "F7126149F3428A3BF5DC81E9D9D2E6889AC4668D5C35B34C399757FA8E993524",
+      "pass": true
+    },
+    {
+      "item": "保守状況報告データ抽出.exe.config",
+      "before": "ECA2F2D75D4DA0950AC2D1D91897F3679C051DC4EB48ABCAE1D83829C8575411",
+      "after": "ECA2F2D75D4DA0950AC2D1D91897F3679C051DC4EB48ABCAE1D83829C8575411",
+      "pass": true
+    }
+  ],
+  "extraFiles": [],
+  "dialog": "処理開始確認：処理を開始しますか？",
+  "cancel": "いいえ（2回）",
+  "afterComment": "「開始」を押して実行日現在のデータを取得します。",
+  "note": "137試験用コピーの実画面で操作。はいを選ばずDB取得なし。"
+}

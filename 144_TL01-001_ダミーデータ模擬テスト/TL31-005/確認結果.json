@@ -1,0 +1,9 @@
+{
+  "database": "ローカルの架空納入先2件。試験後に削除",
+  "beforeAfter": "架空プラント2件のID・納入先IDに変化なし",
+  "logCreated": false,
+  "sourceUnchanged": true,
+  "realCompanyDatabase": false,
+  "dialog": "開始してよろしいですか？",
+  "after": "開始をキャンセルしました"
+}

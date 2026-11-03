@@ -1,0 +1,19 @@
+﻿{
+    "checks":  [
+                   {
+                       "query":  "queries/T21_00_0_01.sql",
+                       "oldRows":  0,
+                       "newRows":  1,
+                       "futureRows":  1,
+                       "pass":  true
+                   },
+                   {
+                       "query":  "queries/T21_00_1_01.sql",
+                       "oldRows":  0,
+                       "newRows":  1,
+                       "futureRows":  1,
+                       "pass":  true
+                   }
+               ],
+    "note":  "SQLから推定した列構成の一時テーブルへ架空の複数期間を入れ、全文を実行。実DBや実際の列型との一致は未確認。"
+}

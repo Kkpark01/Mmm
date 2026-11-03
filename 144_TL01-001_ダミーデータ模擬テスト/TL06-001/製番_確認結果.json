@@ -1,0 +1,85 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "行2項目1",
+                       "actual":  "45000",
+                       "expected":  "45000",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行2項目2",
+                       "actual":  "46000",
+                       "expected":  "46000",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行2項目3",
+                       "actual":  "HW100",
+                       "expected":  "HW100",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行2項目4",
+                       "actual":  "SW100",
+                       "expected":  "SW100",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行3項目1",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行3項目2",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行3項目3",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行3項目4",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行4項目1",
+                       "actual":  "45001",
+                       "expected":  "45001",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行4項目2",
+                       "actual":  "46001",
+                       "expected":  "46001",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行4項目3",
+                       "actual":  "HW200",
+                       "expected":  "HW200",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "行4項目4",
+                       "actual":  "SW200",
+                       "expected":  "SW200",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "計算設定の復元",
+                       "actual":  "xlCalculationAutomatic",
+                       "expected":  "xlCalculationAutomatic",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+    "sourceUnchanged":  true,
+    "note":  "131版Edit_seibanを実行。製番データ取込は架空2行に置換。DB・実画面・会社編集版は未確認。"
+}

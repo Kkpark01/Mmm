@@ -1,0 +1,42 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "txtMotoSupportId",
+                       "property":  "MaxLength",
+                       "actual":  7,
+                       "expected":  7,
+                       "pass":  true
+                   },
+                   {
+                       "item":  "txtSakiSupportId",
+                       "property":  "MaxLength",
+                       "actual":  7,
+                       "expected":  7,
+                       "pass":  true
+                   },
+                   {
+                       "item":  "txtMotoNonyuSaki",
+                       "property":  "ReadOnly",
+                       "actual":  true,
+                       "expected":  true,
+                       "pass":  true
+                   },
+                   {
+                       "item":  "txtSakiNonyuSaki",
+                       "property":  "ReadOnly",
+                       "actual":  true,
+                       "expected":  true,
+                       "pass":  true
+                   },
+                   {
+                       "item":  "txtMessage",
+                       "property":  "ReadOnly",
+                       "actual":  true,
+                       "expected":  true,
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "B8DC30BA4A44E1985E8A30D0B31B150666A5C7B5CDD4F2A564A5A37477DF929A",
+    "sourceUnchanged":  true,
+    "note":  "133版EXEのフォームを表示せず生成し、入力欄の設定を確認。実際のキー入力・画面表示・DB接続・会社編集版は未確認。"
+}

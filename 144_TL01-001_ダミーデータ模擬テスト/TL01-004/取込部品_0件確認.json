@@ -1,0 +1,8 @@
+{
+  "result": "PASS: 25 headers, zero rows",
+  "source": "131のMcmNewDb.McmWriteResult",
+  "rows": 0,
+  "columns": 25,
+  "databaseAccess": false,
+  "fileSaved": false
+}

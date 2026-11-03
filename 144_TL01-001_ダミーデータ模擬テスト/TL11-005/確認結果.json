@@ -1,0 +1,97 @@
+{
+  "checks": [
+    {
+      "case": "TL11-005",
+      "item": "前回結果の消去",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL11-005",
+      "item": "以前の末尾を消去",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL11-005",
+      "item": "範囲外の値を維持",
+      "actual": "範囲外保持",
+      "expected": "範囲外保持",
+      "pass": true
+    },
+    {
+      "case": "TL11-005",
+      "item": "取得呼出なし",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL11-005",
+      "item": "通知文",
+      "actual": "検索条件が指定されていません。\r\n\r\n問合せを終了します。",
+      "expected": "検索条件が指定されていません。\r\n\r\n問合せを終了します。",
+      "pass": true
+    },
+    {
+      "case": "TL11-005",
+      "item": "見出しも消去",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL11-EDGE",
+      "item": "前回結果の消去",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL11-EDGE",
+      "item": "先頭列空欄の末尾は消えず",
+      "actual": "古い末尾",
+      "expected": "古い末尾",
+      "pass": true
+    },
+    {
+      "case": "TL11-EDGE",
+      "item": "範囲外の値を維持",
+      "actual": "範囲外保持",
+      "expected": "範囲外保持",
+      "pass": true
+    },
+    {
+      "case": "TL11-EDGE",
+      "item": "取得呼出あり",
+      "actual": "取得呼出",
+      "expected": "取得呼出",
+      "pass": true
+    },
+    {
+      "case": "TL11-EDGE",
+      "item": "見出し先頭",
+      "actual": "サポートID",
+      "expected": "サポートID",
+      "pass": true
+    },
+    {
+      "case": "TL11-EDGE",
+      "item": "見出し末尾",
+      "actual": "仕切金",
+      "expected": "仕切金",
+      "pass": true
+    },
+    {
+      "case": "TL11-EDGE",
+      "item": "入力条件維持",
+      "actual": "ＡＢＣ",
+      "expected": "ＡＢＣ",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "DA9C371770275D94D5EC018643F03EFFF572D5E3D46C2F764B657523FA79BBEE",
+  "formalPass": false
+}

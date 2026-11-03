@@ -1,0 +1,10 @@
+{
+  "dialogTitle": "エラー",
+  "message": "DB接続確認が失敗した為、画面起動を中止します。\n\n【エラー内容】\nDB接続に失敗しました。接続先と認証設定を確認してください。\n接続先のServerとDatabaseを設定してください。",
+  "testServer": "空欄",
+  "database": "SIM_TEST",
+  "processExited": true,
+  "logCreated": false,
+  "sourceSha256": "b8dc30ba4a44e1985e8a30d0b31b150666a5c7b5cdd4f2a564a5a37477df929a",
+  "screenshot": "取得画像に別ウィンドウが写ったため証拠として保存しない。ダイアログの文字はアクセシビリティ情報で確認。"
+}

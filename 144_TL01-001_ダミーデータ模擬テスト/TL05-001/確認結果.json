@@ -1,0 +1,27 @@
+{
+  "checks": [
+    {
+      "case": "TL05-001",
+      "item": "数値の7桁化",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "case": "TL05-001",
+      "item": "7桁の維持",
+      "actual": "1301673",
+      "expected": "1301673",
+      "pass": true
+    },
+    {
+      "case": "TL05-001",
+      "item": "8桁を拒否",
+      "actual": "ERROR:操作シートM12のサポートIDは7桁の数字で指定してください。",
+      "expected": "ERROR:操作シートM12のサポートIDは7桁の数字で指定してください。",
+      "pass": true
+    }
+  ],
+  "formalPass": false,
+  "sourceSha256": "D5DDD5E8A7592513378F7111BE4526A8E531352B067093D50F9E3617B804778D"
+}

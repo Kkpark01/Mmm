@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "item": "未登録IDの新規追記",
+      "actual": "0000789",
+      "expected": "0000789",
+      "pass": true
+    },
+    {
+      "item": "未登録IDの店舗欄",
+      "actual": "旧店舗",
+      "expected": "旧店舗",
+      "pass": true
+    },
+    {
+      "item": "未登録分類",
+      "actual": "#N/A",
+      "expected": "#N/A",
+      "pass": true
+    },
+    {
+      "item": "SIM-2担当店舗",
+      "actual": "店舗A",
+      "expected": "店舗A",
+      "pass": true
+    },
+    {
+      "item": "SIM-3担当店舗",
+      "actual": "店舗B",
+      "expected": "店舗B",
+      "pass": true
+    },
+    {
+      "item": "通常の機器分類",
+      "actual": "分類A",
+      "expected": "分類A",
+      "pass": true
+    },
+    {
+      "item": "個別分類が優先",
+      "actual": "個別分類",
+      "expected": "個別分類",
+      "pass": true
+    },
+    {
+      "item": "店舗完了文",
+      "actual": "店舗再引き当て完了",
+      "expected": "店舗再引き当て完了",
+      "pass": true
+    },
+    {
+      "item": "分類完了文",
+      "actual": "機器分類再引き当て完了",
+      "expected": "機器分類再引き当て完了",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+  "sourceUnchanged": true,
+  "note": "131版の再適用処理を架空の対応表と隔離Excelで実行。完了MsgBoxは文字記録へ差替。実DB・実画面・登録外IDは未確認"
+}

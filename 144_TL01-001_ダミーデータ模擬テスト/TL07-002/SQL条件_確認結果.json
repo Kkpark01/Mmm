@@ -1,0 +1,161 @@
+﻿{
+    "checks":  [
+                   {
+                       "parameter":  1,
+                       "expectedMonth":  4,
+                       "actual":  [
+                                      "4:2024/04/01",
+                                      "4:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "4:2024/04/01",
+                                        "4:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  2,
+                       "expectedMonth":  5,
+                       "actual":  [
+                                      "5:2024/04/01",
+                                      "5:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "5:2024/04/01",
+                                        "5:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  3,
+                       "expectedMonth":  6,
+                       "actual":  [
+                                      "6:2024/04/01",
+                                      "6:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "6:2024/04/01",
+                                        "6:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  4,
+                       "expectedMonth":  7,
+                       "actual":  [
+                                      "7:2024/04/01",
+                                      "7:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "7:2024/04/01",
+                                        "7:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  5,
+                       "expectedMonth":  8,
+                       "actual":  [
+                                      "8:2024/04/01",
+                                      "8:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "8:2024/04/01",
+                                        "8:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  6,
+                       "expectedMonth":  9,
+                       "actual":  [
+                                      "9:2024/04/01",
+                                      "9:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "9:2024/04/01",
+                                        "9:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  7,
+                       "expectedMonth":  10,
+                       "actual":  [
+                                      "10:2024/04/01",
+                                      "10:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "10:2024/04/01",
+                                        "10:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  8,
+                       "expectedMonth":  11,
+                       "actual":  [
+                                      "11:2024/04/01",
+                                      "11:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "11:2024/04/01",
+                                        "11:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  9,
+                       "expectedMonth":  12,
+                       "actual":  [
+                                      "12:2024/04/01",
+                                      "12:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "12:2024/04/01",
+                                        "12:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  10,
+                       "expectedMonth":  1,
+                       "actual":  [
+                                      "1:2024/04/01",
+                                      "1:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "1:2024/04/01",
+                                        "1:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  11,
+                       "expectedMonth":  2,
+                       "actual":  [
+                                      "2:2024/04/01",
+                                      "2:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "2:2024/04/01",
+                                        "2:2024/04/02"
+                                    ],
+                       "pass":  true
+                   },
+                   {
+                       "parameter":  12,
+                       "expectedMonth":  3,
+                       "actual":  [
+                                      "3:2024/04/01",
+                                      "3:2024/04/02"
+                                  ],
+                       "expected":  [
+                                        "3:2024/04/01",
+                                        "3:2024/04/02"
+                                    ],
+                       "pass":  true
+                   }
+               ],
+    "note":  "131版の埋込SQLから月・初回契約日の条件式を抽出し、このPCのSQL Serverで架空データを照会。結合・取得後処理・実DBは未確認。"
+}

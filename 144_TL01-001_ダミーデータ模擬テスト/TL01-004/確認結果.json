@@ -1,0 +1,109 @@
+{
+  "caseId": "TL01-004",
+  "kind": "synthetic partial scenario",
+  "source": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\131_マクロ出力先_実行フォルダ\\配布用\\MCM業務マクロ\\04_取引先見積依頼書\\取引先見積依頼書発行ver2.6.xlsm",
+  "sourceSha256": "04d376cdb9a0b46f5276863f46834a1593a7855ca9b94b3228b6d25e1d6440dc",
+  "realDatabase": false,
+  "realUiOperation": false,
+  "actualDialogDisplayed": false,
+  "capturedMessage": "依頼対象がありません。\r\n\r\n処理を中止します",
+  "started": "2026-11-03T07:06:36.5772054+09:00",
+  "finished": "2026-11-03T07:06:36.6860804+09:00",
+  "sourceOutput": "作成なし",
+  "deliveredOutput": "作成なし（対象0件）",
+  "pilotObservation": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\144_TL01-001_ダミーデータ模擬テスト\\TL01-004\\出力結果\\操作シート_模擬実行後.xlsx",
+  "checks": [
+    {
+      "item": "原紙の図形なし（セルコピーで欠落しない）",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "item": "模擬データの取込入口",
+      "expected": "M07:取引先見積SQL",
+      "actual": "M07:取引先見積SQL",
+      "pass": true
+    },
+    {
+      "item": "入力C3",
+      "expected": "SIM-NOTFOUND-004",
+      "actual": "SIM-NOTFOUND-004",
+      "pass": true
+    },
+    {
+      "item": "対象なし通知文",
+      "expected": "依頼対象がありません。\r\n\r\n処理を中止します",
+      "actual": "依頼対象がありません。\r\n\r\n処理を中止します",
+      "pass": true
+    },
+    {
+      "item": "通知が1件",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "item": "操作シートF3が空",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "操作シートF4が空",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "操作シートF5が空",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "操作シートF6が空",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "操作シートF7が空",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "操作シートF8が空",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "操作シートF9が空",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "見積依頼書の作成なし",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "item": "見積依頼書のブックを開いていない",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    }
+  ],
+  "summary": {
+    "scope": "0件の模擬結果による画面情報消去と処理中止",
+    "result": "模擬範囲は合格",
+    "matched": 14,
+    "mismatched": 0,
+    "additional": "131のMcmWriteResultを独立して実行し、25列の見出しのみ・明細0行を確認",
+    "officialResult": "未実施（実DB・実画面未確認）"
+  }
+}

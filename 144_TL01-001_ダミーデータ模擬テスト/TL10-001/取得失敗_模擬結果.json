@@ -1,0 +1,43 @@
+{
+  "checks": [
+    {
+      "item": "事前取得",
+      "actual": "事前取得成功",
+      "expected": "事前取得成功",
+      "pass": true
+    },
+    {
+      "item": "途中で失敗",
+      "actual": "TRUE",
+      "expected": "TRUE",
+      "pass": true
+    },
+    {
+      "item": "失敗文言",
+      "actual": "TRUE",
+      "expected": "TRUE",
+      "pass": true
+    },
+    {
+      "item": "書込拒否",
+      "actual": "TRUE",
+      "expected": "TRUE",
+      "pass": true
+    },
+    {
+      "item": "取得結果なし文言",
+      "actual": "TRUE",
+      "expected": "TRUE",
+      "pass": true
+    },
+    {
+      "item": "以前の表示を上書きしない",
+      "actual": "旧値保持",
+      "expected": "旧値保持",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "153CE3F0FED0ADEF49849311743A9F84537B1630B0B706EC866C7A7555B17E24",
+  "sourceUnchanged": true,
+  "note": "実VBAで成功後に2本目SQLを失敗させ、取得結果無効化を確認。接続先・SQLはローカルの試験用に置換。入力画面・メッセージダイアログは未確認"
+}

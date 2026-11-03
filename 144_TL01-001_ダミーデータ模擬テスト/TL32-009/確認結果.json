@@ -1,0 +1,24 @@
+{
+  "dialog": "終了確認：終了しますか？",
+  "no": "画面・コメント・ボタン維持",
+  "yes": "プロセス終了",
+  "files": [
+    {
+      "name": "使い方.md",
+      "pass": true
+    },
+    {
+      "name": "保守契約情報報告（月別）デフォルトフォーム.xls",
+      "pass": true
+    },
+    {
+      "name": "保守状況報告データ抽出.exe",
+      "pass": true
+    },
+    {
+      "name": "保守状況報告データ抽出.exe.config",
+      "pass": true
+    }
+  ],
+  "extraFiles": []
+}

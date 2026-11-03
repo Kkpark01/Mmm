@@ -1,0 +1,68 @@
+{
+  "checks": [
+    {
+      "case": "TL03-001",
+      "item": "支払表示",
+      "actual": "年4回　1月、4月、7月、10月",
+      "expected": "年4回　1月、4月、7月、10月",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "契約時間",
+      "actual": "8H",
+      "expected": "8H",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "取引先担当者",
+      "actual": "担当A 様",
+      "expected": "担当A 様",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "納入先担当者",
+      "actual": "担当B 様",
+      "expected": "担当B 様",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "金額",
+      "actual": "120000",
+      "expected": "120000",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "集約後行数",
+      "actual": "1",
+      "expected": "1",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "操作シート取引先",
+      "actual": "模擬取引先",
+      "expected": "模擬取引先",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "操作シート納入先",
+      "actual": "模擬納入先",
+      "expected": "模擬納入先",
+      "pass": true
+    },
+    {
+      "case": "TL03-001",
+      "item": "操作シート契約番号",
+      "actual": "SIM-001",
+      "expected": "SIM-001",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "0B2C2BD682A6AE8C2B781C75BF0CDB1D65425CD57048CCE6ADBFA4C081E68FEB"
+}

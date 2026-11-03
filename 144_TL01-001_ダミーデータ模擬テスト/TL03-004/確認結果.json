@@ -1,0 +1,21 @@
+{
+  "case": "TL03-004",
+  "checks": [
+    {
+      "case": "TL03-004",
+      "item": "ヘッダのみを対象なしと判定",
+      "actual": "True",
+      "expected": "True",
+      "pass": true
+    },
+    {
+      "case": "TL03-004",
+      "item": "8列目にデータがあれば対象ありと判定",
+      "actual": "False",
+      "expected": "False",
+      "pass": true
+    }
+  ],
+  "actualExecution": "131版のVBAの一部分をダミーブックで実行",
+  "formalPass": false
+}

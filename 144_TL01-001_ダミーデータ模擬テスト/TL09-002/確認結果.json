@@ -1,0 +1,61 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "新規プラントで中断",
+                       "actual":  "試験用中断",
+                       "expected":  "試験用中断",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "新規通知",
+                       "actual":  "新規通知",
+                       "expected":  "新規通知",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "対応表へID追加",
+                       "actual":  "P-NEW",
+                       "expected":  "P-NEW",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "対応表へ名称追加",
+                       "actual":  "模擬プラント",
+                       "expected":  "模擬プラント",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "対応表へ納入先追加",
+                       "actual":  "模擬納入先",
+                       "expected":  "模擬納入先",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "対応表へ住所追加",
+                       "actual":  "模擬住所",
+                       "expected":  "模擬住所",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "対応表補完後のチェック完了",
+                       "actual":  "完了",
+                       "expected":  "完了",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "サポートID反映",
+                       "actual":  "0000456",
+                       "expected":  "0000456",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "通知なし",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "B18FF9C71AFD5C409F71D514BBBFDA33818A003F29F2F1FB33E9407B006DF9A9",
+    "sourceUnchanged":  true,
+    "note":  "136版の対応表確認処理を隔離Excelで実行。中断は試験用例外・通知は記録に置換。取得再開ボタンとCSV出力は未実行。"
+}

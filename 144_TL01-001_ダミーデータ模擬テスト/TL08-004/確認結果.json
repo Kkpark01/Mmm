@@ -1,0 +1,16 @@
+{
+  "source_module": "依頼書作成_Excel",
+  "excel_vba_line": 132,
+  "line": ".Cells(43, 5).Value = ActiveCell.Offset(3, 0).Value) + \"台\"",
+  "files": [
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\131_マクロ出力先_実行フォルダ\\配布用\\MCM業務マクロ\\10_点検依頼書作成\\点検依頼書作成マクロ Ver3.10-8（改良版）_20260209.xlsm",
+      "sha256": "4c4ddecce06068b50962791076d15dfce15d30fcd8f3015410cad83c6b903320"
+    },
+    {
+      "path": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\139_点検マクロ_行削除と旧結果クリア修正\\修正版Excel\\10_点検依頼書作成\\点検依頼書作成マクロ Ver3.10-8（改良版）_20260209.xlsm",
+      "sha256": "27ef1cae14c94ef4e1fe1c08d38fbcfc0c222ad1a2b9de5f990ce2934182a917"
+    }
+  ],
+  "finding": "余分な閉じ括弧を含むように見える。131と139の実ブックから読み取り確認。コンパイル・ボタン実行は未実施。"
+}

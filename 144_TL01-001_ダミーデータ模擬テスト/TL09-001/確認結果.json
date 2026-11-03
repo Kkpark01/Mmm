@@ -1,0 +1,159 @@
+{
+  "checks": [
+    {
+      "item": "010 行数",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "item": "010 列数",
+      "actual": [
+        14,
+        14
+      ],
+      "expected": [
+        14,
+        14
+      ],
+      "pass": true
+    },
+    {
+      "item": "010 値とB列の除外",
+      "actual": [
+        "V1",
+        "V3",
+        "V4",
+        "V5",
+        "V6",
+        "V7",
+        "V8",
+        "V9",
+        "V10",
+        "V11",
+        "V12",
+        "V13",
+        "V14",
+        "V15"
+      ],
+      "expected": [
+        "V1",
+        "V3",
+        "V4",
+        "V5",
+        "V6",
+        "V7",
+        "V8",
+        "V9",
+        "V10",
+        "V11",
+        "V12",
+        "V13",
+        "V14",
+        "V15"
+      ],
+      "pass": true
+    },
+    {
+      "item": "020 行数",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "item": "020 列数",
+      "actual": [
+        14,
+        14
+      ],
+      "expected": [
+        14,
+        14
+      ],
+      "pass": true
+    },
+    {
+      "item": "020 値とB列の除外",
+      "actual": [
+        "V1",
+        "V3",
+        "V4",
+        "V5",
+        "V6",
+        "V7",
+        "V8",
+        "V9",
+        "V10",
+        "V11",
+        "V12",
+        "V13",
+        "V14",
+        "V15"
+      ],
+      "expected": [
+        "V1",
+        "V3",
+        "V4",
+        "V5",
+        "V6",
+        "V7",
+        "V8",
+        "V9",
+        "V10",
+        "V11",
+        "V12",
+        "V13",
+        "V14",
+        "V15"
+      ],
+      "pass": true
+    },
+    {
+      "item": "040 行数",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "item": "040 列数",
+      "actual": [
+        7,
+        7
+      ],
+      "expected": [
+        7,
+        7
+      ],
+      "pass": true
+    },
+    {
+      "item": "040 値とB列の除外",
+      "actual": [
+        "V1",
+        "V3",
+        "V4",
+        "V5",
+        "V6",
+        "V7",
+        "V8"
+      ],
+      "expected": [
+        "V1",
+        "V3",
+        "V4",
+        "V5",
+        "V6",
+        "V7",
+        "V8"
+      ],
+      "pass": true
+    }
+  ],
+  "sourceSha256": "b18ff9c71afd5c409f71d514bbbfda33818a003f29f2f1fb33e9407b006df9a9",
+  "excelTextJoinProbe": {
+    "version": "16.0",
+    "result": "ERROR 1004: WorksheetFunction クラスの TextJoin プロパティを取得できません。",
+    "formulaResult": "-2146826259"
+  },
+  "formalPass": false
+}

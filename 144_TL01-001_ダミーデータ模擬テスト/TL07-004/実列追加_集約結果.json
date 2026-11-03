@@ -1,0 +1,37 @@
+﻿{
+    "rows":  [
+                 {
+                     "row":  2,
+                     "contract":  "SIM-CONTRACT",
+                     "delivery":  "2026/03/01 / 0000123 / SIM-CONTRACT",
+                     "shiftedDelivery":  "模擬納入先",
+                     "item":  "",
+                     "model":  "機器A",
+                     "quantity":  "0",
+                     "shiftedQuantity":  "2"
+                 },
+                 {
+                     "row":  3,
+                     "contract":  "SIM-CONTRACT",
+                     "delivery":  "2026/03/01 / 0000123 / SIM-CONTRACT",
+                     "shiftedDelivery":  "模擬納入先",
+                     "item":  "",
+                     "model":  "機器B",
+                     "quantity":  "0",
+                     "shiftedQuantity":  "1"
+                 },
+                 {
+                     "row":  4,
+                     "contract":  "",
+                     "delivery":  "",
+                     "shiftedDelivery":  "",
+                     "item":  "",
+                     "model":  "",
+                     "quantity":  "",
+                     "shiftedQuantity":  ""
+                 }
+             ],
+    "sourceSha256":  "6A8149B68330CF548C63C491D8A21A64BA0D64EF4C51D9CC2121C30416A1DA3D",
+    "sourceUnchanged":  true,
+    "note":  "模擬データで131版のCrate_ChkDataとmargeを順に実行。DB取得および他の前処理は実行していない。"
+}

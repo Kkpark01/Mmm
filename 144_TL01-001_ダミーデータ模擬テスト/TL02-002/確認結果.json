@@ -1,0 +1,84 @@
+{
+  "caseId": "TL02-002",
+  "source": "131配布版",
+  "scope": "ダミーデータを使用した部分確認",
+  "officialResult": "未実施",
+  "databaseAccess": false,
+  "actualUiOperation": false,
+  "actualDialogDisplayed": false,
+  "checks": [
+    {
+      "case": "共通",
+      "item": "データ件数",
+      "expected": 3,
+      "actual": 3,
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E2",
+      "expected": "SIM-A",
+      "actual": "SIM-A",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E3",
+      "expected": "SIM-B",
+      "actual": "SIM-B",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E4",
+      "expected": "SIM-C",
+      "actual": "SIM-C",
+      "pass": true
+    },
+    {
+      "case": "TL02-002",
+      "item": "支払回数",
+      "expected": 1.0,
+      "actual": 1.0,
+      "pass": true
+    },
+    {
+      "case": "TL02-002",
+      "item": "年払の金額",
+      "expected": 100000.0,
+      "actual": 100000.0,
+      "pass": true
+    },
+    {
+      "case": "TL02-002",
+      "item": "Eを付けた製番",
+      "expected": "E1B-SIM-C",
+      "actual": "E1B-SIM-C",
+      "pass": true
+    },
+    {
+      "case": "TL02-002",
+      "item": "元の製番",
+      "expected": "1B-SIM-C",
+      "actual": "1B-SIM-C",
+      "pass": true
+    },
+    {
+      "case": "TL02-002",
+      "item": "照合キー",
+      "expected": "SIM-V01 / SIM-C / 1B-SIM-C / 100000",
+      "actual": "SIM-V01 / SIM-C / 1B-SIM-C / 100000",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "取得完了通知文",
+      "expected": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "actual": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "pass": true
+    }
+  ],
+  "status": "模擬範囲は合格",
+  "matched": 10,
+  "mismatched": 0
+}

@@ -1,0 +1,31 @@
+{
+  "checks": [
+    {
+      "case": "両方",
+      "actual": "3|31|True|False|False|%0000123%|NULL|%ABC%|NULL|",
+      "expected": "3|31|True|False|False|%0000123%|NULL|%ABC%|NULL|",
+      "pass": true
+    },
+    {
+      "case": "IDのみ",
+      "actual": "3|31|True|False|False|%0000123%|NULL|NULL|NULL|",
+      "expected": "3|31|True|False|False|%0000123%|NULL|NULL|NULL|",
+      "pass": true
+    },
+    {
+      "case": "納入先のみ",
+      "actual": "3|31|True|False|False|NULL|NULL|%ABC%|NULL|",
+      "expected": "3|31|True|False|False|NULL|NULL|%ABC%|NULL|",
+      "pass": true
+    },
+    {
+      "case": "全空欄",
+      "actual": "3|31|True|False|False|NULL|NULL|NULL|NULL|",
+      "expected": "3|31|True|False|False|NULL|NULL|NULL|NULL|",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "153CE3F0FED0ADEF49849311743A9F84537B1630B0B706EC866C7A7555B17E24",
+  "sourceUnchanged": true,
+  "note": "131版の取得条件生成VBAを直接実行。OR検索SQL・DB・結果連結・実画面は未実行"
+}

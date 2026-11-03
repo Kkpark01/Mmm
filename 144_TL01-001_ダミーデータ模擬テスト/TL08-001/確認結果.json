@@ -1,0 +1,265 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "見出し1",
+                       "actual":  "H1",
+                       "expected":  "H1",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目1",
+                       "actual":  "A-1",
+                       "expected":  "A-1",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目1",
+                       "actual":  "B-1",
+                       "expected":  "B-1",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し2",
+                       "actual":  "H2",
+                       "expected":  "H2",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目2",
+                       "actual":  "A-2",
+                       "expected":  "A-2",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目2",
+                       "actual":  "B-2",
+                       "expected":  "B-2",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し3",
+                       "actual":  "H3",
+                       "expected":  "H3",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目3",
+                       "actual":  "NECフィールディング",
+                       "expected":  "NECフィールディング",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目3",
+                       "actual":  "NECフィールディング",
+                       "expected":  "NECフィールディング",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し4",
+                       "actual":  "H4",
+                       "expected":  "H4",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目4",
+                       "actual":  "A-4",
+                       "expected":  "A-4",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目4",
+                       "actual":  "B-4",
+                       "expected":  "B-4",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し5",
+                       "actual":  "H5",
+                       "expected":  "H5",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目5",
+                       "actual":  "A-5",
+                       "expected":  "A-5",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目5",
+                       "actual":  "B-5",
+                       "expected":  "B-5",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し6",
+                       "actual":  "H6",
+                       "expected":  "H6",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目6",
+                       "actual":  "A-6",
+                       "expected":  "A-6",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目6",
+                       "actual":  "B-6",
+                       "expected":  "B-6",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し7",
+                       "actual":  "H7",
+                       "expected":  "H7",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目7",
+                       "actual":  "A-7",
+                       "expected":  "A-7",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目7",
+                       "actual":  "B-7",
+                       "expected":  "B-7",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し8",
+                       "actual":  "H8",
+                       "expected":  "H8",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目8",
+                       "actual":  "A-8",
+                       "expected":  "A-8",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目8",
+                       "actual":  "B-8",
+                       "expected":  "B-8",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し9",
+                       "actual":  "H9",
+                       "expected":  "H9",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目9",
+                       "actual":  "A-9",
+                       "expected":  "A-9",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目9",
+                       "actual":  "B-9",
+                       "expected":  "B-9",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し10",
+                       "actual":  "H10",
+                       "expected":  "H10",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目10",
+                       "actual":  "A-10",
+                       "expected":  "A-10",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目10",
+                       "actual":  "B-10",
+                       "expected":  "B-10",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し11",
+                       "actual":  "H11",
+                       "expected":  "H11",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目11",
+                       "actual":  "A-11",
+                       "expected":  "A-11",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目11",
+                       "actual":  "B-11",
+                       "expected":  "B-11",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "見出し12",
+                       "actual":  "H12",
+                       "expected":  "H12",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "1行目12",
+                       "actual":  "A-12",
+                       "expected":  "A-12",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2行目12",
+                       "actual":  "B-12",
+                       "expected":  "B-12",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "余分な行なし",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "先頭ゼロ維持",
+                       "actual":  "0000123",
+                       "expected":  "0000123",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "契約A",
+                       "actual":  "CONT-A",
+                       "expected":  "CONT-A",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "契約B",
+                       "actual":  "CONT-B",
+                       "expected":  "CONT-B",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "完了",
+                       "actual":  "完了",
+                       "expected":  "完了",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "メーカー警告なし",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "模擬取得を呼出",
+                       "actual":  "模擬取得",
+                       "expected":  "模擬取得",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "4C4DDECCE06068B50962791076D15DFCE15D30FCD8F3015410CAD83C6B903320",
+    "sourceUnchanged":  true,
+    "note":  "131版Start_UserInfoとContNo_Splitを実行。DB取得は架空3行、完了・メーカー警告は記録に置換。実DB・実画面・会社編集版は未確認。"
+}

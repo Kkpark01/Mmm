@@ -1,0 +1,267 @@
+{
+  "single": {
+    "status": "ERROR 1004: この操作は複数の選択範囲に対しては機能しません。",
+    "message": "",
+    "phase": "Supplier_Gathering",
+    "filterAtCopy": "TRUE",
+    "outputFiles": [],
+    "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+    "templateSha256": "8E70C5A8854B30747CA97C1370FA0F638FEE631DBFBBFD30FAA13B0785F57592",
+    "sourceUnchanged": true,
+    "templateUnchanged": true,
+    "note": "131版Output_PayListを架空取得済みデータと原紙コピーで実行。取得準備確認・期間スナップショットとMsgBoxを模擬化。DB・実画面・会社版は未確認"
+  },
+  "duplicate": {
+    "status": "OK",
+    "message": "支払いデータ抽出完了",
+    "phase": "Supplier_Gathering",
+    "filterAtCopy": "FALSE",
+    "outputFiles": [
+      "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\検証記録\\20261103_TL06_模擬テスト\\支払一覧_確認重複\\【BCP対策】支払一覧_2026年3月_20261103_1205.xlsx"
+    ],
+    "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+    "templateSha256": "8E70C5A8854B30747CA97C1370FA0F638FEE631DBFBBFD30FAA13B0785F57592",
+    "sourceUnchanged": true,
+    "templateUnchanged": true,
+    "note": "131版Output_PayListを架空取得済みデータと原紙コピーで実行。取得準備確認・期間スナップショットとMsgBoxを模擬化。DB・実画面・会社版は未確認"
+  },
+  "trialOnlyFilterChange": {
+    "status": "OK",
+    "message": "支払いデータ抽出完了",
+    "phase": "Supplier_Gathering",
+    "outputFiles": [
+      "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\検証記録\\20261103_TL06_模擬テスト\\支払一覧_フィルター解除仮試験\\【BCP対策】支払一覧_2026年3月_20261103_1206.xlsx"
+    ],
+    "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+    "templateSha256": "8E70C5A8854B30747CA97C1370FA0F638FEE631DBFBBFD30FAA13B0785F57592",
+    "sourceUnchanged": true,
+    "templateUnchanged": true,
+    "note": "131版Output_PayListを架空取得済みデータと原紙コピーで実行。取得準備確認・期間スナップショットとMsgBoxを模擬化。DB・実画面・会社版は未確認"
+  },
+  "outputChecks": [
+    {
+      "case": "重複期間",
+      "item": "A2",
+      "actual": "SIM-CONTRACT",
+      "expected": "SIM-CONTRACT",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "B2",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "C2",
+      "actual": "模擬納入先",
+      "expected": "模擬納入先",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "D2",
+      "actual": "模擬店舗",
+      "expected": "模擬店舗",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "E2",
+      "actual": "NEW",
+      "expected": "NEW",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "F2",
+      "actual": "新取引先",
+      "expected": "新取引先",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "G2",
+      "actual": "SIM-001",
+      "expected": "SIM-001",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "I2",
+      "actual": 120000,
+      "expected": 120000,
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "J2",
+      "actual": 12,
+      "expected": 12,
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "M2",
+      "actual": "HW-SIM",
+      "expected": "HW-SIM",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "R2",
+      "actual": 10000,
+      "expected": 10000,
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "A3",
+      "actual": null,
+      "expected": null,
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "K2",
+      "actual": "2026-01-01 00:00:00",
+      "expected": "2026-01-01 00:00:00",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "L2",
+      "actual": "2026-12-31 00:00:00",
+      "expected": "2026-12-31 00:00:00",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "O2",
+      "actual": "2026-01-01 00:00:00",
+      "expected": "2026-01-01 00:00:00",
+      "pass": true
+    },
+    {
+      "case": "重複期間",
+      "item": "P2",
+      "actual": "2026-12-31 00:00:00",
+      "expected": "2026-12-31 00:00:00",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "A2",
+      "actual": "SIM-CONTRACT",
+      "expected": "SIM-CONTRACT",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "B2",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "C2",
+      "actual": "模擬納入先",
+      "expected": "模擬納入先",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "D2",
+      "actual": "模擬店舗",
+      "expected": "模擬店舗",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "E2",
+      "actual": "NEW",
+      "expected": "NEW",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "F2",
+      "actual": "新取引先",
+      "expected": "新取引先",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "G2",
+      "actual": "SIM-001",
+      "expected": "SIM-001",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "I2",
+      "actual": 120000,
+      "expected": 120000,
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "J2",
+      "actual": 12,
+      "expected": 12,
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "M2",
+      "actual": "HW-SIM",
+      "expected": "HW-SIM",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "R2",
+      "actual": 10000,
+      "expected": 10000,
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "A3",
+      "actual": null,
+      "expected": null,
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "K2",
+      "actual": "2026-01-01 00:00:00",
+      "expected": "2026-01-01 00:00:00",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "L2",
+      "actual": "2026-12-31 00:00:00",
+      "expected": "2026-12-31 00:00:00",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "O2",
+      "actual": "2026-01-01 00:00:00",
+      "expected": "2026-01-01 00:00:00",
+      "pass": true
+    },
+    {
+      "case": "フィルター解除の仮変更",
+      "item": "P2",
+      "actual": "2026-12-31 00:00:00",
+      "expected": "2026-12-31 00:00:00",
+      "pass": true
+    }
+  ]
+}

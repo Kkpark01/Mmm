@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "item": "客先名F4",
+      "actual": "模擬客先",
+      "expected": "模擬客先",
+      "pass": true
+    },
+    {
+      "item": "契約NoF6",
+      "actual": "CONTRACT-A",
+      "expected": "CONTRACT-A",
+      "pass": true
+    },
+    {
+      "item": "サポートIDF7",
+      "actual": "123",
+      "expected": "0000123",
+      "pass": false
+    },
+    {
+      "item": "日程F9",
+      "actual": "2026年11月3日",
+      "expected": "2026年11月3日",
+      "pass": true
+    },
+    {
+      "item": "構成E30",
+      "actual": "模擬構成",
+      "expected": "模擬構成",
+      "pass": true
+    },
+    {
+      "item": "品名E31",
+      "actual": "模擬品名",
+      "expected": "模擬品名",
+      "pass": true
+    },
+    {
+      "item": "型式E32",
+      "actual": "MODEL-A",
+      "expected": "MODEL-A",
+      "pass": true
+    },
+    {
+      "item": "シリアルE33",
+      "actual": "SERIAL-A",
+      "expected": "SERIAL-A",
+      "pass": true
+    },
+    {
+      "item": "結合先F4",
+      "actual": "模擬客先",
+      "expected": "模擬客先",
+      "pass": true
+    },
+    {
+      "item": "結合先F6",
+      "actual": "CONTRACT-A",
+      "expected": "CONTRACT-A",
+      "pass": true
+    },
+    {
+      "item": "保存後客先",
+      "actual": "模擬客先",
+      "expected": "模擬客先",
+      "pass": true
+    },
+    {
+      "item": "保存後契約",
+      "actual": "CONTRACT-A",
+      "expected": "CONTRACT-A",
+      "pass": true
+    },
+    {
+      "item": "保存後品名",
+      "actual": "模擬品名",
+      "expected": "模擬品名",
+      "pass": true
+    }
+  ],
+  "addressF5": "",
+  "addressG5": "",
+  "sourceSha256": "4C4DDECCE06068B50962791076D15DFCE15D30FCD8F3015410CAD83C6B903320",
+  "sourceUnchanged": true,
+  "templateUnchanged": true,
+  "note": "試験専用Excelで構文の余分な括弧を除き、転記先を結合セル先頭へ変更して原紙コピーに転記。住所処理・シート内容は架空、実DB・実画面・会社編集版は未確認。"
+}

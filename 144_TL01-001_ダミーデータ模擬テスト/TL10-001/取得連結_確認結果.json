@@ -1,0 +1,49 @@
+{
+  "checks": [
+    {
+      "item": "最初の見出し",
+      "actual": "納入先ｺｰﾄﾞ",
+      "expected": "納入先ｺｰﾄﾞ",
+      "pass": true
+    },
+    {
+      "item": "最後の見出し",
+      "actual": "終息備考",
+      "expected": "終息備考",
+      "pass": true
+    },
+    {
+      "item": "1件目",
+      "actual": "SIM-A",
+      "expected": "SIM-A",
+      "pass": true
+    },
+    {
+      "item": "重複行の保持",
+      "actual": "SIM-A",
+      "expected": "SIM-A",
+      "pass": true
+    },
+    {
+      "item": "3件目",
+      "actual": "SIM-B",
+      "expected": "SIM-B",
+      "pass": true
+    },
+    {
+      "item": "4件目なし",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "item": "先頭0の保持",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "153CE3F0FED0ADEF49849311743A9F84537B1630B0B706EC866C7A7555B17E24",
+  "sourceUnchanged": true,
+  "note": "接続先・SQLのみ試験用に差替。131版McmExportSqlServerの3件連結とMcmWriteCachedをローカルSQL ServerのSELECT定数で実行。実SQL・実DB・本番ドライバ・画面は未確認"
+}

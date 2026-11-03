@@ -1,0 +1,63 @@
+{
+  "case": "TL03-003",
+  "checks": [
+    {
+      "case": "TL03-003",
+      "item": "旧のみ 現契約",
+      "actual": "○",
+      "expected": "○",
+      "pass": true
+    },
+    {
+      "case": "TL03-003",
+      "item": "旧のみ 依頼",
+      "actual": "×",
+      "expected": "×",
+      "pass": true
+    },
+    {
+      "case": "TL03-003",
+      "item": "旧側共通 現契約",
+      "actual": "○",
+      "expected": "○",
+      "pass": true
+    },
+    {
+      "case": "TL03-003",
+      "item": "旧側共通 依頼",
+      "actual": "○",
+      "expected": "○",
+      "pass": true
+    },
+    {
+      "case": "TL03-003",
+      "item": "新のみ 現契約",
+      "actual": "-",
+      "expected": "-",
+      "pass": true
+    },
+    {
+      "case": "TL03-003",
+      "item": "新のみ 依頼",
+      "actual": "○",
+      "expected": "○",
+      "pass": true
+    },
+    {
+      "case": "TL03-003",
+      "item": "新側共通 現契約",
+      "actual": "○",
+      "expected": "○",
+      "pass": true
+    },
+    {
+      "case": "TL03-003",
+      "item": "新側共通 依頼",
+      "actual": "○",
+      "expected": "○",
+      "pass": true
+    }
+  ],
+  "actualExecution": "131版のVBAの一部分をダミーブックで実行",
+  "formalPass": false
+}

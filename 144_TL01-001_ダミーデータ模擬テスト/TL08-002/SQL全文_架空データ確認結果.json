@@ -1,0 +1,20 @@
+﻿{
+    "checks":  [
+                   {
+                       "query":  "queries/T22_00_default_01.sql",
+                       "columns":  13,
+                       "bothRows":  2,
+                       "singleRows":  1,
+                       "bothContracts":  [
+                                             "1",
+                                             "2"
+                                         ],
+                       "singleContracts":  [
+                                               "1"
+                                           ],
+                       "unmatchedRows":  0,
+                       "pass":  true
+                   }
+               ],
+    "note":  "131版SQL全文を仮の列構成と架空の2契約で実行。実DBや実際の列型との一致は未確認。"
+}

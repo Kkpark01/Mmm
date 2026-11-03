@@ -1,0 +1,12 @@
+{
+  "database": "ローカルの試験用DB（架空1店舗、試験後削除）",
+  "message": "実行用フォルダに原紙がありません。",
+  "buttonsAfterClosing": "開始・終了が有効",
+  "outputFiles": 0,
+  "temporaryFiles": 0,
+  "logHasStart": true,
+  "logHasError": true,
+  "logHasSaveComplete": false,
+  "sourceUnchanged": true,
+  "databaseRemoved": true
+}

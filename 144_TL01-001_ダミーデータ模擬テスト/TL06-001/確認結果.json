@@ -1,0 +1,103 @@
+﻿{
+    "checks":  [
+                   {
+                       "case":  "string",
+                       "item":  "古い重複の判定",
+                       "actual":  "2",
+                       "expected":  "2",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "string",
+                       "item":  "別IDの判定",
+                       "actual":  "1",
+                       "expected":  "1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "string",
+                       "item":  "新しい重複の判定",
+                       "actual":  "1",
+                       "expected":  "1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "string",
+                       "item":  "旧行を削除",
+                       "actual":  "False",
+                       "expected":  "False",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "string",
+                       "item":  "新行を保持",
+                       "actual":  "True",
+                       "expected":  "True",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "string",
+                       "item":  "別IDを保持",
+                       "actual":  "True",
+                       "expected":  "True",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "string",
+                       "item":  "残存件数",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "number",
+                       "item":  "古い重複の判定",
+                       "actual":  "2",
+                       "expected":  "2",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "number",
+                       "item":  "別IDの判定",
+                       "actual":  "1",
+                       "expected":  "1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "number",
+                       "item":  "新しい重複の判定",
+                       "actual":  "1",
+                       "expected":  "1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "number",
+                       "item":  "旧行を削除",
+                       "actual":  "False",
+                       "expected":  "False",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "number",
+                       "item":  "新行を保持",
+                       "actual":  "True",
+                       "expected":  "True",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "number",
+                       "item":  "別IDを保持",
+                       "actual":  "True",
+                       "expected":  "True",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "number",
+                       "item":  "残存件数",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   }
+               ],
+    "note":  "131版の重複判定・削除を隔離Excelで実行。DB取得・製番の当て込み・ボタンは未確認。"
+}

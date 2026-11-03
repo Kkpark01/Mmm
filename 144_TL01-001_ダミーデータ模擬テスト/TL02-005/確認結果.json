@@ -1,0 +1,149 @@
+{
+  "caseId": "TL02-005",
+  "source": "131配布版",
+  "scope": "ダミーデータを使用した部分確認",
+  "officialResult": "未実施",
+  "databaseAccess": false,
+  "actualUiOperation": false,
+  "actualDialogDisplayed": false,
+  "checks": [
+    {
+      "case": "共通",
+      "item": "データ件数",
+      "expected": 3,
+      "actual": 3,
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E2",
+      "expected": "SIM-A",
+      "actual": "SIM-A",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E3",
+      "expected": "SIM-B",
+      "actual": "SIM-B",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E4",
+      "expected": "SIM-C",
+      "actual": "SIM-C",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "取得完了通知文",
+      "expected": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "actual": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "支払一覧ファイル生成",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "完了通知（いずれか）",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート 取引先別実績一覧",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート 実績",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート 支払不要",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート 支払一覧",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート 印刷用",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート バッチ",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート バッチリスト",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "シート 支払先リスト",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "一覧明細数",
+      "expected": 3,
+      "actual": 3,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "I1の合計",
+      "expected": 116670.0,
+      "actual": 116670.0,
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "131の実行ブック名（観測）",
+      "expected": "TL02-synthetic.xlsm",
+      "actual": "TL02-synthetic.xlsm",
+      "pass": true
+    },
+    {
+      "case": "TL02-005",
+      "item": "仕様書で期待する実行中ブック名",
+      "expected": "2026年10月度支払い一覧.xlsm",
+      "actual": "TL02-synthetic.xlsm",
+      "pass": false
+    }
+  ],
+  "status": "要確認：131版で仕様書のブック名期待値と不一致",
+  "observedCurrentName": "TL02-synthetic.xlsm",
+  "expectedName": "2026年10月度支払い一覧.xlsm",
+  "generatedFile": "2026年10月度支払い一覧.xlsm",
+  "companyEditedVersionAvailable": false
+}

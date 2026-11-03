@@ -1,0 +1,21 @@
+{
+  "case": "TL03-002",
+  "checks": [
+    {
+      "case": "TL03-002",
+      "item": "解約の現契約",
+      "actual": "○",
+      "expected": "○",
+      "pass": true
+    },
+    {
+      "case": "TL03-002",
+      "item": "解約の依頼",
+      "actual": "×",
+      "expected": "×",
+      "pass": true
+    }
+  ],
+  "actualExecution": "131版のVBAの一部分をダミーブックで実行",
+  "formalPass": false
+}

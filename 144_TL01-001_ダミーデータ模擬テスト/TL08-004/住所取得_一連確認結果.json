@@ -1,0 +1,55 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "一致時の住所",
+                       "actual":  "模擬市1-2-3",
+                       "expected":  "模擬市1-2-3",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "一致時の客先",
+                       "actual":  "客先 A",
+                       "expected":  "客先 A",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "一致時の完了",
+                       "actual":  "取込み完了",
+                       "expected":  "取込み完了",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "一致時通知なし",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "不一致の通知",
+                       "actual":  "住所が見つかりませんでした。",
+                       "expected":  "住所が見つかりませんでした。",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "不一致時に旧住所を消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "不一致でも完了通知",
+                       "actual":  "取込み完了",
+                       "expected":  "取込み完了",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2件目の客先",
+                       "actual":  "客先 B",
+                       "expected":  "客先 B",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "4C4DDECCE06068B50962791076D15DFCE15D30FCD8F3015410CAD83C6B903320",
+    "sourceUnchanged":  true,
+    "note":  "131版のFilterAndCopyRowsとAddressGetを実行。参照先は架空ファイルに差替、見つからない通知は文字記録に置換。実TSSA・実画面・会社編集版は未確認。"
+}

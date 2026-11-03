@@ -1,0 +1,38 @@
+﻿Sub Edit_Duplication()
+'重複データ削除
+'***********************************
+Dim LastRow As Long                         '// 最終行取得用
+Dim rowsToDelete As Range
+LastRow = Cells(rows.count, 1).End(xlUp).row
+If LastRow < 2 Then Exit Sub
+With CancelWS.Sort
+.SortFields.Clear
+.SortFields.Add key:=Range("J1"), Order:=xlAscending        '// サポートID
+.SortFields.Add key:=Range("H1"), Order:=xlAscending        '// 契約点検月
+.SortFields.Add key:=Range("L1"), Order:=xlAscending        '// 契約No
+.SortFields.Add key:=Range("T1"), Order:=xlAscending        '// 機器構成表示順
+.SortFields.Add key:=Range("U1"), Order:=xlAscending        '// 明細表示順
+.SetRange Range(Cells(1, 1), Cells(LastRow, 34))
+.header = xlYes
+.Apply
+.SortFields.Clear
+End With
+'// 「相対参照：絶対参照」で重複確認
+With Range(Cells(2, 7), Cells(LastRow, 7))
+.FormulaR1C1 = "=countif(RC5:R" & LastRow & "C5,RC5)"
+.value = .value
+End With
+'// 重複確認結果で2以上を削除
+Range(Cells(1, 1), Cells(LastRow, 34)).AutoFilter field:=7, Criteria1:="<>1"
+' フィルターで表示されたデータ行だけを削除する（見出し・非対象行は保持）。
+Set rowsToDelete = Nothing
+On Error Resume Next
+Set rowsToDelete = CancelWS.Range(CancelWS.Cells(2, 1), CancelWS.Cells(LastRow, 34)).SpecialCells(xlCellTypeVisible)
+On Error GoTo 0
+If Not rowsToDelete Is Nothing Then
+' 非表示列で分割された範囲も、A列との交差で同じ行を一度だけ扱う。
+Set rowsToDelete = Application.Intersect(rowsToDelete.EntireRow, CancelWS.Columns(1))
+rowsToDelete.EntireRow.Delete
+End If
+CancelWS.AutoFilterMode = False
+End Sub

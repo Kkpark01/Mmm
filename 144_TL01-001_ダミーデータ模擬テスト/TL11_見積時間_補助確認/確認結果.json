@@ -1,0 +1,133 @@
+﻿{
+    "checks":  [
+                   {
+                       "case":  "時間8",
+                       "item":  "SQL選択",
+                       "actual":  "queries/T07_00_0_01.sql",
+                       "expected":  "queries/T07_00_0_01.sql",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間8",
+                       "item":  "型式条件",
+                       "actual":  "%MODEL-A%",
+                       "expected":  "%MODEL-A%",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間8",
+                       "item":  "品名条件",
+                       "actual":  "%機器B%",
+                       "expected":  "%機器B%",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間8",
+                       "item":  "時間条件",
+                       "actual":  "8",
+                       "expected":  "8",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間8",
+                       "item":  "出力列数",
+                       "actual":  "12",
+                       "expected":  "12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間8",
+                       "item":  "見出し数",
+                       "actual":  "12",
+                       "expected":  "12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間24",
+                       "item":  "SQL選択",
+                       "actual":  "queries/T07_00_0_01.sql",
+                       "expected":  "queries/T07_00_0_01.sql",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間24",
+                       "item":  "型式条件",
+                       "actual":  "%MODEL-A%",
+                       "expected":  "%MODEL-A%",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間24",
+                       "item":  "品名条件",
+                       "actual":  "%機器B%",
+                       "expected":  "%機器B%",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間24",
+                       "item":  "時間条件",
+                       "actual":  "24",
+                       "expected":  "24",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間24",
+                       "item":  "出力列数",
+                       "actual":  "12",
+                       "expected":  "12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間24",
+                       "item":  "見出し数",
+                       "actual":  "12",
+                       "expected":  "12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間",
+                       "item":  "SQL選択",
+                       "actual":  "queries/T07_00_1_01.sql",
+                       "expected":  "queries/T07_00_1_01.sql",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間",
+                       "item":  "型式条件",
+                       "actual":  "%MODEL-A%",
+                       "expected":  "%MODEL-A%",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間",
+                       "item":  "品名条件",
+                       "actual":  "%機器B%",
+                       "expected":  "%機器B%",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間",
+                       "item":  "時間条件",
+                       "actual":  "NO TIME",
+                       "expected":  "NO TIME",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間",
+                       "item":  "出力列数",
+                       "actual":  "12",
+                       "expected":  "12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "時間",
+                       "item":  "見出し数",
+                       "actual":  "12",
+                       "expected":  "12",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "DA9C371770275D94D5EC018643F03EFFF572D5E3D46C2F764B657523FA79BBEE",
+    "sourceUnchanged":  true,
+    "note":  "131版のJobs1と直接依存を模擬Excelで実行。SQL実行と画面ボタンは未確認。"
+}

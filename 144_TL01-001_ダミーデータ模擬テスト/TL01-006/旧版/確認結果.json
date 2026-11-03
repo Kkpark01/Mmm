@@ -1,0 +1,233 @@
+{
+  "caseId": "TL01-002",
+  "kind": "synthetic partial scenario",
+  "source": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\参照用\\Excelマクロ\\受領原本\\20261028_業務利用ツール\\展開\\業務利用ツール\\マクロ\\契約\\取引先見積依頼書発行ver2.6.xlsm",
+  "sourceSha256": "5293ccb10841f3e76c903b899e13ed5b8116ed748203a47c84c41c788b8ac7ad",
+  "realDatabase": false,
+  "realUiOperation": false,
+  "actualDialogDisplayed": false,
+  "capturedMessage": "[見積依頼書_模擬納入先 模擬工場20261103_070846.xlsx]ファイルを保存しました。",
+  "started": "2026-11-03T07:08:46.1661256+09:00",
+  "finished": "2026-11-03T07:08:47.6230877+09:00",
+  "sourceOutput": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\検証記録\\20261103_TL01-006_模擬シナリオ\\旧版\\見積依頼書_模擬納入先 模擬工場20261103_070846.xlsx",
+  "deliveredOutput": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\144_TL01-001_ダミーデータ模擬テスト\\TL01-006\\旧版\\出力結果\\見積依頼書_模擬納入先 模擬工場20261103_070846.xlsx",
+  "pilotObservation": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\144_TL01-001_ダミーデータ模擬テスト\\TL01-006\\旧版\\出力結果\\操作シート_模擬実行後.xlsx",
+  "checks": [
+    {
+      "item": "原紙の図形なし（セルコピーで欠落しない）",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "item": "模擬データの取込入口",
+      "expected": "M07:取引先見積SQL",
+      "actual": "M07:取引先見積SQL",
+      "pass": true
+    },
+    {
+      "item": "ファイルの保存",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "item": "成功通知の文言",
+      "expected": "[見積依頼書_模擬納入先 模擬工場20261103_070846.xlsx]ファイルを保存しました。",
+      "actual": "[見積依頼書_模擬納入先 模擬工場20261103_070846.xlsx]ファイルを保存しました。",
+      "pass": true
+    },
+    {
+      "item": "帳票シート名",
+      "expected": "保守見積依頼",
+      "actual": "保守見積依頼",
+      "pass": true
+    },
+    {
+      "item": "帳票 A8",
+      "expected": "◆模擬構成A",
+      "actual": "◆模擬構成A",
+      "pass": true
+    },
+    {
+      "item": "帳票 G8",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 U8",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 AH8",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 AI8",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 AM8",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 A9",
+      "expected": "模擬メーカー",
+      "actual": "模擬メーカー",
+      "pass": true
+    },
+    {
+      "item": "帳票 G9",
+      "expected": "模擬センサ",
+      "actual": "模擬センサ",
+      "pass": true
+    },
+    {
+      "item": "帳票 U9",
+      "expected": "SIM-SENSOR-01",
+      "actual": "SIM-SENSOR-01",
+      "pass": true
+    },
+    {
+      "item": "帳票 AH9",
+      "expected": "2",
+      "actual": "2",
+      "pass": true
+    },
+    {
+      "item": "帳票 AI9",
+      "expected": "SIM-SEIBAN-01",
+      "actual": "SIM-SEIBAN-01",
+      "pass": true
+    },
+    {
+      "item": "帳票 AM9",
+      "expected": "S/N： SIM-SERIAL-A / SIM-SERIAL-B",
+      "actual": "S/N： SIM-SERIAL-A / SIM-SERIAL-B",
+      "pass": true
+    },
+    {
+      "item": "帳票 A10",
+      "expected": "模擬メーカー",
+      "actual": "模擬メーカー",
+      "pass": true
+    },
+    {
+      "item": "帳票 G10",
+      "expected": "模擬モーター",
+      "actual": "模擬モーター",
+      "pass": true
+    },
+    {
+      "item": "帳票 U10",
+      "expected": "SIM-MOTOR-02",
+      "actual": "SIM-MOTOR-02",
+      "pass": true
+    },
+    {
+      "item": "帳票 AH10",
+      "expected": "1",
+      "actual": "1",
+      "pass": true
+    },
+    {
+      "item": "帳票 AI10",
+      "expected": "SIM-SEIBAN-02",
+      "actual": "SIM-SEIBAN-02",
+      "pass": true
+    },
+    {
+      "item": "帳票 AM10",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 A11",
+      "expected": "◆模擬構成B",
+      "actual": "◆模擬構成B",
+      "pass": true
+    },
+    {
+      "item": "帳票 G11",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 U11",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 AH11",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 AI11",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 AM11",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    },
+    {
+      "item": "帳票 A12",
+      "expected": "模擬メーカー",
+      "actual": "模擬メーカー",
+      "pass": true
+    },
+    {
+      "item": "帳票 G12",
+      "expected": "模擬センサ",
+      "actual": "模擬センサ",
+      "pass": true
+    },
+    {
+      "item": "帳票 U12",
+      "expected": "SIM-SENSOR-01",
+      "actual": "SIM-SENSOR-01",
+      "pass": true
+    },
+    {
+      "item": "帳票 AH12",
+      "expected": "3",
+      "actual": "3",
+      "pass": true
+    },
+    {
+      "item": "帳票 AI12",
+      "expected": "SIM-SEIBAN-03",
+      "actual": "SIM-SEIBAN-03",
+      "pass": true
+    },
+    {
+      "item": "帳票 AM12",
+      "expected": "S/N： SIM-SERIAL-C",
+      "actual": "S/N： SIM-SERIAL-C",
+      "pass": true
+    },
+    {
+      "item": "6行目以降に余計な品名なし",
+      "expected": "",
+      "actual": "",
+      "pass": true
+    }
+  ]
+}

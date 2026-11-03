@@ -1,0 +1,28 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "元ID未入力",
+                       "result":  "Err",
+                       "actual":  "付け替え元サポートIDを入力してください",
+                       "expected":  "付け替え元サポートIDを入力してください",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "先ID未入力",
+                       "result":  "Err",
+                       "actual":  "付け替え先サポートIDを入力してください",
+                       "expected":  "付け替え先サポートIDを入力してください",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "元先同一",
+                       "result":  "Err",
+                       "actual":  "付け替え先サポートIDが付け替え元と同一です",
+                       "expected":  "付け替え先サポートIDが付け替え元と同一です",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "B8DC30BA4A44E1985E8A30D0B31B150666A5C7B5CDD4F2A564A5A37477DF929A",
+    "sourceUnchanged":  true,
+    "note":  "133版EXE内の入力検証関数をダミー入力で直接呼出。DB接続・画面の開始ボタン・未登録判定は未実行"
+}

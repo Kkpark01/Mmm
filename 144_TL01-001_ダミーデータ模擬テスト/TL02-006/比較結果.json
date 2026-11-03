@@ -1,0 +1,12 @@
+{
+  "range": "B1:N4",
+  "oldRows": 3,
+  "newRows": 3,
+  "comparedCells": 52,
+  "differences": [],
+  "legacyOracleFunctionExecuted": false,
+  "oldAmounts": "手計算で8337・8333・100000を供給",
+  "newAmounts": "131のMcmCalculatePaymentで計算",
+  "realDB": false,
+  "realUI": false
+}

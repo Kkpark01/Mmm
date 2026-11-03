@@ -1,0 +1,49 @@
+﻿{
+    "checks":  [
+                   {
+                       "case":  "TL11-007",
+                       "item":  "取得エラーを受け取る",
+                       "actual":  "True",
+                       "expected":  "True",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-007",
+                       "item":  "旧見出し消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-007",
+                       "item":  "旧ID消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-007",
+                       "item":  "旧末尾消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-007",
+                       "item":  "範囲外は維持",
+                       "actual":  "範囲外",
+                       "expected":  "範囲外",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-007",
+                       "item":  "入力維持",
+                       "actual":  "模擬品名",
+                       "expected":  "模擬品名",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "DA9C371770275D94D5EC018643F03EFFF572D5E3D46C2F764B657523FA79BBEE",
+    "sourceUnchanged":  true,
+    "note":  "取得関数を模擬例外に置換、検索処理を実行。認証設定・実エラー文・Excelダイアログは未確認。"
+}

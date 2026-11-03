@@ -1,0 +1,56 @@
+{
+  "checks": [
+    {
+      "name": "Exclusion mixed count",
+      "actual": 2,
+      "expected": 2,
+      "pass": true
+    },
+    {
+      "name": "Exclusion kept first",
+      "actual": "ID2",
+      "expected": "ID2",
+      "pass": true
+    },
+    {
+      "name": "Exclusion kept last",
+      "actual": "ID4",
+      "expected": "ID4",
+      "pass": true
+    },
+    {
+      "name": "Exclusion header kept",
+      "actual": "H1",
+      "expected": "H1",
+      "pass": true
+    },
+    {
+      "name": "Exclusion filter cleared",
+      "actual": false,
+      "expected": false,
+      "pass": true
+    },
+    {
+      "name": "Exclusion no matches",
+      "actual": 3,
+      "expected": 3,
+      "pass": true
+    },
+    {
+      "name": "Exclusion all matches",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "Exclusion header only",
+      "actual": 0,
+      "expected": 0,
+      "pass": true
+    }
+  ],
+  "sourceVersion": "139修正版",
+  "fileSha256": "F4185BA8EE1D04F11504A755D11E1B6CF6541EE3A68EF8A2F6F3063413789DF2",
+  "testDate": "2026-11-02",
+  "formalPass": false
+}

@@ -1,0 +1,43 @@
+{
+  "checks": [
+    {
+      "item": "検索入力維持",
+      "actual": "SIM-NONE",
+      "expected": "SIM-NONE",
+      "pass": true
+    },
+    {
+      "item": "取得処理呼出",
+      "actual": "M01:契約手続SQL",
+      "expected": "M01:契約手続SQL",
+      "pass": true
+    },
+    {
+      "item": "通知文",
+      "actual": "新規契約の契約条件データの取得に失敗しました。\r\n\r\n支払い0回や、未指定は出力できません",
+      "expected": "新規契約の契約条件データの取得に失敗しました。\r\n\r\n支払い0回や、未指定は出力できません",
+      "pass": true
+    },
+    {
+      "item": "帳票ファイルなし",
+      "actual": "0",
+      "expected": "0",
+      "pass": true
+    },
+    {
+      "item": "ヘッダのみ",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "item": "操作シートへ戻る",
+      "actual": "取引先契約手続依頼書発行",
+      "expected": "取引先契約手続依頼書発行",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "0B2C2BD682A6AE8C2B781C75BF0CDB1D65425CD57048CCE6ADBFA4C081E68FEB",
+  "sourceUnchanged": true,
+  "note": "新規契約マクロを隔離ブックで実行。取得を0件のダミー、MsgBoxを記録に置換。DB、実画面、実ダイアログ未確認"
+}

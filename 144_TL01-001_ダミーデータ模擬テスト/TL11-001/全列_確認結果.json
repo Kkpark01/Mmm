@@ -1,0 +1,315 @@
+﻿{
+    "checks":  [
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目1列",
+                       "actual":  "0000123",
+                       "expected":  "0000123",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目2列",
+                       "actual":  "模擬納入先A",
+                       "expected":  "模擬納入先A",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目3列",
+                       "actual":  "2026/03/15",
+                       "expected":  "2026/03/15",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目4列",
+                       "actual":  "REQ-001",
+                       "expected":  "REQ-001",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目5列",
+                       "actual":  "8",
+                       "expected":  "8",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目6列",
+                       "actual":  "模擬取引先A",
+                       "expected":  "模擬取引先A",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目7列",
+                       "actual":  "模擬メーカ",
+                       "expected":  "模擬メーカ",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目8列",
+                       "actual":  "MODEL ABC",
+                       "expected":  "MODEL ABC",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目9列",
+                       "actual":  "A-1",
+                       "expected":  "A-1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目10列",
+                       "actual":  "0",
+                       "expected":  "0",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目11列",
+                       "actual":  "12000",
+                       "expected":  "12000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "1行目12列",
+                       "actual":  "10000",
+                       "expected":  "10000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "見出し背景色",
+                       "actual":  "12632256",
+                       "expected":  "12632256",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "先頭ID",
+                       "actual":  "0000123",
+                       "expected":  "0000123",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "2行目ID",
+                       "actual":  "0000456",
+                       "expected":  "0000456",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "先頭日付",
+                       "actual":  "2026/03/15",
+                       "expected":  "2026/03/15",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "末尾見出し",
+                       "actual":  "仕切金",
+                       "expected":  "仕切金",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "標準価格",
+                       "actual":  "12000",
+                       "expected":  "12000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "仕切金",
+                       "actual":  "20000",
+                       "expected":  "20000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "以前の末尾消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "明細品名",
+                       "actual":  "MODEL ABC",
+                       "expected":  "MODEL ABC",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-abc",
+                       "item":  "入力語維持",
+                       "actual":  "abc",
+                       "expected":  "abc",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目1列",
+                       "actual":  "0000123",
+                       "expected":  "0000123",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目2列",
+                       "actual":  "模擬納入先A",
+                       "expected":  "模擬納入先A",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目3列",
+                       "actual":  "2026/03/15",
+                       "expected":  "2026/03/15",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目4列",
+                       "actual":  "REQ-001",
+                       "expected":  "REQ-001",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目5列",
+                       "actual":  "8",
+                       "expected":  "8",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目6列",
+                       "actual":  "模擬取引先A",
+                       "expected":  "模擬取引先A",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目7列",
+                       "actual":  "模擬メーカ",
+                       "expected":  "模擬メーカ",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目8列",
+                       "actual":  "MODEL ABC",
+                       "expected":  "MODEL ABC",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目9列",
+                       "actual":  "A-1",
+                       "expected":  "A-1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目10列",
+                       "actual":  "0",
+                       "expected":  "0",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目11列",
+                       "actual":  "12000",
+                       "expected":  "12000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "1行目12列",
+                       "actual":  "10000",
+                       "expected":  "10000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "見出し背景色",
+                       "actual":  "12632256",
+                       "expected":  "12632256",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "先頭ID",
+                       "actual":  "0000123",
+                       "expected":  "0000123",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "2行目ID",
+                       "actual":  "0000456",
+                       "expected":  "0000456",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "先頭日付",
+                       "actual":  "2026/03/15",
+                       "expected":  "2026/03/15",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "末尾見出し",
+                       "actual":  "仕切金",
+                       "expected":  "仕切金",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "標準価格",
+                       "actual":  "12000",
+                       "expected":  "12000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "仕切金",
+                       "actual":  "20000",
+                       "expected":  "20000",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "以前の末尾消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "明細品名",
+                       "actual":  "MODEL ABC",
+                       "expected":  "MODEL ABC",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL11-001-ABC",
+                       "item":  "入力語維持",
+                       "actual":  "ABC",
+                       "expected":  "ABC",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "DA9C371770275D94D5EC018643F03EFFF572D5E3D46C2F764B657523FA79BBEE",
+    "sourceUnchanged":  true,
+    "note":  "131版検索・出力処理、SQL取得のみ固定2件に置換。実DB検索・実画面・実ダイアログは未確認"
+}

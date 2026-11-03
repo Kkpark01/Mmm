@@ -1,0 +1,79 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "初回A",
+                       "actual":  "A-1",
+                       "expected":  "A-1",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "初回B",
+                       "actual":  "B-1",
+                       "expected":  "B-1",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "初回警告",
+                       "actual":  "メーカー相違",
+                       "expected":  "メーカー相違",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "初回完了",
+                       "actual":  "完了",
+                       "expected":  "完了",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "初回条件B",
+                       "actual":  "CONT-B",
+                       "expected":  "CONT-B",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2回目A",
+                       "actual":  "A-1",
+                       "expected":  "A-1",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2回目旧B行消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2回目旧B末尾消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2回目条件A",
+                       "actual":  "CONT-A",
+                       "expected":  "CONT-A",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2回目旧条件B消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2回目メーカー警告なし",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "2回目完了",
+                       "actual":  "完了",
+                       "expected":  "完了",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "4C4DDECCE06068B50962791076D15DFCE15D30FCD8F3015410CAD83C6B903320",
+    "sourceUnchanged":  true,
+    "note":  "131版Start_UserInfoとContNo_Splitを実行。DB取得は初回3行・次回1行の架空データ、完了・メーカー警告は記録に置換。実DB・実画面・会社編集版は未確認。"
+}

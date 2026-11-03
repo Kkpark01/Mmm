@@ -1,0 +1,90 @@
+{
+  "checks": [
+    {
+      "case": "TL04-003",
+      "item": "取得SQL 1",
+      "actual": "queries/T34_01_00_01.sql",
+      "expected": "queries/T34_01_00_01.sql",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "列数 1",
+      "actual": "27",
+      "expected": "27",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "見出し数 1",
+      "actual": "27",
+      "expected": "27",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "取得SQL 2",
+      "actual": "queries/T34_01_00_02.sql",
+      "expected": "queries/T34_01_00_02.sql",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "列数 2",
+      "actual": "11",
+      "expected": "11",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "見出し数 2",
+      "actual": "11",
+      "expected": "11",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "取得SQL 3",
+      "actual": "queries/T34_01_00_03.sql",
+      "expected": "queries/T34_01_00_03.sql",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "列数 3",
+      "actual": "12",
+      "expected": "12",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "見出し数 3",
+      "actual": "12",
+      "expected": "12",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "サポートIDの7桁化",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "8h見積No",
+      "actual": "SIM-8H",
+      "expected": "SIM-8H",
+      "pass": true
+    },
+    {
+      "case": "TL04-003",
+      "item": "24h見積No",
+      "actual": "SIM-24H",
+      "expected": "SIM-24H",
+      "pass": true
+    }
+  ],
+  "formalPass": false,
+  "sourceSha256": "FAAAAF02123B947499E7E1B1288E296819DFD103DECF7C279AC0B0E280B0F8E2"
+}

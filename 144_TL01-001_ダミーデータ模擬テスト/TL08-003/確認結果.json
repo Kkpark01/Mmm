@@ -1,0 +1,200 @@
+{
+  "checks": [
+    {
+      "name": "trailingBlankSerial stopped before DB",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "trailingBlankSerial old values cleared",
+      "actual": 0.0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "trailingBlankSerial outside left",
+      "actual": "OutsideLeft",
+      "expected": "OutsideLeft",
+      "pass": true
+    },
+    {
+      "name": "trailingBlankSerial outside right",
+      "actual": "OutsideRight",
+      "expected": "OutsideRight",
+      "pass": true
+    },
+    {
+      "name": "trailingBlankSerial outside above",
+      "actual": "OutsideAbove",
+      "expected": "OutsideAbove",
+      "pass": true
+    },
+    {
+      "name": "trailingBlankSerial contract input",
+      "actual": "Contract",
+      "expected": "Contract",
+      "pass": true
+    },
+    {
+      "name": "trailingBlankSerial formatting cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    },
+    {
+      "name": "trailingBlankSerial border cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial stopped before DB",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial old values cleared",
+      "actual": 0.0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial outside left",
+      "actual": "OutsideLeft",
+      "expected": "OutsideLeft",
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial outside right",
+      "actual": "OutsideRight",
+      "expected": "OutsideRight",
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial outside above",
+      "actual": "OutsideAbove",
+      "expected": "OutsideAbove",
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial contract input",
+      "actual": "Contract",
+      "expected": "Contract",
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial formatting cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    },
+    {
+      "name": "allBlankSerial border cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    },
+    {
+      "name": "empty stopped before DB",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "empty old values cleared",
+      "actual": 0.0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "empty outside left",
+      "actual": "OutsideLeft",
+      "expected": "OutsideLeft",
+      "pass": true
+    },
+    {
+      "name": "empty outside right",
+      "actual": "OutsideRight",
+      "expected": "OutsideRight",
+      "pass": true
+    },
+    {
+      "name": "empty outside above",
+      "actual": "OutsideAbove",
+      "expected": "OutsideAbove",
+      "pass": true
+    },
+    {
+      "name": "empty contract input",
+      "actual": "Contract",
+      "expected": "Contract",
+      "pass": true
+    },
+    {
+      "name": "empty formatting cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    },
+    {
+      "name": "empty border cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    },
+    {
+      "name": "formulaTail stopped before DB",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "name": "formulaTail old values cleared",
+      "actual": 0.0,
+      "expected": 0,
+      "pass": true
+    },
+    {
+      "name": "formulaTail outside left",
+      "actual": "OutsideLeft",
+      "expected": "OutsideLeft",
+      "pass": true
+    },
+    {
+      "name": "formulaTail outside right",
+      "actual": "OutsideRight",
+      "expected": "OutsideRight",
+      "pass": true
+    },
+    {
+      "name": "formulaTail outside above",
+      "actual": "OutsideAbove",
+      "expected": "OutsideAbove",
+      "pass": true
+    },
+    {
+      "name": "formulaTail contract input",
+      "actual": "Contract",
+      "expected": "Contract",
+      "pass": true
+    },
+    {
+      "name": "formulaTail formatting cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    },
+    {
+      "name": "formulaTail border cleared",
+      "actual": -4142,
+      "expected": "-4142",
+      "pass": true
+    }
+  ],
+  "sourceVersion": "139修正版",
+  "fileSha256": "27EF1CAE14C94EF4E1FE1C08D38FBCFC0C222AD1A2B9DE5F990CE2934182A917",
+  "testDate": "2026-11-02",
+  "formalPass": false
+}

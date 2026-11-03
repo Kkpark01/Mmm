@@ -1,0 +1,60 @@
+{
+  "input": {
+    "rows": 4,
+    "groups": 2
+  },
+  "expectedDetailRows": 3,
+  "expectedTotalRows": 5,
+  "columns": [
+    "A",
+    "G",
+    "U",
+    "AH",
+    "AI",
+    "AM"
+  ],
+  "rows": [
+    [
+      "◆模擬構成A",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "模擬メーカー",
+      "模擬センサ",
+      "SIM-SENSOR-01",
+      2,
+      "SIM-SEIBAN-01",
+      "S/N： SIM-SERIAL-A / SIM-SERIAL-B"
+    ],
+    [
+      "模擬メーカー",
+      "模擬モーター",
+      "SIM-MOTOR-02",
+      1,
+      "SIM-SEIBAN-02",
+      null
+    ],
+    [
+      "◆模擬構成B",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "模擬メーカー",
+      "模擬センサ",
+      "SIM-SENSOR-01",
+      3,
+      "SIM-SEIBAN-03",
+      "S/N： SIM-SERIAL-C"
+    ]
+  ],
+  "borders": "構成見出しA・Gは左罫線なし、明細A・Gは左罫線あり",
+  "independentVerification": "保存後のxlsxを読み直し、全明細・行数・罫線を照合"
+}

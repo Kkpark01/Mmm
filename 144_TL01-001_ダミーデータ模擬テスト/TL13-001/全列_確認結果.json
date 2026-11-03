@@ -1,0 +1,742 @@
+﻿{
+    "checks":  [
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し1",
+                       "actual":  "H1",
+                       "expected":  "H1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー1",
+                       "actual":  "B-1",
+                       "expected":  "B-1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ1",
+                       "actual":  "NEW-1",
+                       "expected":  "NEW-1",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し2",
+                       "actual":  "H2",
+                       "expected":  "H2",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー2",
+                       "actual":  "B-2",
+                       "expected":  "B-2",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ2",
+                       "actual":  "NEW-2",
+                       "expected":  "NEW-2",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し3",
+                       "actual":  "H3",
+                       "expected":  "H3",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー3",
+                       "actual":  "B-3",
+                       "expected":  "B-3",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ3",
+                       "actual":  "NEW-3",
+                       "expected":  "NEW-3",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し4",
+                       "actual":  "H4",
+                       "expected":  "H4",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー4",
+                       "actual":  "B-4",
+                       "expected":  "B-4",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ4",
+                       "actual":  "NEW-4",
+                       "expected":  "NEW-4",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し5",
+                       "actual":  "H5",
+                       "expected":  "H5",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー5",
+                       "actual":  "B-5",
+                       "expected":  "B-5",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ5",
+                       "actual":  "NEW-5",
+                       "expected":  "NEW-5",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し6",
+                       "actual":  "H6",
+                       "expected":  "H6",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー6",
+                       "actual":  "B-6",
+                       "expected":  "B-6",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ6",
+                       "actual":  "NEW-6",
+                       "expected":  "NEW-6",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し7",
+                       "actual":  "H7",
+                       "expected":  "H7",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー7",
+                       "actual":  "B-7",
+                       "expected":  "B-7",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ7",
+                       "actual":  "NEW-7",
+                       "expected":  "NEW-7",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し8",
+                       "actual":  "H8",
+                       "expected":  "H8",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー8",
+                       "actual":  "B-8",
+                       "expected":  "B-8",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ8",
+                       "actual":  "NEW-8",
+                       "expected":  "NEW-8",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し9",
+                       "actual":  "H9",
+                       "expected":  "H9",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー9",
+                       "actual":  "B-9",
+                       "expected":  "B-9",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ9",
+                       "actual":  "NEW-9",
+                       "expected":  "NEW-9",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し10",
+                       "actual":  "H10",
+                       "expected":  "H10",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー10",
+                       "actual":  "B-10",
+                       "expected":  "B-10",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ10",
+                       "actual":  "NEW-10",
+                       "expected":  "NEW-10",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し11",
+                       "actual":  "H11",
+                       "expected":  "H11",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー11",
+                       "actual":  "B-11",
+                       "expected":  "B-11",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ11",
+                       "actual":  "NEW-11",
+                       "expected":  "NEW-11",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し12",
+                       "actual":  "H12",
+                       "expected":  "H12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー12",
+                       "actual":  "B-12",
+                       "expected":  "B-12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ12",
+                       "actual":  "NEW-12",
+                       "expected":  "NEW-12",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し13",
+                       "actual":  "H13",
+                       "expected":  "H13",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー13",
+                       "actual":  "B-13",
+                       "expected":  "B-13",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ13",
+                       "actual":  "NEW-13",
+                       "expected":  "NEW-13",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し14",
+                       "actual":  "H14",
+                       "expected":  "H14",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー14",
+                       "actual":  "B-14",
+                       "expected":  "B-14",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ14",
+                       "actual":  "NEW-14",
+                       "expected":  "NEW-14",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し15",
+                       "actual":  "H15",
+                       "expected":  "H15",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー15",
+                       "actual":  "B-15",
+                       "expected":  "B-15",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ15",
+                       "actual":  "NEW-15",
+                       "expected":  "NEW-15",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し16",
+                       "actual":  "H16",
+                       "expected":  "H16",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー16",
+                       "actual":  "B-16",
+                       "expected":  "B-16",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ16",
+                       "actual":  "NEW-16",
+                       "expected":  "NEW-16",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し17",
+                       "actual":  "H17",
+                       "expected":  "H17",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー17",
+                       "actual":  "B-17",
+                       "expected":  "B-17",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ17",
+                       "actual":  "NEW-17",
+                       "expected":  "NEW-17",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し18",
+                       "actual":  "H18",
+                       "expected":  "H18",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー18",
+                       "actual":  "B-18",
+                       "expected":  "B-18",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ18",
+                       "actual":  "NEW-18",
+                       "expected":  "NEW-18",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し19",
+                       "actual":  "H19",
+                       "expected":  "H19",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー19",
+                       "actual":  "B-19",
+                       "expected":  "B-19",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ19",
+                       "actual":  "NEW-19",
+                       "expected":  "NEW-19",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し20",
+                       "actual":  "H20",
+                       "expected":  "H20",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー20",
+                       "actual":  "B-20",
+                       "expected":  "B-20",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ20",
+                       "actual":  "NEW-20",
+                       "expected":  "NEW-20",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し21",
+                       "actual":  "H21",
+                       "expected":  "H21",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー21",
+                       "actual":  "B-21",
+                       "expected":  "B-21",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ21",
+                       "actual":  "NEW-21",
+                       "expected":  "NEW-21",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し22",
+                       "actual":  "H22",
+                       "expected":  "H22",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー22",
+                       "actual":  "B-22",
+                       "expected":  "B-22",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ22",
+                       "actual":  "NEW-22",
+                       "expected":  "NEW-22",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し23",
+                       "actual":  "H23",
+                       "expected":  "H23",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー23",
+                       "actual":  "B-23",
+                       "expected":  "B-23",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ23",
+                       "actual":  "NEW-23",
+                       "expected":  "NEW-23",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し24",
+                       "actual":  "H24",
+                       "expected":  "H24",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー24",
+                       "actual":  "B-24",
+                       "expected":  "B-24",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ24",
+                       "actual":  "NEW-24",
+                       "expected":  "NEW-24",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し25",
+                       "actual":  "H25",
+                       "expected":  "H25",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー25",
+                       "actual":  "B-25",
+                       "expected":  "B-25",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ25",
+                       "actual":  "NEW-25",
+                       "expected":  "NEW-25",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し26",
+                       "actual":  "H26",
+                       "expected":  "H26",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー26",
+                       "actual":  "B-26",
+                       "expected":  "B-26",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ26",
+                       "actual":  "NEW-26",
+                       "expected":  "NEW-26",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し27",
+                       "actual":  "H27",
+                       "expected":  "H27",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー27",
+                       "actual":  "B-27",
+                       "expected":  "B-27",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ27",
+                       "actual":  "NEW-27",
+                       "expected":  "NEW-27",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し28",
+                       "actual":  "H28",
+                       "expected":  "H28",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー28",
+                       "actual":  "B-28",
+                       "expected":  "B-28",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ28",
+                       "actual":  "NEW-28",
+                       "expected":  "NEW-28",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し29",
+                       "actual":  "H29",
+                       "expected":  "H29",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー29",
+                       "actual":  "B-29",
+                       "expected":  "B-29",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ29",
+                       "actual":  "NEW-29",
+                       "expected":  "NEW-29",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し30",
+                       "actual":  "H30",
+                       "expected":  "H30",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー30",
+                       "actual":  "B-30",
+                       "expected":  "B-30",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ30",
+                       "actual":  "NEW-30",
+                       "expected":  "NEW-30",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し31",
+                       "actual":  "H31",
+                       "expected":  "H31",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー31",
+                       "actual":  "B-31",
+                       "expected":  "B-31",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ31",
+                       "actual":  "NEW-31",
+                       "expected":  "NEW-31",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し32",
+                       "actual":  "H32",
+                       "expected":  "H32",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー32",
+                       "actual":  "B-32",
+                       "expected":  "B-32",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ32",
+                       "actual":  "NEW-32",
+                       "expected":  "NEW-32",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し33",
+                       "actual":  "H33",
+                       "expected":  "H33",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー33",
+                       "actual":  "B-33",
+                       "expected":  "B-33",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ33",
+                       "actual":  "NEW-33",
+                       "expected":  "NEW-33",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "見出し34",
+                       "actual":  "H34",
+                       "expected":  "H34",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "別キー34",
+                       "actual":  "B-34",
+                       "expected":  "B-34",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "重複後ろ34",
+                       "actual":  "NEW-34",
+                       "expected":  "NEW-34",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "内部キー見出し削除",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "内部キー1消去",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "case":  "TL13-001",
+                       "item":  "余分な行なし",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "173B558A9F2F5D169C9D66B07928F9AF3942617A9D6172A5B276AAEC8714B18F",
+    "sourceUnchanged":  true,
+    "note":  "131版の検索処理を実行。取得を34列3行のダミーに置換。実SQL・DB・ボタン・ダイアログ未実施"
+}

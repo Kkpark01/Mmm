@@ -1,0 +1,50 @@
+{
+  "case": "TL06-005",
+  "checks": [
+    {
+      "item": "対象契約ID",
+      "actual": "A",
+      "expected": "A",
+      "pass": true
+    },
+    {
+      "item": "契約IDの重複除去後の件数",
+      "actual": "1",
+      "expected": "1",
+      "pass": true
+    },
+    {
+      "item": "取引先名",
+      "actual": "模擬取引先",
+      "expected": "模擬取引先",
+      "pass": true
+    },
+    {
+      "item": "契約No",
+      "actual": "SIM-2026",
+      "expected": "SIM-2026",
+      "pass": true
+    },
+    {
+      "item": "合計価格",
+      "actual": "120000",
+      "expected": "120000",
+      "pass": true
+    },
+    {
+      "item": "支払回数",
+      "actual": "12",
+      "expected": "12",
+      "pass": true
+    },
+    {
+      "item": "支払金額（月払い）",
+      "actual": "10000",
+      "expected": "10000",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+  "sourceUnchanged": true,
+  "note": "取得済み模擬行を131版VBAで条件抽出・重複除去・計算。契約期間は加工途中に模擬投入し、製番取得は未実施。DB・画面・テンプレートへの保存は未実施"
+}

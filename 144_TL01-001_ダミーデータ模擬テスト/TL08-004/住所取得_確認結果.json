@@ -1,0 +1,31 @@
+﻿{
+    "checks":  [
+                   {
+                       "item":  "一致時の住所",
+                       "actual":  "模擬市1-2-3",
+                       "expected":  "模擬市1-2-3",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "一致時通知なし",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "不一致の通知",
+                       "actual":  "住所が見つかりませんでした。",
+                       "expected":  "住所が見つかりませんでした。",
+                       "pass":  true
+                   },
+                   {
+                       "item":  "不一致時は前の住所が残る",
+                       "actual":  "模擬市1-2-3",
+                       "expected":  "模擬市1-2-3",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "4C4DDECCE06068B50962791076D15DFCE15D30FCD8F3015410CAD83C6B903320",
+    "sourceUnchanged":  true,
+    "note":  "131版のAddressGetを実行。参照先は架空ファイルに差替、見つからない通知は文字記録に置換。実TSSA・実画面・会社編集版は未確認。"
+}

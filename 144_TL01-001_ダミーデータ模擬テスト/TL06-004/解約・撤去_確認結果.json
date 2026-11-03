@@ -1,0 +1,56 @@
+{
+  "checks": [
+    {
+      "item": "残る機器ID",
+      "actual": [
+        "SIM-2",
+        "SIM-4",
+        "SIM-5"
+      ],
+      "expected": [
+        "SIM-2",
+        "SIM-4",
+        "SIM-5"
+      ],
+      "pass": true
+    },
+    {
+      "item": "条件該当の削除",
+      "actual": true,
+      "expected": true,
+      "pass": true
+    },
+    {
+      "item": "通常行のHW製番",
+      "actual": "HW-2",
+      "expected": "HW-2",
+      "pass": true
+    },
+    {
+      "item": "通常行のSW製番",
+      "actual": "SW-2",
+      "expected": "SW-2",
+      "pass": true
+    },
+    {
+      "item": "解約後残存行のHW製番",
+      "actual": null,
+      "expected": null,
+      "pass": true
+    },
+    {
+      "item": "解約後残存行のSW製番",
+      "actual": null,
+      "expected": null,
+      "pass": true
+    },
+    {
+      "item": "撤去済だが解約日なしのHW製番",
+      "actual": "HW-5",
+      "expected": "HW-5",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+  "templateSha256": "2B666F2FEB8F6F2134ABB4B24CA984D6F5AAE60859345A5F663B1575EA90C1A4"
+}

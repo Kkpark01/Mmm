@@ -1,0 +1,25 @@
+﻿{
+    "checks":  [
+                   {
+                       "query":  "queries/T21_00_0_01.sql",
+                       "success":  true,
+                       "columns":  34,
+                       "rows":  1,
+                       "wrongMonthRows":  0,
+                       "afterDateRows":  0,
+                       "error":  "",
+                       "pass":  true
+                   },
+                   {
+                       "query":  "queries/T21_00_1_01.sql",
+                       "success":  true,
+                       "columns":  34,
+                       "rows":  1,
+                       "wrongMonthRows":  0,
+                       "afterDateRows":  -1,
+                       "error":  "",
+                       "pass":  true
+                   }
+               ],
+    "note":  "SQLから推定した列構成の一時テーブルへ各1行の架空データを入れ、全文を実行。実DBや実際の列型との一致は未確認。"
+}

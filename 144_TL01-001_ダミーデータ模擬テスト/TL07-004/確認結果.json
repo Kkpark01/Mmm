@@ -1,0 +1,80 @@
+{
+  "checks": [
+    {
+      "item": "サポートID",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "item": "契約番号",
+      "actual": "SIM-CONTRACT",
+      "expected": "SIM-CONTRACT",
+      "pass": true
+    },
+    {
+      "item": "納入先",
+      "actual": "模擬納入先",
+      "expected": "模擬納入先",
+      "pass": true
+    },
+    {
+      "item": "工場",
+      "actual": "模擬工場",
+      "expected": "模擬工場",
+      "pass": true
+    },
+    {
+      "item": "システム",
+      "actual": "模擬システム",
+      "expected": "模擬システム",
+      "pass": true
+    },
+    {
+      "item": "機器A品名",
+      "actual": "機器A",
+      "expected": "機器A",
+      "pass": true
+    },
+    {
+      "item": "機器A型式と集計数量",
+      "actual": "MODEL-A / 5",
+      "expected": "MODEL-A / 5",
+      "pass": true
+    },
+    {
+      "item": "機器B品名",
+      "actual": "機器B",
+      "expected": "機器B",
+      "pass": true
+    },
+    {
+      "item": "機器B型式と数量",
+      "actual": "MODEL-B / 1",
+      "expected": "MODEL-B / 1",
+      "pass": true
+    },
+    {
+      "item": "保守会社",
+      "actual": "模擬保守会社",
+      "expected": "模擬保守会社",
+      "pass": true
+    },
+    {
+      "item": "取引先",
+      "actual": "模擬取引先",
+      "expected": "模擬取引先",
+      "pass": true
+    },
+    {
+      "item": "出力行数",
+      "actual": "1",
+      "expected": "1",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "6A8149B68330CF548C63C491D8A21A64BA0D64EF4C51D9CC2121C30416A1DA3D",
+  "sourceUnchanged": true,
+  "output": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\検証記録\\20261103_TL07_模擬テスト\\点検出力_試験4\\Notes取込用点検データ_20261103_1209抽出.xls",
+  "note": "131版Groupingを34列の模擬取得済みデータとブック内原紙で実行。完了MsgBoxのみ記録に差替。実際の①取得後のM列追加状態・DB・画面は未確認"
+}

@@ -1,0 +1,7 @@
+{
+  "test": "131版の132行目と同じ右辺を試験専用ExcelのVBAに記述して実行",
+  "dialog_title": "Microsoft Visual Basic for Applications",
+  "dialog_text": "コンパイル エラー:\n\n構文エラー",
+  "observation": "対象の試験専用ExcelのダイアログをWindowsのウィンドウ情報から読み取り。OK後、試験専用Excelを停止。",
+  "limitations": "元ブック全体のコンパイル、会社編集版、実画面操作は未確認。"
+}

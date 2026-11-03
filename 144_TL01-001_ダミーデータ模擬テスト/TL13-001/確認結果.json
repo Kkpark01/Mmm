@@ -1,0 +1,37 @@
+{
+  "checks": [
+    {
+      "item": "残った件数",
+      "actual": "2",
+      "expected": "2",
+      "pass": true
+    },
+    {
+      "item": "別キーの保持",
+      "actual": "別の個体",
+      "expected": "別の個体",
+      "pass": true
+    },
+    {
+      "item": "同じキーは後ろを保持",
+      "actual": "新しい",
+      "expected": "新しい",
+      "pass": true
+    },
+    {
+      "item": "見出し保持",
+      "actual": "見出し2",
+      "expected": "見出し2",
+      "pass": true
+    },
+    {
+      "item": "内部キー列を削除",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "173B558A9F2F5D169C9D66B07928F9AF3942617A9D6172A5B276AAEC8714B18F",
+  "sourceUnchanged": true,
+  "note": "取得後の重複除去VBAだけを独立実行。DB抽出・検索条件・画面操作は未実行"
+}

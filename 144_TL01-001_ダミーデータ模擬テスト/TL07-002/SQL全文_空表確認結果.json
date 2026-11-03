@@ -1,0 +1,19 @@
+﻿{
+    "checks":  [
+                   {
+                       "query":  "queries/T21_00_0_01.sql",
+                       "success":  true,
+                       "columns":  34,
+                       "error":  "",
+                       "pass":  true
+                   },
+                   {
+                       "query":  "queries/T21_00_1_01.sql",
+                       "success":  true,
+                       "columns":  34,
+                       "error":  "",
+                       "pass":  true
+                   }
+               ],
+    "note":  "SQLの参照列から推定した空の一時テーブルで全文実行。列型は仮定、実データ・実DBとの一致や検索結果は未確認。"
+}

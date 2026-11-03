@@ -1,0 +1,31 @@
+{
+  "checks": [
+    {
+      "case": "両方",
+      "actual": "A|B",
+      "expected": "A|B",
+      "pass": true
+    },
+    {
+      "case": "IDのみ",
+      "actual": "A",
+      "expected": "A",
+      "pass": true
+    },
+    {
+      "case": "納入先のみ",
+      "actual": "B",
+      "expected": "B",
+      "pass": true
+    },
+    {
+      "case": "全空欄",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "153CE3F0FED0ADEF49849311743A9F84537B1630B0B706EC866C7A7555B17E24",
+  "sourceUnchanged": true,
+  "note": "SQL01のWHERE節のみを抽出し、架空の5行をローカルSQL Serverの接続内一時表で検証。結合・他2本・DB実データ・画面との連携は未実行"
+}

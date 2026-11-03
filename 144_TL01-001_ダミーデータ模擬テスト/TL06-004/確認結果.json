@@ -1,0 +1,122 @@
+{
+  "checks": [
+    {
+      "item": "A15",
+      "expected": "模擬店舗",
+      "actual": "模擬店舗",
+      "pass": true
+    },
+    {
+      "item": "B15",
+      "expected": "分類A",
+      "actual": "分類A",
+      "pass": true
+    },
+    {
+      "item": "D15",
+      "expected": "0000123",
+      "actual": "0000123",
+      "pass": true
+    },
+    {
+      "item": "E15",
+      "expected": "ABC",
+      "actual": "ABC",
+      "pass": true
+    },
+    {
+      "item": "G15",
+      "expected": "模擬納入先",
+      "actual": "模擬納入先",
+      "pass": true
+    },
+    {
+      "item": "T15",
+      "expected": "模擬機器2",
+      "actual": "模擬機器2",
+      "pass": true
+    },
+    {
+      "item": "U15",
+      "expected": "MODEL2",
+      "actual": "MODEL2",
+      "pass": true
+    },
+    {
+      "item": "W15",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "item": "AY15",
+      "expected": "SIM-2",
+      "actual": "SIM-2",
+      "pass": true
+    },
+    {
+      "item": "A16",
+      "expected": "模擬店舗",
+      "actual": "模擬店舗",
+      "pass": true
+    },
+    {
+      "item": "B16",
+      "expected": "分類A",
+      "actual": "分類A",
+      "pass": true
+    },
+    {
+      "item": "D16",
+      "expected": "0000123",
+      "actual": "0000123",
+      "pass": true
+    },
+    {
+      "item": "E16",
+      "expected": "ABC",
+      "actual": "ABC",
+      "pass": true
+    },
+    {
+      "item": "G16",
+      "expected": "模擬納入先",
+      "actual": "模擬納入先",
+      "pass": true
+    },
+    {
+      "item": "T16",
+      "expected": "模擬機器3",
+      "actual": "模擬機器3",
+      "pass": true
+    },
+    {
+      "item": "U16",
+      "expected": "MODEL3",
+      "actual": "MODEL3",
+      "pass": true
+    },
+    {
+      "item": "W16",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "item": "AY16",
+      "expected": "SIM-3",
+      "actual": "SIM-3",
+      "pass": true
+    },
+    {
+      "item": "17行目に次のIDなし",
+      "expected": null,
+      "actual": null,
+      "pass": true
+    }
+  ],
+  "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+  "templateSha256": "2B666F2FEB8F6F2134ABB4B24CA984D6F5AAE60859345A5F663B1575EA90C1A4",
+  "status": "OK",
+  "message": "終息リスト書き出し完了"
+}

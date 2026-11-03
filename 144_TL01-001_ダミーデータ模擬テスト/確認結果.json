@@ -1,0 +1,224 @@
+{
+  "caseId": "TL01-001",
+  "kind": "synthetic partial scenario",
+  "source": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\131_マクロ出力先_実行フォルダ\\配布用\\MCM業務マクロ\\04_取引先見積依頼書\\取引先見積依頼書発行ver2.6.xlsm",
+  "sourceSha256": "04d376cdb9a0b46f5276863f46834a1593a7855ca9b94b3228b6d25e1d6440dc",
+  "realDatabase": false,
+  "realUiOperation": false,
+  "actualDialogDisplayed": false,
+  "capturedMessage": "[見積依頼書_模擬納入先 模擬工場20261103_063048.xlsx]ファイルを保存しました。",
+  "started": "2026-11-03T06:30:48.1662371+09:00",
+  "finished": "2026-11-03T06:30:49.6669170+09:00",
+  "sourceOutput": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\検証記録\\20261103_TL01-001_模擬シナリオ\\見積依頼書_模擬納入先 模擬工場20261103_063048.xlsx",
+  "deliveredOutput": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\144_TL01-001_ダミーデータ模擬テスト\\出力結果\\見積依頼書_模擬納入先 模擬工場20261103_063048.xlsx",
+  "pilotObservation": "C:\\Users\\teras\\Desktop\\遠隔操作用\\MCM\\修正コード\\144_TL01-001_ダミーデータ模擬テスト\\出力結果\\操作シート_模擬実行後.xlsx",
+  "checks": [
+    {
+      "item": "原紙の図形なし（セルコピーで欠落しない）",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    },
+    {
+      "item": "取得差替え入口",
+      "expected": "M07:取引先見積SQL",
+      "actual": "M07:取引先見積SQL",
+      "pass": true
+    },
+    {
+      "item": "入力C3",
+      "expected": "SIM-TL01-001",
+      "actual": "SIM-TL01-001",
+      "pass": true
+    },
+    {
+      "item": "操作シートF3",
+      "expected": "SIM0001",
+      "actual": "SIM0001",
+      "pass": true
+    },
+    {
+      "item": "操作シートF5",
+      "expected": "模擬納入先",
+      "actual": "模擬納入先",
+      "pass": true
+    },
+    {
+      "item": "操作シートF6",
+      "expected": "模擬工場",
+      "actual": "模擬工場",
+      "pass": true
+    },
+    {
+      "item": "操作シートF7",
+      "expected": "模擬プラント",
+      "actual": "模擬プラント",
+      "pass": true
+    },
+    {
+      "item": "操作シートF8",
+      "expected": "模擬取引先",
+      "actual": "模擬取引先",
+      "pass": true
+    },
+    {
+      "item": "操作シートF4表示（先頭0）",
+      "expected": "12345",
+      "actual": "12345",
+      "pass": true
+    },
+    {
+      "item": "投入後データのサポートID保持（構成見出しの次行）",
+      "expected": "0012345",
+      "actual": "0012345",
+      "pass": true
+    },
+    {
+      "item": "ファイル名パターン",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "item": "保存名の実行日時",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "item": "同じフォルダーに保存",
+      "expected": true,
+      "actual": true,
+      "pass": true
+    },
+    {
+      "item": "成功通知の文言",
+      "expected": "[見積依頼書_模擬納入先 模擬工場20261103_063048.xlsx]ファイルを保存しました。",
+      "actual": "[見積依頼書_模擬納入先 模擬工場20261103_063048.xlsx]ファイルを保存しました。",
+      "pass": true
+    },
+    {
+      "item": "余分な通知なし",
+      "expected": 2,
+      "actual": 2,
+      "pass": true
+    },
+    {
+      "item": "帳票シート数",
+      "expected": 1,
+      "actual": 1,
+      "pass": true
+    },
+    {
+      "item": "帳票シート名",
+      "expected": "保守見積依頼",
+      "actual": "保守見積依頼",
+      "pass": true
+    },
+    {
+      "item": "帳票A1",
+      "expected": "模擬取引先　御中",
+      "actual": "模擬取引先　御中",
+      "pass": true
+    },
+    {
+      "item": "帳票AV2",
+      "expected": "SIM-TL01-001",
+      "actual": "SIM-TL01-001",
+      "pass": true
+    },
+    {
+      "item": "帳票G3",
+      "expected": "模擬納入先",
+      "actual": "模擬納入先",
+      "pass": true
+    },
+    {
+      "item": "帳票G4",
+      "expected": "模擬県模擬市1-2-3",
+      "actual": "模擬県模擬市1-2-3",
+      "pass": true
+    },
+    {
+      "item": "帳票G5",
+      "expected": "模擬建屋2階",
+      "actual": "模擬建屋2階",
+      "pass": true
+    },
+    {
+      "item": "帳票AI4",
+      "expected": "8",
+      "actual": "8",
+      "pass": true
+    },
+    {
+      "item": "帳票AV4",
+      "expected": "ｵﾝｻｲﾄ",
+      "actual": "ｵﾝｻｲﾄ",
+      "pass": true
+    },
+    {
+      "item": "帳票AI5",
+      "expected": "点検あり",
+      "actual": "点検あり",
+      "pass": true
+    },
+    {
+      "item": "帳票AQ5",
+      "expected": "月～土",
+      "actual": "月～土",
+      "pass": true
+    },
+    {
+      "item": "帳票AZ5",
+      "expected": "夜間対応なし",
+      "actual": "夜間対応なし",
+      "pass": true
+    },
+    {
+      "item": "回答希望日AI3の日付値",
+      "expected": 46336.0,
+      "actual": 46336.0,
+      "pass": true
+    },
+    {
+      "item": "依頼日AV3の日付値",
+      "expected": 46329.0,
+      "actual": 46329.0,
+      "pass": true
+    },
+    {
+      "item": "テンプレート再非表示",
+      "expected": 0,
+      "actual": 0,
+      "pass": true
+    }
+  ],
+  "originalVersionComparison": {
+    "source": "元の機能との比較.md",
+    "comparedVersions": [
+      "受領原版20261027",
+      "受領原版20261028",
+      "改修版131"
+    ],
+    "input": "0012345",
+    "allDisplay": "12345",
+    "migrationRegressionDetected": false,
+    "classification": "仕様書期待値を原版へ訂正済み。元の機能との差異なし。",
+    "scope": "原版から抽出した実転記処理を同条件で実行。実DB・実画面未確認"
+  },
+  "summary": {
+    "scope": "ダミーデータによる模擬テスト",
+    "result": "合格（模擬確認範囲）",
+    "matched": 30,
+    "mismatched": 0,
+    "officialResult": "未実施（DB接続・実画面操作等は未確認）"
+  },
+  "expectationCorrection": {
+    "item": "操作シートF4",
+    "previousExpected": "0012345",
+    "correctedExpected": "12345",
+    "reason": "受領原版2本と131の実転記処理・General書式に準拠",
+    "reassessment": "既存の実測値で再判定。業務処理の再実行や出力値の改変はしていない"
+  }
+}

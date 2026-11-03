@@ -1,0 +1,51 @@
+{
+  "caseId": "TL02-006",
+  "source": "131配布版",
+  "scope": "ダミーデータを使用した部分確認",
+  "officialResult": "未実施",
+  "databaseAccess": false,
+  "actualUiOperation": false,
+  "actualDialogDisplayed": false,
+  "checks": [
+    {
+      "case": "共通",
+      "item": "データ件数",
+      "expected": 3,
+      "actual": 3,
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E2",
+      "expected": "SIM-A",
+      "actual": "SIM-A",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E3",
+      "expected": "SIM-B",
+      "actual": "SIM-B",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "契約 E4",
+      "expected": "SIM-C",
+      "actual": "SIM-C",
+      "pass": true
+    },
+    {
+      "case": "共通",
+      "item": "取得完了通知文",
+      "expected": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "actual": "支払データ取得しました。\r\n\r\n引き続き、【BCP対策】支払いリストと照合してください。",
+      "pass": true
+    }
+  ],
+  "status": "一覧加工の模擬比較では52セル一致",
+  "legacyOracleFunctionExecuted": false,
+  "legacyAmounts": "手計算の期待値",
+  "newAmounts": "131の計算関数",
+  "comparison": "比較結果.json"
+}

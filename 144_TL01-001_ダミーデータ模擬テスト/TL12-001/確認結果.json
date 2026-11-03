@@ -1,0 +1,343 @@
+{
+  "checks": [
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目1列",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目2列",
+      "actual": "模擬納入先A",
+      "expected": "模擬納入先A",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目3列",
+      "actual": "2026/03/15",
+      "expected": "2026/03/15",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目4列",
+      "actual": "REQ-001",
+      "expected": "REQ-001",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目5列",
+      "actual": "8",
+      "expected": "8",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目6列",
+      "actual": "模擬取引先A",
+      "expected": "模擬取引先A",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目7列",
+      "actual": "模擬メーカ",
+      "expected": "模擬メーカ",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目8列",
+      "actual": "MODEL ABC",
+      "expected": "MODEL ABC",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目9列",
+      "actual": "A-1",
+      "expected": "A-1",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目10列",
+      "actual": "0",
+      "expected": "0",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目11列",
+      "actual": "12000",
+      "expected": "12000",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "1行目12列",
+      "actual": "10000",
+      "expected": "10000",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目1列",
+      "actual": "0000456",
+      "expected": "0000456",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目2列",
+      "actual": "模擬納入先B",
+      "expected": "模擬納入先B",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目3列",
+      "actual": "2026/02/05",
+      "expected": "2026/02/05",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目4列",
+      "actual": "REQ-002",
+      "expected": "REQ-002",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目5列",
+      "actual": "24",
+      "expected": "24",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目6列",
+      "actual": "模擬取引先B",
+      "expected": "模擬取引先B",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目7列",
+      "actual": "模擬メーカ",
+      "expected": "模擬メーカ",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目8列",
+      "actual": "MODEL ABC2",
+      "expected": "MODEL ABC2",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目9列",
+      "actual": "A-2",
+      "expected": "A-2",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目10列",
+      "actual": "1",
+      "expected": "1",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目11列",
+      "actual": "24000",
+      "expected": "24000",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-abc",
+      "item": "2行目12列",
+      "actual": "20000",
+      "expected": "20000",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目1列",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目2列",
+      "actual": "模擬納入先A",
+      "expected": "模擬納入先A",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目3列",
+      "actual": "2026/03/15",
+      "expected": "2026/03/15",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目4列",
+      "actual": "REQ-001",
+      "expected": "REQ-001",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目5列",
+      "actual": "8",
+      "expected": "8",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目6列",
+      "actual": "模擬取引先A",
+      "expected": "模擬取引先A",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目7列",
+      "actual": "模擬メーカ",
+      "expected": "模擬メーカ",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目8列",
+      "actual": "MODEL ABC",
+      "expected": "MODEL ABC",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目9列",
+      "actual": "A-1",
+      "expected": "A-1",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目10列",
+      "actual": "0",
+      "expected": "0",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目11列",
+      "actual": "12000",
+      "expected": "12000",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "1行目12列",
+      "actual": "10000",
+      "expected": "10000",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去1列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去2列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去3列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去4列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去5列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去6列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去7列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去8列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去9列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去10列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去11列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "case": "TL12-001-ABC",
+      "item": "2行目旧結果の消去12列",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "49BAC3ABA79D63EC83DE9E1B10A8A931050391845F9BFCDD25A10512978A67EB",
+  "sourceUnchanged": true,
+  "note": "131版の検索・表示処理を実行。DB取得を架空データに置換し、初回2件、次回1件を意図的に返した。実DB・画面ボタン・ダイアログ未確認。"
+}

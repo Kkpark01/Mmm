@@ -1,0 +1,62 @@
+{
+  "checks": [
+    {
+      "item": "A15",
+      "actual": "再適用店舗",
+      "expected": "再適用店舗",
+      "pass": true
+    },
+    {
+      "item": "B15",
+      "actual": "通常分類",
+      "expected": "通常分類",
+      "pass": true
+    },
+    {
+      "item": "D15",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "item": "AY15",
+      "actual": "SIM-2",
+      "expected": "SIM-2",
+      "pass": true
+    },
+    {
+      "item": "A16",
+      "actual": "再適用店舗",
+      "expected": "再適用店舗",
+      "pass": true
+    },
+    {
+      "item": "B16",
+      "actual": "個別分類",
+      "expected": "個別分類",
+      "pass": true
+    },
+    {
+      "item": "D16",
+      "actual": "0000123",
+      "expected": "0000123",
+      "pass": true
+    },
+    {
+      "item": "AY16",
+      "actual": "SIM-3",
+      "expected": "SIM-3",
+      "pass": true
+    },
+    {
+      "item": "3行目なし",
+      "actual": null,
+      "expected": null,
+      "pass": true
+    }
+  ],
+  "sourceSha256": "3FDC2BD2D6014FEA546498DD384A2CD3F6639DDE449062536C512608E4B0DD0A",
+  "templateSha256": "2B666F2FEB8F6F2134ABB4B24CA984D6F5AAE60859345A5F663B1575EA90C1A4",
+  "method": "架空の入力・対応表。再適用2処理と一覧保存を連続実行。準備判定と完了通知のみ差替。",
+  "formalPass": false
+}

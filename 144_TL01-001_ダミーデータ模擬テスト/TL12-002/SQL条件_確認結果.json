@@ -1,0 +1,30 @@
+﻿{
+    "checks":  [
+                   {
+                       "model":  "%model%",
+                       "product":  "%pump%",
+                       "hours":  "8",
+                       "actual":  "A,B,C",
+                       "expected":  "A,B,C",
+                       "pass":  true
+                   },
+                   {
+                       "model":  "%MODEL%",
+                       "product":  "%PUMP%",
+                       "hours":  "24",
+                       "actual":  "D",
+                       "expected":  "D",
+                       "pass":  true
+                   },
+                   {
+                       "model":  "%none%",
+                       "product":  "%none%",
+                       "hours":  "8",
+                       "actual":  "",
+                       "expected":  "",
+                       "pass":  true
+                   }
+               ],
+    "sourceSha256":  "49bac3aba79d63ec83de9e1b10a8a931050391845f9bfcdd25a10512978a67eb",
+    "note":  "131版の埋込SQLからWHERE条件を抽出し、ローカルSQL Serverの架空データで照会。結合・GROUP BY・実DBは未確認。"
+}

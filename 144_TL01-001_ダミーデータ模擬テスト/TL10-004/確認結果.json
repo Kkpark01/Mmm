@@ -1,0 +1,67 @@
+{
+  "checks": [
+    {
+      "item": "空欄の判定",
+      "actual": "×",
+      "expected": "×",
+      "pass": true
+    },
+    {
+      "item": "空欄背景",
+      "actual": "15",
+      "expected": "15",
+      "pass": true
+    },
+    {
+      "item": "空欄文字色",
+      "actual": "3",
+      "expected": "3",
+      "pass": true
+    },
+    {
+      "item": "空欄太字",
+      "actual": "True",
+      "expected": "True",
+      "pass": true
+    },
+    {
+      "item": "空欄斜体",
+      "actual": "True",
+      "expected": "True",
+      "pass": true
+    },
+    {
+      "item": "撤去済は対象外",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "item": "有効日付は指摘なし",
+      "actual": "",
+      "expected": "",
+      "pass": true
+    },
+    {
+      "item": "不正な日付の判定",
+      "actual": "×",
+      "expected": "×",
+      "pass": true
+    },
+    {
+      "item": "日付欄の見出しマーク",
+      "actual": "▼",
+      "expected": "▼",
+      "pass": true
+    },
+    {
+      "item": "警告文の生成",
+      "actual": "・一次納入日の確認が必要な機器があります。",
+      "expected": "・一次納入日の確認が必要な機器があります。",
+      "pass": true
+    }
+  ],
+  "sourceSha256": "153CE3F0FED0ADEF49849311743A9F84537B1630B0B706EC866C7A7555B17E24",
+  "sourceUnchanged": true,
+  "note": "131版の日付チェック処理を独立実行。DB・画面操作・実メッセージは未確認"
+}

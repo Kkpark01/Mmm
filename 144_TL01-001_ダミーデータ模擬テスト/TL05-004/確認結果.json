@@ -1,0 +1,34 @@
+{
+  "checks": [
+    {
+      "case": "TL05-004",
+      "item": "未取得時のガード",
+      "actual": "ERROR:先に新MCMからデータを取得するか、CSVからの再開を完了してください。",
+      "expected": "ERROR:先に新MCMからデータを取得するか、CSVからの再開を完了してください。",
+      "pass": true
+    },
+    {
+      "case": "TL05-004",
+      "item": "準備途中のガード",
+      "actual": "ERROR:取得・加工が完了していません。最初から取得し直してください。",
+      "expected": "ERROR:取得・加工が完了していません。最初から取得し直してください。",
+      "pass": true
+    },
+    {
+      "case": "TL05-004",
+      "item": "準備完了時",
+      "actual": "OK",
+      "expected": "OK",
+      "pass": true
+    },
+    {
+      "case": "TL05-004",
+      "item": "無効化後のガード",
+      "actual": "ERROR:取得・加工が完了していません。最初から取得し直してください。",
+      "expected": "ERROR:取得・加工が完了していません。最初から取得し直してください。",
+      "pass": true
+    }
+  ],
+  "formalPass": false,
+  "sourceSha256": "D5DDD5E8A7592513378F7111BE4526A8E531352B067093D50F9E3617B804778D"
+}

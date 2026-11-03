@@ -1,0 +1,31 @@
+﻿Sub Exclusion_ContList()
+'契約中機器を解約機器データから削除
+'***********************************
+Dim contWS As Worksheet                     '// 取込データ（点検対象データ）シート指定
+Dim contRow As Long                         '// 取込データ最終行取得用
+Dim LastRow As Long                         '// 解約データ最終行取得用
+Dim rowsToDelete As Range
+CancelWS.Activate
+Set contWS = Worksheets("取込データ")
+LastRow = Cells(rows.count, 1).End(xlUp).row
+If LastRow < 2 Then Exit Sub
+contRow = contWS.Cells(rows.count, 1).End(xlUp).row
+'// 「取込データ」(点検対象シート)に出力されている機器と比較
+With Range(Cells(2, 7), Cells(LastRow, 7))
+.FormulaR1C1 = "=countif(" & contWS.name & "!R2C1:R" & contRow & "C1,RC1)"
+.value = .value
+End With
+'// 「取込データ」(点検対象シート)に出力されている機器は解約データから削除
+Range(Cells(1, 1), Cells(LastRow, 34)).AutoFilter field:=7, Criteria1:="<>0"
+' フィルターで表示されたデータ行だけを削除する（見出し・非対象行は保持）。
+Set rowsToDelete = Nothing
+On Error Resume Next
+Set rowsToDelete = CancelWS.Range(CancelWS.Cells(2, 1), CancelWS.Cells(LastRow, 34)).SpecialCells(xlCellTypeVisible)
+On Error GoTo 0
+If Not rowsToDelete Is Nothing Then
+' 非表示列で分割された範囲も、A列との交差で同じ行を一度だけ扱う。
+Set rowsToDelete = Application.Intersect(rowsToDelete.EntireRow, CancelWS.Columns(1))
+rowsToDelete.EntireRow.Delete
+End If
+CancelWS.AutoFilterMode = False
+End Sub

@@ -1,0 +1,84 @@
+﻿Sub Start_UserInfo()
+'メーカ契約書Noより点検データ抽出
+'******************************
+Dim Buf
+Dim Dest As String
+Dim lastRow As Long
+Dim resultColumn As Long
+Dim candidateLastRow As Long
+Dim CeCheck As Long
+Application.DisplayAlerts = False
+Application.ScreenUpdating = False
+'// 開始シートを記憶
+Set PilotWS = ActiveSheet
+Set TempWS = Worksheets("TMP_SQL")
+On Error Resume Next
+Worksheets("点検依頼対象").Delete
+On Error GoTo 0
+'// 契約書Noの記載確認
+If Len(Cells(14, 7)) = 0 Then
+Buf = MsgBox("契約Noの記載がありません。" & vbCrLf & vbCrLf & "処理を中止します。", vbExclamation)
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+End
+End If
+'// サポートIDの記載確認
+If Len(Cells(16, 7)) = 0 Then
+Buf = MsgBox("サポートIDの記載がありません。" & vbCrLf & vbCrLf & "処理を中止します。", vbExclamation)
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+End
+End If
+' シリアル番号の空欄に関係なく、結果欄K:V全体の最終行まで消去する。
+lastRow = 2
+For resultColumn = 11 To 22
+candidateLastRow = PilotWS.Cells(PilotWS.Rows.Count, resultColumn).End(xlUp).Row
+If candidateLastRow > lastRow Then lastRow = candidateLastRow
+Next resultColumn
+PilotWS.Range(PilotWS.Cells(2, 11), PilotWS.Cells(lastRow, 22)).Clear
+With TempWS
+'// 前回データクリア
+.columns(3).ClearContents
+.Cells(2, 3) = Format(Cells(16, 7), "0000000")    '// サポートID転記
+.Cells(3, 3) = Cells(14, 7)     '// 契約No転記
+End With
+Call ContNo_Split
+Call Create_SQL
+'// 点検依頼明細取込
+ArrayType = Array(1, 2, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2)
+Dest = "\点検依頼対象.csv"
+Call tran_csv(Dest)                         '// csvデータ取込
+' CSVは作成しないため削除しない。
+ActiveSheet.name = "点検依頼対象"
+Set exportWS = ActiveSheet
+'// 取込結果確認
+lastRow = Cells(rows.count, 12).End(xlUp).row
+If lastRow = 1 Then
+Buf = MsgBox("依頼対象機器の抽出に失敗しました。" & vbCrLf & vbCrLf & "契約番号を確認してください。", vbExclamation)
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+PilotWS.Activate
+End
+End If
+'// 重複データ削除
+Range(Cells(1, 1), Cells(lastRow, 13)).RemoveDuplicates columns:=13, header:=xlYes
+lastRow = Cells(rows.count, 13).End(xlUp).row
+'// 実行元シートにデータコピー
+Range(Cells(1, 1), Cells(lastRow, 12)).Copy _
+PilotWS.Cells(2, 11)
+PilotWS.Activate
+Range(Cells(2, 11), Cells(2, 22)).Interior.Color = RGB(192, 192, 192)   '// 項目行背景設定
+Range(Cells(2, 11), Cells(lastRow + 1, 22)).Borders.LineStyle = True    '// 枠罫線設定
+Application.CutCopyMode = False
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+'' 検索結果内の「製造メーカー名」を確認し、製造メーカーと依頼書作成先メーカーが異なっていないかを確認する。
+For CeCheck = 2 To lastRow
+If InStr(Cells(CeCheck + 1, 13), Cells(1, 6)) = 0 Then
+MsgBox "製造メーカー名 と 依頼書作成先メーカーが異なっている可能性があります。" & _
+vbCrLf & vbCrLf & "依頼書作成先メーカーが誤っていないか確認して下さい。"
+Exit For
+End If
+Next
+MsgBox "(*ﾟДﾟ)σデータ抽出よしっ！"
+End Sub
